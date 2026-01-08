@@ -95,3 +95,74 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// ============================================
+// Member CRM Models (Phase 2)
+// ============================================
+
+model Member {
+  id              String       @id @default(cuid())
+  firstName       String       @map("first_name")
+  lastName        String       @map("last_name")
+  email           String?      @unique
+  phone           String?
+  street          String?
+  city            String?
+  state           String?
+  zip             String?
+  dateOfBirth     DateTime?    @map("date_of_birth")
+  status          MemberStatus @default(active)
+  notes           String?      // Permission restricted (members.notes)
+  profilePhotoUrl String?      @map("profile_photo_url")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  householdMembers HouseholdMember[]
+
+  @@index([lastName])
+  @@index([email])
+  @@index([status])
+  @@map("members")
+}
+
+enum MemberStatus {
+  active
+  inactive
+  visitor
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  members HouseholdMember[]
+
+  @@map("households")
+}
+
+model HouseholdMember {
+  id               String           @id @default(cuid())
+  householdId      String           @map("household_id")
+  memberId         String           @map("member_id")
+  relationshipType RelationshipType @map("relationship_type")
+
+  // Relations
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, memberId])
+  @@index([householdId])
+  @@index([memberId])
+  @@map("household_members")
+}
+
+enum RelationshipType {
+  parent
+  child
+  spouse
+  other
+}

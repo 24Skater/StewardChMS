@@ -12,7 +12,7 @@ module.exports = {
   rules: {
     'react-refresh/only-export-components': [
       'warn',
-      { allowConstantExport: true, allowExportNames: ['buttonVariants', 'useAuth'] },
+      { allowConstantExport: true, allowExportNames: ['buttonVariants', 'badgeVariants', 'useAuth'] },
     ],
   },
 }

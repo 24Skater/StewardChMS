@@ -79,3 +79,35 @@ Template:
 - Reason: Flexible permission system that matches spec requirements; allows granular access control
 - Alternatives considered: Simple user.role field (too limited), attribute-based access control (over-engineered)
 - Impact: Permissions checked via JWT claims, refreshed on login
+
+---
+
+## Phase 2 Decisions
+
+### Decision 10: Member Soft Delete
+- Date: 2026-01-08
+- Decision: Deleting a member sets status to 'inactive' rather than hard delete
+- Reason: Preserves data integrity, maintains audit history, allows recovery; members may have historical relationships
+- Alternatives considered: Hard delete with CASCADE (loses history), archive table (more complex)
+- Impact: 'Deleted' members still exist in database; filters should exclude inactive by default
+
+### Decision 11: Member Notes Permission
+- Date: 2026-01-08
+- Decision: Separate `members.notes` permission required to view/edit the notes field
+- Reason: Notes may contain sensitive pastoral information; not all staff should access them
+- Alternatives considered: Single `members.write` for all fields (too permissive), per-field permissions (over-engineered)
+- Impact: Notes field excluded from API response unless user has permission; requires permission check on updates
+
+### Decision 12: CSV Import Processing
+- Date: 2026-01-08
+- Decision: Synchronous processing with 1000 row limit, inline validation errors
+- Reason: Simplicity for Phase 2; async processing with job queue adds significant complexity
+- Alternatives considered: Background jobs with status polling (better for large imports), streaming processing
+- Impact: Import blocks until complete; large imports may timeout. Revisit if larger imports needed.
+
+### Decision 13: Household-Member Relationship
+- Date: 2026-01-08
+- Decision: Many-to-many through HouseholdMember join table with relationshipType enum
+- Reason: Members can belong to multiple households; relationship context (parent, child, spouse) is important
+- Alternatives considered: Single household per member (too restrictive), self-referential family tree (more complex)
+- Impact: Flexible family structures supported; queries need to join through HouseholdMember table

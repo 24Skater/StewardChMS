@@ -24,3 +24,7 @@ export type ApiError = z.infer<typeof apiErrorSchema>
 // Auth schemas
 export * from './auth.js'
 
+// Member CRM schemas (Phase 2)
+export * from './members.js'
+export * from './households.js'
+

@@ -5,6 +5,7 @@ const prisma = new PrismaClient()
 
 // Default permissions for the system
 const DEFAULT_PERMISSIONS = [
+  // Admin permissions
   { key: 'admin.access', description: 'Access admin dashboard' },
   { key: 'users.read', description: 'View users' },
   { key: 'users.write', description: 'Create and update users' },
@@ -13,6 +14,11 @@ const DEFAULT_PERMISSIONS = [
   { key: 'roles.write', description: 'Create and update roles' },
   { key: 'roles.delete', description: 'Delete roles' },
   { key: 'audit.read', description: 'View audit logs' },
+  // Member CRM permissions (Phase 2)
+  { key: 'members.read', description: 'View members' },
+  { key: 'members.write', description: 'Create and update members' },
+  { key: 'members.delete', description: 'Delete members' },
+  { key: 'members.notes', description: 'View and edit member notes (sensitive)' },
 ]
 
 async function main() {

@@ -3,6 +3,8 @@ import cors from 'cors'
 import helmet from 'helmet'
 import healthRouter from './routes/health.js'
 import authRouter from './routes/auth.js'
+import membersRouter from './routes/members.js'
+import householdsRouter from './routes/households.js'
 
 const app = express()
 
@@ -13,13 +15,15 @@ app.use(cors({
   credentials: true,
 }))
 
-// Body parsing
-app.use(express.json())
+// Body parsing - increase limit for CSV import
+app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ extended: true }))
 
 // Routes
 app.use('/api/health', healthRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/members', membersRouter)
+app.use('/api/households', householdsRouter)
 
 // 404 handler
 app.use((_req, res) => {
