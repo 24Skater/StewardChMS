@@ -28,3 +28,9 @@ export * from './auth.js'
 export * from './members.js'
 export * from './households.js'
 
+// Events + Worship schemas (Phase 3)
+export * from './events.js'
+export * from './registrations.js'
+export * from './songs.js'
+export * from './worship-plans.js'
+

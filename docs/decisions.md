@@ -111,3 +111,36 @@ Template:
 - Reason: Members can belong to multiple households; relationship context (parent, child, spouse) is important
 - Alternatives considered: Single household per member (too restrictive), self-referential family tree (more complex)
 - Impact: Flexible family structures supported; queries need to join through HouseholdMember table
+
+---
+
+## Phase 3 Decisions
+
+### Decision 14: Recurrence Rule Storage
+- Date: 2026-01-08
+- Decision: Store recurrence rules as JSON string in Event.recurrenceRule field
+- Reason: Simple format that supports weekly and monthly patterns; easily parseable on both client and server
+- Format: `{"frequency": "weekly", "dayOfWeek": 0}` or `{"frequency": "monthly", "weekOfMonth": 1, "dayOfWeek": 1}`
+- Alternatives considered: iCal RRULE format (more complex parsing), separate columns per rule type (less flexible)
+- Impact: Limited to weekly/monthly patterns; can extend JSON schema for more complex rules later
+
+### Decision 15: Occurrence Generation Strategy
+- Date: 2026-01-08
+- Decision: Generate occurrences on-demand via API endpoint, not automatically on event creation
+- Reason: Explicit control over when occurrences are created; prevents cluttering database with far-future dates
+- Alternatives considered: Auto-generate on event create/update (harder to control), cron job (requires scheduler)
+- Impact: User must explicitly generate occurrences; default to 90 days ahead; duplicates prevented by unique constraint
+
+### Decision 16: Worship Plan Item Reordering
+- Date: 2026-01-08
+- Decision: Reorder by sending full ordered list to dedicated /reorder endpoint
+- Reason: Atomic update of all positions; simpler than individual up/down operations at API level
+- Alternatives considered: Individual move up/down endpoints (more network calls), drag-drop with optimistic UI only
+- Impact: Frontend tracks order locally, sends batch update; sortOrder column determines display order
+
+### Decision 17: Registration vs Check-In Model
+- Date: 2026-01-08
+- Decision: Separate Registration and CheckIn models; registrations can exist without check-ins
+- Reason: Pre-registration and actual attendance are distinct concepts; enables registration forecasting
+- Alternatives considered: Single attendance record with registered_at and checked_in_at timestamps (conflates concepts)
+- Impact: Two separate tables to query; useful for capacity planning vs actual attendance reports

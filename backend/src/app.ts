@@ -5,6 +5,11 @@ import healthRouter from './routes/health.js'
 import authRouter from './routes/auth.js'
 import membersRouter from './routes/members.js'
 import householdsRouter from './routes/households.js'
+import eventsRouter from './routes/events.js'
+import occurrencesRouter from './routes/occurrences.js'
+import registrationsRouter from './routes/registrations.js'
+import songsRouter from './routes/songs.js'
+import worshipPlansRouter from './routes/worship-plans.js'
 
 const app = express()
 
@@ -24,6 +29,12 @@ app.use('/api/health', healthRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/members', membersRouter)
 app.use('/api/households', householdsRouter)
+// Phase 3: Events + Worship
+app.use('/api/events', eventsRouter)
+app.use('/api/occurrences', occurrencesRouter)
+app.use('/api', registrationsRouter) // Has nested routes like /api/occurrences/:id/registrations
+app.use('/api/songs', songsRouter)
+app.use('/api', worshipPlansRouter) // Has nested routes like /api/occurrences/:id/worship-plan
 
 // 404 handler
 app.use((_req, res) => {

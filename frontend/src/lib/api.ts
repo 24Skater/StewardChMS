@@ -331,3 +331,419 @@ export async function unlinkMemberFromHousehold(
   })
 }
 
+// ============================================
+// Event API Functions (Phase 3)
+// ============================================
+
+export interface Event {
+  id: string
+  title: string
+  description: string | null
+  location: string | null
+  category: string | null
+  ministryId: string | null
+  isRecurring: boolean
+  recurrenceRule: string | null
+  startDatetime: string | null
+  endDatetime: string | null
+  createdAt: string
+  updatedAt: string
+  occurrences?: EventOccurrence[]
+}
+
+export interface EventOccurrence {
+  id: string
+  eventId: string
+  startsAt: string
+  endsAt: string | null
+  status: 'scheduled' | 'canceled'
+  notes: string | null
+  event?: {
+    id: string
+    title: string
+    description: string | null
+    location: string | null
+    category: string | null
+  }
+}
+
+export interface EventListResponse {
+  events: Event[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface EventSearchParams {
+  dateFrom?: string
+  dateTo?: string
+  category?: string
+  page?: number
+  limit?: number
+}
+
+export interface CreateEventData {
+  title: string
+  description?: string | null
+  location?: string | null
+  category?: string | null
+  ministryId?: string | null
+  isRecurring?: boolean
+  recurrenceRule?: string | null
+  startDatetime?: string | null
+  endDatetime?: string | null
+}
+
+export async function getEvents(params: EventSearchParams = {}): Promise<EventListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
+  if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+  if (params.category) searchParams.set('category', params.category)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<EventListResponse>(`/events${query ? `?${query}` : ''}`)
+}
+
+export async function getEvent(id: string): Promise<Event> {
+  return apiRequest<Event>(`/events/${id}`)
+}
+
+export async function createEvent(data: CreateEventData): Promise<Event> {
+  return apiRequest<Event>('/events', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateEvent(id: string, data: Partial<CreateEventData>): Promise<Event> {
+  return apiRequest<Event>(`/events/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteEvent(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/events/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export interface GenerateOccurrencesResult {
+  message: string
+  created: number
+  skipped: number
+}
+
+export async function generateOccurrences(eventId: string, daysAhead: number = 90): Promise<GenerateOccurrencesResult> {
+  return apiRequest<GenerateOccurrencesResult>(`/events/${eventId}/generate-occurrences`, {
+    method: 'POST',
+    body: { daysAhead },
+  })
+}
+
+// ============================================
+// Occurrence API Functions
+// ============================================
+
+export interface OccurrenceListResponse {
+  occurrences: EventOccurrence[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface OccurrenceSearchParams {
+  dateFrom?: string
+  dateTo?: string
+  eventId?: string
+  page?: number
+  limit?: number
+}
+
+export interface OccurrenceDetail extends EventOccurrence {
+  registrations: Registration[]
+  checkIns: CheckIn[]
+  worshipPlan: WorshipPlan | null
+}
+
+export async function getOccurrences(params: OccurrenceSearchParams = {}): Promise<OccurrenceListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
+  if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+  if (params.eventId) searchParams.set('eventId', params.eventId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<OccurrenceListResponse>(`/occurrences${query ? `?${query}` : ''}`)
+}
+
+export async function getOccurrence(id: string): Promise<OccurrenceDetail> {
+  return apiRequest<OccurrenceDetail>(`/occurrences/${id}`)
+}
+
+export async function updateOccurrence(id: string, data: {
+  startsAt?: string
+  endsAt?: string | null
+  status?: 'scheduled' | 'canceled'
+  notes?: string | null
+}): Promise<EventOccurrence> {
+  return apiRequest<EventOccurrence>(`/occurrences/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+// ============================================
+// Registration API Functions
+// ============================================
+
+export interface Registration {
+  id: string
+  eventOccurrenceId: string
+  memberId: string | null
+  guestName: string | null
+  guestEmail: string | null
+  guestPhone: string | null
+  partySize: number
+  status: 'registered' | 'canceled'
+  createdAt: string
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+  } | null
+}
+
+export interface CreateRegistrationData {
+  memberId?: string | null
+  guestName?: string | null
+  guestEmail?: string | null
+  guestPhone?: string | null
+  partySize?: number
+}
+
+export async function getRegistrations(occurrenceId: string): Promise<{ registrations: Registration[] }> {
+  return apiRequest<{ registrations: Registration[] }>(`/occurrences/${occurrenceId}/registrations`)
+}
+
+export async function createRegistration(occurrenceId: string, data: CreateRegistrationData): Promise<Registration> {
+  return apiRequest<Registration>(`/occurrences/${occurrenceId}/registrations`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function cancelRegistration(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/registrations/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// ============================================
+// Check-In API Functions
+// ============================================
+
+export interface CheckIn {
+  id: string
+  eventOccurrenceId: string
+  memberId: string | null
+  guestName: string | null
+  checkedInAt: string
+  method: string
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+  } | null
+}
+
+export interface CreateCheckInData {
+  memberId?: string | null
+  guestName?: string | null
+  method?: string
+}
+
+export async function getCheckIns(occurrenceId: string): Promise<{ checkIns: CheckIn[] }> {
+  return apiRequest<{ checkIns: CheckIn[] }>(`/occurrences/${occurrenceId}/checkins`)
+}
+
+export async function createCheckIn(occurrenceId: string, data: CreateCheckInData): Promise<CheckIn> {
+  return apiRequest<CheckIn>(`/occurrences/${occurrenceId}/checkins`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+// ============================================
+// Song API Functions
+// ============================================
+
+export interface Song {
+  id: string
+  title: string
+  artist: string | null
+  defaultKey: string | null
+  bpm: number | null
+  lyrics: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SongListResponse {
+  songs: Song[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface SongSearchParams {
+  search?: string
+  page?: number
+  limit?: number
+}
+
+export interface CreateSongData {
+  title: string
+  artist?: string | null
+  defaultKey?: string | null
+  bpm?: number | null
+  lyrics?: string | null
+}
+
+export async function getSongs(params: SongSearchParams = {}): Promise<SongListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.search) searchParams.set('search', params.search)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<SongListResponse>(`/songs${query ? `?${query}` : ''}`)
+}
+
+export async function getSong(id: string): Promise<Song> {
+  return apiRequest<Song>(`/songs/${id}`)
+}
+
+export async function createSong(data: CreateSongData): Promise<Song> {
+  return apiRequest<Song>('/songs', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateSong(id: string, data: Partial<CreateSongData>): Promise<Song> {
+  return apiRequest<Song>(`/songs/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteSong(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/songs/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// ============================================
+// Worship Plan API Functions
+// ============================================
+
+export interface WorshipPlanItem {
+  id: string
+  worshipPlanId: string
+  sortOrder: number
+  itemType: 'song' | 'scripture' | 'announcement' | 'sermon' | 'prayer' | 'other'
+  title: string
+  details: string | null
+  songId: string | null
+  assignedMemberId: string | null
+  durationMinutes: number | null
+  song?: {
+    id: string
+    title: string
+    artist: string | null
+    defaultKey: string | null
+  } | null
+  assignedMember?: {
+    id: string
+    firstName: string
+    lastName: string
+  } | null
+}
+
+export interface WorshipPlan {
+  id: string
+  eventOccurrenceId: string
+  title: string | null
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+  items: WorshipPlanItem[]
+}
+
+export interface CreateWorshipPlanData {
+  title?: string | null
+  notes?: string | null
+}
+
+export interface CreateWorshipPlanItemData {
+  sortOrder: number
+  itemType: 'song' | 'scripture' | 'announcement' | 'sermon' | 'prayer' | 'other'
+  title: string
+  details?: string | null
+  songId?: string | null
+  assignedMemberId?: string | null
+  durationMinutes?: number | null
+}
+
+export async function getWorshipPlan(occurrenceId: string): Promise<WorshipPlan> {
+  return apiRequest<WorshipPlan>(`/occurrences/${occurrenceId}/worship-plan`)
+}
+
+export async function createWorshipPlan(occurrenceId: string, data: CreateWorshipPlanData = {}): Promise<WorshipPlan> {
+  return apiRequest<WorshipPlan>(`/occurrences/${occurrenceId}/worship-plan`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateWorshipPlan(id: string, data: CreateWorshipPlanData): Promise<WorshipPlan> {
+  return apiRequest<WorshipPlan>(`/worship-plans/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function createWorshipPlanItem(planId: string, data: CreateWorshipPlanItemData): Promise<WorshipPlanItem> {
+  return apiRequest<WorshipPlanItem>(`/worship-plans/${planId}/items`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateWorshipPlanItem(itemId: string, data: Partial<CreateWorshipPlanItemData>): Promise<WorshipPlanItem> {
+  return apiRequest<WorshipPlanItem>(`/worship-plans/items/${itemId}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteWorshipPlanItem(itemId: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/worship-plans/items/${itemId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function reorderWorshipPlanItems(planId: string, items: Array<{ id: string; sortOrder: number }>): Promise<WorshipPlan> {
+  return apiRequest<WorshipPlan>(`/worship-plans/${planId}/reorder`, {
+    method: 'PUT',
+    body: { items },
+  })
+}
+

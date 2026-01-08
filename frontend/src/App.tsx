@@ -7,6 +7,12 @@ import MemberFormPage from './pages/members/MemberFormPage'
 import MemberDetailPage from './pages/members/MemberDetailPage'
 import MemberImportPage from './pages/members/MemberImportPage'
 import HouseholdDetailPage from './pages/households/HouseholdDetailPage'
+import EventsPage from './pages/events/EventsPage'
+import EventFormPage from './pages/events/EventFormPage'
+import EventDetailPage from './pages/events/EventDetailPage'
+import OccurrenceDetailPage from './pages/occurrences/OccurrenceDetailPage'
+import SongsPage from './pages/songs/SongsPage'
+import SongFormPage from './pages/songs/SongFormPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
@@ -69,6 +75,73 @@ function App() {
         element={
           <ProtectedRoute requiredPermission="members.read">
             <HouseholdDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Event Routes (Phase 3) */}
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute requiredPermission="events.read">
+            <EventsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/new"
+        element={
+          <ProtectedRoute requiredPermission="events.write">
+            <EventFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/:id"
+        element={
+          <ProtectedRoute requiredPermission="events.read">
+            <EventDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="events.write">
+            <EventFormPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Occurrence Routes */}
+      <Route
+        path="/occurrences/:id"
+        element={
+          <ProtectedRoute requiredPermission="events.read">
+            <OccurrenceDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Song Routes */}
+      <Route
+        path="/songs"
+        element={
+          <ProtectedRoute requiredPermission="worship.read">
+            <SongsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/songs/new"
+        element={
+          <ProtectedRoute requiredPermission="worship.write">
+            <SongFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/songs/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="worship.write">
+            <SongFormPage />
           </ProtectedRoute>
         }
       />

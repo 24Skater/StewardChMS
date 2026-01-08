@@ -19,6 +19,12 @@ const DEFAULT_PERMISSIONS = [
   { key: 'members.write', description: 'Create and update members' },
   { key: 'members.delete', description: 'Delete members' },
   { key: 'members.notes', description: 'View and edit member notes (sensitive)' },
+  // Events permissions (Phase 3)
+  { key: 'events.read', description: 'View events and occurrences' },
+  { key: 'events.write', description: 'Create, update, and delete events' },
+  // Worship permissions (Phase 3)
+  { key: 'worship.read', description: 'View songs and worship plans' },
+  { key: 'worship.write', description: 'Manage songs and worship plans' },
 ]
 
 async function main() {
