@@ -25,6 +25,9 @@ const DEFAULT_PERMISSIONS = [
   // Worship permissions (Phase 3)
   { key: 'worship.read', description: 'View songs and worship plans' },
   { key: 'worship.write', description: 'Manage songs and worship plans' },
+  // Communication permissions (Phase 4)
+  { key: 'communications.view', description: 'View messages and templates' },
+  { key: 'communications.send', description: 'Send messages and manage templates' },
 ]
 
 async function main() {

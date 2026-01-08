@@ -34,3 +34,6 @@ export * from './registrations.js'
 export * from './songs.js'
 export * from './worship-plans.js'
 
+// Communications schemas (Phase 4)
+export * from './communications.js'
+

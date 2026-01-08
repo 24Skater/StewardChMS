@@ -747,3 +747,222 @@ export async function reorderWorshipPlanItems(planId: string, items: Array<{ id:
   })
 }
 
+// ============================================
+// Message Template API Functions (Phase 4)
+// ============================================
+
+export type MessageChannel = 'email' | 'sms'
+export type DeliveryStatus = 'pending' | 'sent' | 'failed'
+
+export interface MessageTemplate {
+  id: string
+  name: string
+  channel: MessageChannel
+  subject: string | null
+  body: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MessageTemplateListResponse {
+  templates: MessageTemplate[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface MessageTemplateSearchParams {
+  channel?: MessageChannel
+  page?: number
+  limit?: number
+}
+
+export interface CreateMessageTemplateData {
+  name: string
+  channel: MessageChannel
+  subject?: string | null
+  body: string
+}
+
+export async function getMessageTemplates(params: MessageTemplateSearchParams = {}): Promise<MessageTemplateListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.channel) searchParams.set('channel', params.channel)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<MessageTemplateListResponse>(`/message-templates${query ? `?${query}` : ''}`)
+}
+
+export async function getMessageTemplate(id: string): Promise<MessageTemplate> {
+  return apiRequest<MessageTemplate>(`/message-templates/${id}`)
+}
+
+export async function createMessageTemplate(data: CreateMessageTemplateData): Promise<MessageTemplate> {
+  return apiRequest<MessageTemplate>('/message-templates', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateMessageTemplate(id: string, data: Partial<CreateMessageTemplateData>): Promise<MessageTemplate> {
+  return apiRequest<MessageTemplate>(`/message-templates/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteMessageTemplate(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/message-templates/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// ============================================
+// Message API Functions (Phase 4)
+// ============================================
+
+export type MessageTargetType = 'all' | 'memberIds' | 'status'
+
+export interface MessageTarget {
+  type: MessageTargetType
+  memberIds?: string[]
+  status?: MemberStatus
+}
+
+export interface Message {
+  id: string
+  channel: MessageChannel
+  subject: string | null
+  body: string
+  createdByUserId: string
+  createdAt: string
+  createdByUser?: {
+    id: string
+    name: string | null
+    email: string
+  }
+  _count?: {
+    recipients: number
+  }
+}
+
+export interface MessageListResponse {
+  messages: Message[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface MessageSearchParams {
+  channel?: MessageChannel
+  page?: number
+  limit?: number
+}
+
+export interface CreateMessageData {
+  channel: MessageChannel
+  subject?: string | null
+  body: string
+  target: MessageTarget
+}
+
+export interface MessageRecipient {
+  id: string
+  messageId: string
+  memberId: string | null
+  guestContact: {
+    name?: string
+    email?: string
+    phone?: string
+  } | null
+  deliveryStatus: DeliveryStatus
+  deliveredAt: string | null
+  errorMessage: string | null
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string | null
+    phone: string | null
+  } | null
+}
+
+export interface RecipientListResponse {
+  recipients: MessageRecipient[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface RecipientSearchParams {
+  status?: DeliveryStatus
+  page?: number
+  limit?: number
+}
+
+export interface MessageStats {
+  pending: number
+  sent: number
+  failed: number
+  total: number
+}
+
+export async function getMessages(params: MessageSearchParams = {}): Promise<MessageListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.channel) searchParams.set('channel', params.channel)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<MessageListResponse>(`/messages${query ? `?${query}` : ''}`)
+}
+
+export async function getMessage(id: string): Promise<Message> {
+  return apiRequest<Message>(`/messages/${id}`)
+}
+
+export async function getMessageRecipients(messageId: string, params: RecipientSearchParams = {}): Promise<RecipientListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.status) searchParams.set('status', params.status)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<RecipientListResponse>(`/messages/${messageId}/recipients${query ? `?${query}` : ''}`)
+}
+
+export async function getMessageStats(messageId: string): Promise<MessageStats> {
+  return apiRequest<MessageStats>(`/messages/${messageId}/stats`)
+}
+
+export async function sendMessage(data: CreateMessageData): Promise<Message> {
+  return apiRequest<Message>('/messages', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+// ============================================
+// Opt-In Preference API Functions (Phase 4)
+// ============================================
+
+export interface MemberOptInPreferences {
+  email: boolean
+  sms: boolean
+}
+
+export async function getMemberOptIn(memberId: string): Promise<MemberOptInPreferences> {
+  return apiRequest<MemberOptInPreferences>(`/members/${memberId}/opt-in`)
+}
+
+export async function updateMemberOptIn(memberId: string, data: Partial<MemberOptInPreferences>): Promise<MemberOptInPreferences> {
+  return apiRequest<MemberOptInPreferences>(`/members/${memberId}/opt-in`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+

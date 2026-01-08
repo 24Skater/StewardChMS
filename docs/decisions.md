@@ -144,3 +144,42 @@ Template:
 - Reason: Pre-registration and actual attendance are distinct concepts; enables registration forecasting
 - Alternatives considered: Single attendance record with registered_at and checked_in_at timestamps (conflates concepts)
 - Impact: Two separate tables to query; useful for capacity planning vs actual attendance reports
+
+---
+
+## Phase 4 Decisions
+
+### Decision 18: Message Provider Abstraction
+- Date: 2026-01-08
+- Decision: Create provider interface with stub implementations that log to console
+- Reason: Allows development/testing without real email/SMS services; easy to swap in real providers later
+- Alternatives considered: Mock providers that return success only (no visibility), real providers from start (cost, complexity)
+- Impact: Messages appear in server console during development; production requires implementing real providers (SendGrid, Twilio)
+
+### Decision 19: Async Message Delivery
+- Date: 2026-01-08
+- Decision: Message creation returns immediately; delivery processes asynchronously with setTimeout simulation
+- Reason: Don't block HTTP request while sending to many recipients; provides responsive UX
+- Alternatives considered: Blocking synchronous send (slow for many recipients), Redis queue/workers (adds infrastructure)
+- Impact: Delivery status updates after initial creation; frontend polls for status via useMessageStats hook
+
+### Decision 20: Opt-In Default Behavior
+- Date: 2026-01-08
+- Decision: Members default to opted-in for both email and SMS if no explicit preference exists
+- Reason: Common pattern for church communications; members can opt out as needed
+- Alternatives considered: Default to opted-out (requires explicit opt-in, reduces reach), per-member default setting
+- Impact: OptInPreference records only created when member changes from default; absence means opted-in
+
+### Decision 21: Message Target Types
+- Date: 2026-01-08
+- Decision: Support three target types: all active members, members by status, explicit member IDs
+- Reason: Covers common use cases; groups/tags/ministries targeting deferred to Phase 9 when Groups module exists
+- Alternatives considered: Full targeting grammar (over-engineered), only explicit IDs (too manual)
+- Impact: Limited targeting options until Groups module; explicit member selection works for small lists
+
+### Decision 22: Variable Substitution
+- Date: 2026-01-08
+- Decision: Simple {{variable}} replacement for firstName, lastName, email
+- Reason: Covers most personalization needs; easy to implement without template engine
+- Alternatives considered: Full template engine like Handlebars (overkill), no personalization (poor UX)
+- Impact: Limited to predefined variables; extend by adding more replacements if needed

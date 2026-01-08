@@ -26,6 +26,7 @@ model User {
   // Relations
   userRoles UserRole[]
   auditLogs AuditLog[] @relation("ActorAuditLogs")
+  messages  Message[]
 
   @@map("users")
 }
@@ -122,6 +123,8 @@ model Member {
   registrations     Registration[]
   checkIns          CheckIn[]
   worshipPlanItems  WorshipPlanItem[]
+  messageRecipients MessageRecipient[]
+  optInPreferences  OptInPreference[]
 
   @@index([lastName])
   @@index([email])
@@ -318,4 +321,79 @@ model WorshipPlanItem {
   @@index([worshipPlanId])
   @@index([songId])
   @@map("worship_plan_items")
+}
+
+// ============================================
+// Communication Models (Phase 4)
+// ============================================
+
+enum MessageChannel {
+  email
+  sms
+}
+
+enum DeliveryStatus {
+  pending
+  sent
+  failed
+}
+
+model Message {
+  id              String         @id @default(cuid())
+  channel         MessageChannel
+  subject         String?
+  body            String
+  createdByUserId String         @map("created_by_user_id")
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  createdByUser User               @relation(fields: [createdByUserId], references: [id])
+  recipients    MessageRecipient[]
+
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model MessageRecipient {
+  id             String         @id @default(cuid())
+  messageId      String         @map("message_id")
+  memberId       String?        @map("member_id")
+  guestContact   Json?          @map("guest_contact")
+  deliveryStatus DeliveryStatus @default(pending) @map("delivery_status")
+  deliveredAt    DateTime?      @map("delivered_at")
+  errorMessage   String?        @map("error_message")
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  member  Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@index([messageId])
+  @@index([deliveryStatus])
+  @@map("message_recipients")
+}
+
+model MessageTemplate {
+  id        String         @id @default(cuid())
+  name      String
+  channel   MessageChannel
+  subject   String?
+  body      String
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@map("message_templates")
+}
+
+model OptInPreference {
+  id        String         @id @default(cuid())
+  memberId  String         @map("member_id")
+  channel   MessageChannel
+  isOptedIn Boolean        @default(true) @map("is_opted_in")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, channel])
+  @@map("opt_in_preferences")
 }

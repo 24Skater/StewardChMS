@@ -10,6 +10,9 @@ import occurrencesRouter from './routes/occurrences.js'
 import registrationsRouter from './routes/registrations.js'
 import songsRouter from './routes/songs.js'
 import worshipPlansRouter from './routes/worship-plans.js'
+import messageTemplatesRouter from './routes/message-templates.js'
+import messagesRouter from './routes/messages.js'
+import optInRouter from './routes/opt-in.js'
 
 const app = express()
 
@@ -35,6 +38,10 @@ app.use('/api/occurrences', occurrencesRouter)
 app.use('/api', registrationsRouter) // Has nested routes like /api/occurrences/:id/registrations
 app.use('/api/songs', songsRouter)
 app.use('/api', worshipPlansRouter) // Has nested routes like /api/occurrences/:id/worship-plan
+// Phase 4: Communications
+app.use('/api/message-templates', messageTemplatesRouter)
+app.use('/api/messages', messagesRouter)
+app.use('/api', optInRouter) // Has nested routes like /api/members/:id/opt-in
 
 // 404 handler
 app.use((_req, res) => {

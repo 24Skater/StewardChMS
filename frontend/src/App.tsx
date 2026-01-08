@@ -13,6 +13,11 @@ import EventDetailPage from './pages/events/EventDetailPage'
 import OccurrenceDetailPage from './pages/occurrences/OccurrenceDetailPage'
 import SongsPage from './pages/songs/SongsPage'
 import SongFormPage from './pages/songs/SongFormPage'
+import MessagesPage from './pages/communications/MessagesPage'
+import ComposeMessagePage from './pages/communications/ComposeMessagePage'
+import MessageDetailPage from './pages/communications/MessageDetailPage'
+import TemplatesPage from './pages/communications/TemplatesPage'
+import TemplateFormPage from './pages/communications/TemplateFormPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
@@ -142,6 +147,55 @@ function App() {
         element={
           <ProtectedRoute requiredPermission="worship.write">
             <SongFormPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Communication Routes (Phase 4) */}
+      <Route
+        path="/communications"
+        element={
+          <ProtectedRoute requiredPermission="communications.view">
+            <MessagesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/communications/new"
+        element={
+          <ProtectedRoute requiredPermission="communications.send">
+            <ComposeMessagePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/communications/:id"
+        element={
+          <ProtectedRoute requiredPermission="communications.view">
+            <MessageDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/communications/templates"
+        element={
+          <ProtectedRoute requiredPermission="communications.view">
+            <TemplatesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/communications/templates/new"
+        element={
+          <ProtectedRoute requiredPermission="communications.send">
+            <TemplateFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/communications/templates/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="communications.send">
+            <TemplateFormPage />
           </ProtectedRoute>
         }
       />
