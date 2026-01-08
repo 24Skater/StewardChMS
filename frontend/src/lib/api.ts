@@ -966,3 +966,699 @@ export async function updateMemberOptIn(memberId: string, data: Partial<MemberOp
   })
 }
 
+// ============================================
+// Accounting + Giving API Functions (Phase 5)
+// ============================================
+
+// --- Funds ---
+
+export interface Fund {
+  id: string
+  name: string
+  description: string | null
+  isRestricted: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface FundListResponse {
+  funds: Fund[]
+  total: number
+}
+
+export interface CreateFundData {
+  name: string
+  description?: string | null
+  isRestricted?: boolean
+}
+
+export async function getFunds(): Promise<FundListResponse> {
+  return apiRequest<FundListResponse>('/funds')
+}
+
+export async function getFund(id: string): Promise<Fund> {
+  return apiRequest<Fund>(`/funds/${id}`)
+}
+
+export async function createFund(data: CreateFundData): Promise<Fund> {
+  return apiRequest<Fund>('/funds', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateFund(id: string, data: Partial<CreateFundData>): Promise<Fund> {
+  return apiRequest<Fund>(`/funds/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteFund(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/funds/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Donations ---
+
+export type PaymentMethod = 'cash' | 'check' | 'card' | 'online' | 'other'
+
+export interface Donation {
+  id: string
+  memberId: string | null
+  guestName: string | null
+  amountCents: number
+  currency: string
+  fundId: string | null
+  method: PaymentMethod
+  receivedAt: string
+  note: string | null
+  createdAt: string
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+  } | null
+  fund?: {
+    id: string
+    name: string
+  } | null
+}
+
+export interface DonationListResponse {
+  donations: Donation[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface DonationSearchParams {
+  dateFrom?: string
+  dateTo?: string
+  fundId?: string
+  memberId?: string
+  page?: number
+  limit?: number
+}
+
+export interface CreateDonationData {
+  memberId?: string | null
+  guestName?: string | null
+  amountCents: number
+  currency?: string
+  fundId?: string | null
+  method: PaymentMethod
+  receivedAt: string
+  note?: string | null
+}
+
+export async function getDonations(params: DonationSearchParams = {}): Promise<DonationListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
+  if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+  if (params.fundId) searchParams.set('fundId', params.fundId)
+  if (params.memberId) searchParams.set('memberId', params.memberId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<DonationListResponse>(`/donations${query ? `?${query}` : ''}`)
+}
+
+export async function getDonation(id: string): Promise<Donation> {
+  return apiRequest<Donation>(`/donations/${id}`)
+}
+
+export async function createDonation(data: CreateDonationData): Promise<Donation> {
+  return apiRequest<Donation>('/donations', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateDonation(id: string, data: Partial<CreateDonationData>): Promise<Donation> {
+  return apiRequest<Donation>(`/donations/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteDonation(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/donations/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Pledges ---
+
+export type PledgeStatus = 'active' | 'completed' | 'canceled'
+
+export interface Pledge {
+  id: string
+  memberId: string
+  fundId: string | null
+  amountCents: number
+  startDate: string | null
+  endDate: string | null
+  status: PledgeStatus
+  createdAt: string
+  updatedAt: string
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+  fund?: {
+    id: string
+    name: string
+  } | null
+}
+
+export interface PledgeListResponse {
+  pledges: Pledge[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface PledgeSearchParams {
+  status?: PledgeStatus
+  memberId?: string
+  fundId?: string
+  page?: number
+  limit?: number
+}
+
+export interface CreatePledgeData {
+  memberId: string
+  fundId?: string | null
+  amountCents: number
+  startDate?: string | null
+  endDate?: string | null
+  status?: PledgeStatus
+}
+
+export async function getPledges(params: PledgeSearchParams = {}): Promise<PledgeListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.status) searchParams.set('status', params.status)
+  if (params.memberId) searchParams.set('memberId', params.memberId)
+  if (params.fundId) searchParams.set('fundId', params.fundId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<PledgeListResponse>(`/pledges${query ? `?${query}` : ''}`)
+}
+
+export async function getPledge(id: string): Promise<Pledge> {
+  return apiRequest<Pledge>(`/pledges/${id}`)
+}
+
+export async function createPledge(data: CreatePledgeData): Promise<Pledge> {
+  return apiRequest<Pledge>('/pledges', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updatePledge(id: string, data: Partial<CreatePledgeData>): Promise<Pledge> {
+  return apiRequest<Pledge>(`/pledges/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deletePledge(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/pledges/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Vendors ---
+
+export interface Vendor {
+  id: string
+  name: string
+  email: string | null
+  phone: string | null
+  street: string | null
+  city: string | null
+  state: string | null
+  zip: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface VendorListResponse {
+  vendors: Vendor[]
+  total: number
+}
+
+export interface CreateVendorData {
+  name: string
+  email?: string | null
+  phone?: string | null
+  street?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+}
+
+export async function getVendors(): Promise<VendorListResponse> {
+  return apiRequest<VendorListResponse>('/vendors')
+}
+
+export async function getVendor(id: string): Promise<Vendor> {
+  return apiRequest<Vendor>(`/vendors/${id}`)
+}
+
+export async function createVendor(data: CreateVendorData): Promise<Vendor> {
+  return apiRequest<Vendor>('/vendors', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateVendor(id: string, data: Partial<CreateVendorData>): Promise<Vendor> {
+  return apiRequest<Vendor>(`/vendors/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteVendor(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/vendors/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Expenses ---
+
+export interface Expense {
+  id: string
+  vendorId: string | null
+  fundId: string | null
+  amountCents: number
+  currency: string
+  expenseDate: string
+  category: string | null
+  note: string | null
+  createdAt: string
+  vendor?: {
+    id: string
+    name: string
+  } | null
+  fund?: {
+    id: string
+    name: string
+  } | null
+}
+
+export interface ExpenseListResponse {
+  expenses: Expense[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface ExpenseSearchParams {
+  dateFrom?: string
+  dateTo?: string
+  fundId?: string
+  vendorId?: string
+  page?: number
+  limit?: number
+}
+
+export interface CreateExpenseData {
+  vendorId?: string | null
+  fundId?: string | null
+  amountCents: number
+  currency?: string
+  expenseDate: string
+  category?: string | null
+  note?: string | null
+}
+
+export async function getExpenses(params: ExpenseSearchParams = {}): Promise<ExpenseListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
+  if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+  if (params.fundId) searchParams.set('fundId', params.fundId)
+  if (params.vendorId) searchParams.set('vendorId', params.vendorId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<ExpenseListResponse>(`/expenses${query ? `?${query}` : ''}`)
+}
+
+export async function getExpense(id: string): Promise<Expense> {
+  return apiRequest<Expense>(`/expenses/${id}`)
+}
+
+export async function createExpense(data: CreateExpenseData): Promise<Expense> {
+  return apiRequest<Expense>('/expenses', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateExpense(id: string, data: Partial<CreateExpenseData>): Promise<Expense> {
+  return apiRequest<Expense>(`/expenses/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteExpense(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/expenses/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Invoices ---
+
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'void'
+
+export interface InvoiceItem {
+  id: string
+  invoiceId: string
+  description: string
+  quantity: number
+  unitPriceCents: number
+  lineTotalCents: number
+  sortOrder: number
+}
+
+export interface Invoice {
+  id: string
+  invoiceNumber: string
+  vendorId: string | null
+  billToName: string | null
+  issueDate: string
+  dueDate: string | null
+  status: InvoiceStatus
+  subtotalCents: number
+  taxCents: number
+  totalCents: number
+  note: string | null
+  createdAt: string
+  updatedAt: string
+  vendor?: {
+    id: string
+    name: string
+  } | null
+  items?: InvoiceItem[]
+}
+
+export interface InvoiceListResponse {
+  invoices: Invoice[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface InvoiceSearchParams {
+  status?: InvoiceStatus
+  vendorId?: string
+  page?: number
+  limit?: number
+}
+
+export interface InvoiceItemInput {
+  description: string
+  quantity: number
+  unitPriceCents: number
+}
+
+export interface CreateInvoiceData {
+  vendorId?: string | null
+  billToName?: string | null
+  issueDate: string
+  dueDate?: string | null
+  status?: InvoiceStatus
+  taxCents?: number
+  note?: string | null
+  items?: InvoiceItemInput[]
+}
+
+export async function getInvoices(params: InvoiceSearchParams = {}): Promise<InvoiceListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.status) searchParams.set('status', params.status)
+  if (params.vendorId) searchParams.set('vendorId', params.vendorId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<InvoiceListResponse>(`/invoices${query ? `?${query}` : ''}`)
+}
+
+export async function getInvoice(id: string): Promise<Invoice> {
+  return apiRequest<Invoice>(`/invoices/${id}`)
+}
+
+export async function createInvoice(data: CreateInvoiceData): Promise<Invoice> {
+  return apiRequest<Invoice>('/invoices', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateInvoice(id: string, data: Partial<CreateInvoiceData>): Promise<Invoice> {
+  return apiRequest<Invoice>(`/invoices/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteInvoice(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/invoices/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function addInvoiceItem(invoiceId: string, data: InvoiceItemInput & { sortOrder?: number }): Promise<InvoiceItem> {
+  return apiRequest<InvoiceItem>(`/invoices/${invoiceId}/items`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateInvoiceItem(itemId: string, data: Partial<InvoiceItemInput & { sortOrder?: number }>): Promise<InvoiceItem> {
+  return apiRequest<InvoiceItem>(`/invoices/items/${itemId}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteInvoiceItem(itemId: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/invoices/items/${itemId}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Purchase Orders ---
+
+export type PurchaseOrderStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'closed' | 'void'
+
+export interface PurchaseOrderItem {
+  id: string
+  purchaseOrderId: string
+  description: string
+  quantity: number
+  unitPriceCents: number
+  lineTotalCents: number
+  sortOrder: number
+}
+
+export interface PurchaseOrder {
+  id: string
+  poNumber: string
+  vendorId: string | null
+  requestorUserId: string | null
+  issueDate: string
+  status: PurchaseOrderStatus
+  subtotalCents: number
+  taxCents: number
+  totalCents: number
+  note: string | null
+  createdAt: string
+  updatedAt: string
+  vendor?: {
+    id: string
+    name: string
+  } | null
+  requestorUser?: {
+    id: string
+    name: string | null
+    email: string
+  } | null
+  items?: PurchaseOrderItem[]
+}
+
+export interface PurchaseOrderListResponse {
+  purchaseOrders: PurchaseOrder[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface PurchaseOrderSearchParams {
+  status?: PurchaseOrderStatus
+  vendorId?: string
+  page?: number
+  limit?: number
+}
+
+export interface PurchaseOrderItemInput {
+  description: string
+  quantity: number
+  unitPriceCents: number
+}
+
+export interface CreatePurchaseOrderData {
+  vendorId?: string | null
+  issueDate: string
+  status?: PurchaseOrderStatus
+  taxCents?: number
+  note?: string | null
+  items?: PurchaseOrderItemInput[]
+}
+
+export async function getPurchaseOrders(params: PurchaseOrderSearchParams = {}): Promise<PurchaseOrderListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.status) searchParams.set('status', params.status)
+  if (params.vendorId) searchParams.set('vendorId', params.vendorId)
+  if (params.page) searchParams.set('page', params.page.toString())
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<PurchaseOrderListResponse>(`/purchase-orders${query ? `?${query}` : ''}`)
+}
+
+export async function getPurchaseOrder(id: string): Promise<PurchaseOrder> {
+  return apiRequest<PurchaseOrder>(`/purchase-orders/${id}`)
+}
+
+export async function createPurchaseOrder(data: CreatePurchaseOrderData): Promise<PurchaseOrder> {
+  return apiRequest<PurchaseOrder>('/purchase-orders', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updatePurchaseOrder(id: string, data: Partial<CreatePurchaseOrderData>): Promise<PurchaseOrder> {
+  return apiRequest<PurchaseOrder>(`/purchase-orders/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deletePurchaseOrder(id: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/purchase-orders/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function addPurchaseOrderItem(poId: string, data: PurchaseOrderItemInput & { sortOrder?: number }): Promise<PurchaseOrderItem> {
+  return apiRequest<PurchaseOrderItem>(`/purchase-orders/${poId}/items`, {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updatePurchaseOrderItem(itemId: string, data: Partial<PurchaseOrderItemInput & { sortOrder?: number }>): Promise<PurchaseOrderItem> {
+  return apiRequest<PurchaseOrderItem>(`/purchase-orders/items/${itemId}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deletePurchaseOrderItem(itemId: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>(`/purchase-orders/items/${itemId}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Reports ---
+
+export interface FundBalance {
+  fundId: string | null
+  fundName: string | null
+  incomeCents: number
+  expensesCents: number
+  netCents: number
+}
+
+export interface FundSummaryResponse {
+  dateFrom: string
+  dateTo: string
+  funds: FundBalance[]
+  totals: {
+    incomeCents: number
+    expensesCents: number
+    netCents: number
+  }
+}
+
+export interface DonorGiving {
+  memberId: string | null
+  memberName: string | null
+  guestName: string | null
+  totalCents: number
+  donationCount: number
+}
+
+export interface GivingSummaryResponse {
+  dateFrom: string
+  dateTo: string
+  donors: DonorGiving[]
+  totalCents: number
+  totalDonations: number
+}
+
+export interface DonorStatementDonation {
+  id: string
+  receivedAt: string
+  amountCents: number
+  fundName: string | null
+  method: PaymentMethod
+}
+
+export interface DonorStatementResponse {
+  member: {
+    id: string
+    firstName: string
+    lastName: string
+    email: string | null
+    street: string | null
+    city: string | null
+    state: string | null
+    zip: string | null
+  }
+  year: number
+  donations: DonorStatementDonation[]
+  totalCents: number
+}
+
+export async function getFundsSummary(dateFrom: string, dateTo: string): Promise<FundSummaryResponse> {
+  return apiRequest<FundSummaryResponse>(`/reports/funds-summary?dateFrom=${dateFrom}&dateTo=${dateTo}`)
+}
+
+export async function getGivingSummary(dateFrom: string, dateTo: string, memberId?: string): Promise<GivingSummaryResponse> {
+  let url = `/reports/giving-summary?dateFrom=${dateFrom}&dateTo=${dateTo}`
+  if (memberId) url += `&memberId=${memberId}`
+  return apiRequest<GivingSummaryResponse>(url)
+}
+
+export async function getDonorStatement(memberId: string, year: number): Promise<DonorStatementResponse> {
+  return apiRequest<DonorStatementResponse>(`/reports/donor-statement?memberId=${memberId}&year=${year}`)
+}
+

@@ -18,6 +18,22 @@ import ComposeMessagePage from './pages/communications/ComposeMessagePage'
 import MessageDetailPage from './pages/communications/MessageDetailPage'
 import TemplatesPage from './pages/communications/TemplatesPage'
 import TemplateFormPage from './pages/communications/TemplateFormPage'
+// Phase 5: Accounting + Giving
+import DonationsPage from './pages/giving/DonationsPage'
+import DonationFormPage from './pages/giving/DonationFormPage'
+import PledgesPage from './pages/giving/PledgesPage'
+import PledgeFormPage from './pages/giving/PledgeFormPage'
+import FundsPage from './pages/accounting/FundsPage'
+import VendorsPage from './pages/accounting/VendorsPage'
+import ExpensesPage from './pages/accounting/ExpensesPage'
+import ExpenseFormPage from './pages/accounting/ExpenseFormPage'
+import InvoicesPage from './pages/accounting/InvoicesPage'
+import InvoiceFormPage from './pages/accounting/InvoiceFormPage'
+import InvoiceDetailPage from './pages/accounting/InvoiceDetailPage'
+import PurchaseOrdersPage from './pages/accounting/PurchaseOrdersPage'
+import PurchaseOrderFormPage from './pages/accounting/PurchaseOrderFormPage'
+import PurchaseOrderDetailPage from './pages/accounting/PurchaseOrderDetailPage'
+import FinanceReportsPage from './pages/reports/FinanceReportsPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
@@ -196,6 +212,152 @@ function App() {
         element={
           <ProtectedRoute requiredPermission="communications.send">
             <TemplateFormPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Giving Routes (Phase 5) */}
+      <Route
+        path="/giving"
+        element={
+          <ProtectedRoute requiredPermission="giving.view">
+            <DonationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/giving/new"
+        element={
+          <ProtectedRoute requiredPermission="giving.edit">
+            <DonationFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/giving/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="giving.edit">
+            <DonationFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pledges"
+        element={
+          <ProtectedRoute requiredPermission="giving.view">
+            <PledgesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pledges/new"
+        element={
+          <ProtectedRoute requiredPermission="giving.edit">
+            <PledgeFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pledges/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="giving.edit">
+            <PledgeFormPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Accounting Routes (Phase 5) */}
+      <Route
+        path="/funds"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <FundsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/vendors"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <VendorsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <ExpensesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses/new"
+        element={
+          <ProtectedRoute requiredPermission="accounting.edit">
+            <ExpenseFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses/:id/edit"
+        element={
+          <ProtectedRoute requiredPermission="accounting.edit">
+            <ExpenseFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <InvoicesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices/new"
+        element={
+          <ProtectedRoute requiredPermission="accounting.edit">
+            <InvoiceFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices/:id"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <InvoiceDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/purchase-orders"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <PurchaseOrdersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/purchase-orders/new"
+        element={
+          <ProtectedRoute requiredPermission="accounting.edit">
+            <PurchaseOrderFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/purchase-orders/:id"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <PurchaseOrderDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/finance"
+        element={
+          <ProtectedRoute requiredPermission="accounting.view">
+            <FinanceReportsPage />
           </ProtectedRoute>
         }
       />

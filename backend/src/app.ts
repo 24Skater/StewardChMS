@@ -13,6 +13,15 @@ import worshipPlansRouter from './routes/worship-plans.js'
 import messageTemplatesRouter from './routes/message-templates.js'
 import messagesRouter from './routes/messages.js'
 import optInRouter from './routes/opt-in.js'
+// Phase 5: Accounting + Giving
+import fundsRouter from './routes/funds.js'
+import donationsRouter from './routes/donations.js'
+import pledgesRouter from './routes/pledges.js'
+import vendorsRouter from './routes/vendors.js'
+import expensesRouter from './routes/expenses.js'
+import invoicesRouter from './routes/invoices.js'
+import purchaseOrdersRouter from './routes/purchase-orders.js'
+import reportsRouter from './routes/reports.js'
 
 const app = express()
 
@@ -42,6 +51,17 @@ app.use('/api', worshipPlansRouter) // Has nested routes like /api/occurrences/:
 app.use('/api/message-templates', messageTemplatesRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api', optInRouter) // Has nested routes like /api/members/:id/opt-in
+// Phase 5: Accounting + Giving
+app.use('/api/funds', fundsRouter)
+app.use('/api/donations', donationsRouter)
+app.use('/api/pledges', pledgesRouter)
+app.use('/api/vendors', vendorsRouter)
+app.use('/api/expenses', expensesRouter)
+app.use('/api/invoices', invoicesRouter)
+app.use('/api', invoicesRouter) // Also mount for /api/invoice-items/:id routes
+app.use('/api/purchase-orders', purchaseOrdersRouter)
+app.use('/api', purchaseOrdersRouter) // Also mount for /api/purchase-order-items/:id routes
+app.use('/api/reports', reportsRouter)
 
 // 404 handler
 app.use((_req, res) => {

@@ -37,3 +37,6 @@ export * from './worship-plans.js'
 // Communications schemas (Phase 4)
 export * from './communications.js'
 
+// Accounting + Giving schemas (Phase 5)
+export * from './accounting.js'
+

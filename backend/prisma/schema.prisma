@@ -24,9 +24,10 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   // Relations
-  userRoles UserRole[]
-  auditLogs AuditLog[] @relation("ActorAuditLogs")
-  messages  Message[]
+  userRoles      UserRole[]
+  auditLogs      AuditLog[]      @relation("ActorAuditLogs")
+  messages       Message[]
+  purchaseOrders PurchaseOrder[]
 
   @@map("users")
 }
@@ -125,6 +126,8 @@ model Member {
   worshipPlanItems  WorshipPlanItem[]
   messageRecipients MessageRecipient[]
   optInPreferences  OptInPreference[]
+  donations         Donation[]
+  pledges           Pledge[]
 
   @@index([lastName])
   @@index([email])
@@ -396,4 +399,218 @@ model OptInPreference {
 
   @@unique([memberId, channel])
   @@map("opt_in_preferences")
+}
+
+// ============================================
+// Accounting + Giving Models (Phase 5)
+// ============================================
+
+enum PaymentMethod {
+  cash
+  check
+  card
+  online
+  other
+}
+
+enum PledgeStatus {
+  active
+  completed
+  canceled
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  void
+}
+
+enum PurchaseOrderStatus {
+  draft
+  submitted
+  approved
+  rejected
+  closed
+  void
+}
+
+model Fund {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?
+  isRestricted Boolean  @default(false) @map("is_restricted")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  donations Donation[]
+  pledges   Pledge[]
+  expenses  Expense[]
+
+  @@map("funds")
+}
+
+model Donation {
+  id         String        @id @default(cuid())
+  memberId   String?       @map("member_id")
+  guestName  String?       @map("guest_name")
+  amountCents Int          @map("amount_cents")
+  currency   String        @default("USD")
+  fundId     String?       @map("fund_id")
+  method     PaymentMethod
+  receivedAt DateTime      @map("received_at")
+  note       String?
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  fund   Fund?   @relation(fields: [fundId], references: [id], onDelete: SetNull)
+
+  @@index([receivedAt])
+  @@index([memberId])
+  @@index([fundId])
+  @@map("donations")
+}
+
+model Pledge {
+  id          String       @id @default(cuid())
+  memberId    String       @map("member_id")
+  fundId      String?      @map("fund_id")
+  amountCents Int          @map("amount_cents")
+  startDate   DateTime?    @map("start_date")
+  endDate     DateTime?    @map("end_date")
+  status      PledgeStatus @default(active)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  fund   Fund?  @relation(fields: [fundId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([memberId])
+  @@index([fundId])
+  @@map("pledges")
+}
+
+model Vendor {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  email     String?
+  phone     String?
+  street    String?
+  city      String?
+  state     String?
+  zip       String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  expenses       Expense[]
+  invoices       Invoice[]
+  purchaseOrders PurchaseOrder[]
+
+  @@map("vendors")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  vendorId    String?  @map("vendor_id")
+  fundId      String?  @map("fund_id")
+  amountCents Int      @map("amount_cents")
+  currency    String   @default("USD")
+  expenseDate DateTime @map("expense_date")
+  category    String?
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  vendor Vendor? @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  fund   Fund?   @relation(fields: [fundId], references: [id], onDelete: SetNull)
+
+  @@index([expenseDate])
+  @@index([vendorId])
+  @@index([fundId])
+  @@map("expenses")
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique @map("invoice_number")
+  vendorId      String?       @map("vendor_id")
+  billToName    String?       @map("bill_to_name")
+  issueDate     DateTime      @map("issue_date")
+  dueDate       DateTime?     @map("due_date")
+  status        InvoiceStatus @default(draft)
+  subtotalCents Int           @map("subtotal_cents")
+  taxCents      Int           @default(0) @map("tax_cents")
+  totalCents    Int           @map("total_cents")
+  note          String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  vendor Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  items  InvoiceItem[]
+
+  @@index([status])
+  @@index([issueDate])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id             String @id @default(cuid())
+  invoiceId      String @map("invoice_id")
+  description    String
+  quantity       Float
+  unitPriceCents Int    @map("unit_price_cents")
+  lineTotalCents Int    @map("line_total_cents")
+  sortOrder      Int    @map("sort_order")
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model PurchaseOrder {
+  id              String              @id @default(cuid())
+  poNumber        String              @unique @map("po_number")
+  vendorId        String?             @map("vendor_id")
+  requestorUserId String?             @map("requestor_user_id")
+  issueDate       DateTime            @map("issue_date")
+  status          PurchaseOrderStatus @default(draft)
+  subtotalCents   Int                 @map("subtotal_cents")
+  taxCents        Int                 @default(0) @map("tax_cents")
+  totalCents      Int                 @map("total_cents")
+  note            String?
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  vendor        Vendor?             @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  requestorUser User?               @relation(fields: [requestorUserId], references: [id], onDelete: SetNull)
+  items         PurchaseOrderItem[]
+
+  @@index([status])
+  @@index([issueDate])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String @id @default(cuid())
+  purchaseOrderId String @map("purchase_order_id")
+  description     String
+  quantity        Float
+  unitPriceCents  Int    @map("unit_price_cents")
+  lineTotalCents  Int    @map("line_total_cents")
+  sortOrder       Int    @map("sort_order")
+
+  // Relations
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+  @@map("purchase_order_items")
 }

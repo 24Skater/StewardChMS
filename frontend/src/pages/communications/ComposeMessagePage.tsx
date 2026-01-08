@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select'
-import { MessageTarget, MemberStatus } from '../../lib/api'
+import { MessageTarget, MemberStatus, ApiClientError } from '../../lib/api'
 
 const composeSchema = z.object({
   channel: z.enum(['email', 'sms']),
@@ -32,6 +32,7 @@ type ComposeFormData = z.infer<typeof composeSchema>
 export default function ComposeMessagePage() {
   const navigate = useNavigate()
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   
   const { data: membersData } = useMembers({ limit: 100 })
   const { data: templatesData } = useMessageTemplates({ limit: 100 })
@@ -76,6 +77,7 @@ export default function ComposeMessagePage() {
   }
 
   const onSubmit = async (data: ComposeFormData) => {
+    setErrorMessage(null)
     try {
       let target: MessageTarget
 
@@ -86,7 +88,7 @@ export default function ComposeMessagePage() {
       } else if (data.targetType === 'memberIds' && selectedMembers.length > 0) {
         target = { type: 'memberIds', memberIds: selectedMembers }
       } else {
-        alert('Please select at least one recipient')
+        setErrorMessage('Please select at least one recipient')
         return
       }
 
@@ -100,6 +102,11 @@ export default function ComposeMessagePage() {
       navigate('/communications')
     } catch (error) {
       console.error('Failed to send message:', error)
+      if (error instanceof ApiClientError) {
+        setErrorMessage(error.data.message || error.data.error || 'Failed to send message')
+      } else {
+        setErrorMessage('Failed to send message. Please try again.')
+      }
     }
   }
 
@@ -283,9 +290,9 @@ export default function ComposeMessagePage() {
           </Button>
         </div>
 
-        {sendMutation.isError && (
-          <div className="text-red-500">
-            Failed to send message. Please try again.
+        {errorMessage && (
+          <div className="text-red-500 bg-red-50 p-3 rounded border border-red-200">
+            {errorMessage}
           </div>
         )}
       </form>

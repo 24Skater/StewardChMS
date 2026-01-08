@@ -28,6 +28,11 @@ const DEFAULT_PERMISSIONS = [
   // Communication permissions (Phase 4)
   { key: 'communications.view', description: 'View messages and templates' },
   { key: 'communications.send', description: 'Send messages and manage templates' },
+  // Accounting + Giving permissions (Phase 5)
+  { key: 'giving.view', description: 'View donations and pledges' },
+  { key: 'giving.edit', description: 'Create and edit donations and pledges' },
+  { key: 'accounting.view', description: 'View funds, expenses, invoices, and purchase orders' },
+  { key: 'accounting.edit', description: 'Create and edit funds, expenses, invoices, and purchase orders' },
 ]
 
 async function main() {

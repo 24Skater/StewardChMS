@@ -183,3 +183,70 @@ Template:
 - Reason: Covers most personalization needs; easy to implement without template engine
 - Alternatives considered: Full template engine like Handlebars (overkill), no personalization (poor UX)
 - Impact: Limited to predefined variables; extend by adding more replacements if needed
+
+---
+
+## Phase 5 Decisions
+
+### Decision 23: Money Storage Format
+- Date: 2026-01-08
+- Decision: Store all monetary values as integers representing cents (amountCents, unitPriceCents, etc.)
+- Reason: Avoids floating-point precision issues with currency calculations
+- Alternatives considered: Decimal/numeric type (database-specific), floating point (precision issues), string (parsing overhead)
+- Impact: All API inputs/outputs use cents; frontend converts to dollars for display; calculation accuracy guaranteed
+
+### Decision 24: Anonymous Donations
+- Date: 2026-01-08
+- Decision: Donations can have either memberId OR guestName, both nullable
+- Reason: Supports member giving, guest giving with name, and fully anonymous donations
+- Alternatives considered: Separate Guest table (overhead), require member ID always (limits flexibility)
+- Impact: Queries need to handle both cases; reports show "Anonymous" for donations with neither field
+
+### Decision 25: Document Number Generation
+- Date: 2026-01-08
+- Decision: Auto-generate invoice numbers (INV-YYYY-NNNN) and PO numbers (PO-YYYY-NNNN) with year prefix and sequential counter
+- Reason: Human-readable format, prevents duplicates, easy to identify document age
+- Alternatives considered: UUID only (not human-readable), user-entered numbers (error-prone), simple increment (loses year context)
+- Impact: Numbers generated in transaction to prevent race conditions; unique constraint enforced at database level
+
+### Decision 26: PDF Generation Location
+- Date: 2026-01-08
+- Decision: Generate PDFs on frontend using jsPDF and jspdf-autotable
+- Reason: No additional server dependencies; immediate generation without API call; reuses existing jsPDF from StewardPOS
+- Alternatives considered: Server-side PDFKit/Puppeteer (requires more server resources), external PDF service (cost, complexity)
+- Impact: PDFs generated in browser; styling/branding controlled by frontend code; no server-side rendering overhead
+
+### Decision 27: Donor Statement By Year
+- Date: 2026-01-08
+- Decision: Donor statements are generated per calendar year, not custom date ranges
+- Reason: Aligns with tax reporting requirements; simpler API; covers primary use case
+- Alternatives considered: Custom date range (more flexible but rarely needed), quarterly statements (adds complexity)
+- Impact: API takes year parameter; annual giving summary matches typical end-of-year statement needs
+
+### Decision 28: Invoice/PO Items Inline
+- Date: 2026-01-08
+- Decision: Create invoices and POs with items inline in single API call, not separate item endpoints
+- Reason: Simplifies transaction handling; items rarely added after creation
+- Alternatives considered: Separate item CRUD endpoints (more API complexity), nested resources (similar complexity)
+- Impact: Items calculated and validated server-side; totals computed on creation; updates replace entire item set
+
+### Decision 29: Accounting Permissions Split
+- Date: 2026-01-08
+- Decision: Separate giving (donations/pledges) and accounting (funds/vendors/expenses/invoices/POs) permission sets
+- Reason: Different staff may handle donations vs accounts payable; aligns with typical church org structure
+- Alternatives considered: Single finance permission (too broad), per-entity permissions (too granular)
+- Impact: Four permissions: giving.view, giving.edit, accounting.view, accounting.edit
+
+### Decision 30: Fund Summary vs Giving Summary
+- Date: 2026-01-08
+- Decision: Two separate report endpoints: fund summary (income vs expenses) and giving summary (donor breakdown)
+- Reason: Different analytical needs; fund summary for financial oversight, giving summary for donor relations
+- Alternatives considered: Single combined report (too complex), more granular reports (over-engineered for Phase 5)
+- Impact: Reports can be run independently; fund summary shows net position, giving summary shows donor totals
+
+### Decision 31: Backend Integration Tests with Audit Logging
+- Date: 2026-01-08
+- Decision: Backend integration tests that create records fail due to audit log foreign key constraint
+- Reason: Test JWT tokens use fake user IDs that don't exist in database; audit_logs table requires valid user reference
+- Alternatives considered: Create test users in beforeAll (adds database state management), skip audit logging in tests (reduces coverage), use mock Prisma (more test complexity)
+- Impact: Integration tests that create/update records fail; unit tests and RBAC tests pass. Requires future investment in test infrastructure to properly seed test users.
