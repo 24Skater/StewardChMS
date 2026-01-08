@@ -21,3 +21,6 @@ export const apiErrorSchema = z.object({
 
 export type ApiError = z.infer<typeof apiErrorSchema>
 
+// Auth schemas
+export * from './auth.js'
+

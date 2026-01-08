@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import healthRouter from './routes/health.js'
+import authRouter from './routes/auth.js'
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // Routes
 app.use('/api/health', healthRouter)
+app.use('/api/auth', authRouter)
 
 // 404 handler
 app.use((_req, res) => {
