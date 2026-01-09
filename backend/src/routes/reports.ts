@@ -1,8 +1,20 @@
-import { Router } from 'express'
+import { Router, Response } from 'express'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 
 const router = Router()
+
+// CSV export helper
+function sendCSV(res: Response, filename: string, headers: string[], rows: string[][]) {
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  ].join('\n')
+
+  res.setHeader('Content-Type', 'text/csv')
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  res.send(csvContent)
+}
 
 // GET /api/reports/funds-summary - Fund balance summary
 router.get('/funds-summary', requireAuth, requirePermission('accounting.view'), async (req, res) => {
@@ -252,6 +264,344 @@ router.get('/donor-statement', requireAuth, requirePermission('giving.view'), as
   } catch (error) {
     console.error('Error generating donor statement:', error)
     res.status(500).json({ error: 'Failed to generate donor statement' })
+  }
+})
+
+// ============================================
+// Phase 6 Report Endpoints
+// ============================================
+
+// GET /api/reports/membership-summary - Membership statistics
+router.get('/membership-summary', requireAuth, requirePermission('reports.view'), async (req, res) => {
+  try {
+    const { dateFrom, dateTo, format } = req.query
+
+    if (!dateFrom || !dateTo) {
+      return res.status(400).json({ error: 'dateFrom and dateTo are required' })
+    }
+
+    const startDate = new Date(dateFrom as string)
+    const endDate = new Date(dateTo as string)
+
+    // Total members by status
+    const membersByStatus = await prisma.member.groupBy({
+      by: ['status'],
+      _count: { id: true },
+    })
+
+    // New members added in date range
+    const newMembers = await prisma.member.count({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    })
+
+    // Members missing email
+    const missingEmail = await prisma.member.count({
+      where: {
+        email: null,
+        status: 'active',
+      },
+    })
+
+    // Members missing phone
+    const missingPhone = await prisma.member.count({
+      where: {
+        phone: null,
+        status: 'active',
+      },
+    })
+
+    // Total active members
+    const totalActive = membersByStatus.find(s => s.status === 'active')?._count.id || 0
+    const totalInactive = membersByStatus.find(s => s.status === 'inactive')?._count.id || 0
+    const totalVisitor = membersByStatus.find(s => s.status === 'visitor')?._count.id || 0
+
+    const result = {
+      dateFrom: startDate.toISOString(),
+      dateTo: endDate.toISOString(),
+      byStatus: {
+        active: totalActive,
+        inactive: totalInactive,
+        visitor: totalVisitor,
+      },
+      newMembersInPeriod: newMembers,
+      missingFields: {
+        email: missingEmail,
+        phone: missingPhone,
+      },
+      totalMembers: totalActive + totalInactive + totalVisitor,
+    }
+
+    if (format === 'csv') {
+      const headers = ['Metric', 'Value']
+      const rows = [
+        ['Active Members', String(totalActive)],
+        ['Inactive Members', String(totalInactive)],
+        ['Visitors', String(totalVisitor)],
+        ['Total Members', String(result.totalMembers)],
+        ['New Members (Period)', String(newMembers)],
+        ['Missing Email', String(missingEmail)],
+        ['Missing Phone', String(missingPhone)],
+      ]
+      return sendCSV(res, 'membership-summary.csv', headers, rows)
+    }
+
+    res.json(result)
+  } catch (error) {
+    console.error('Error generating membership summary:', error)
+    res.status(500).json({ error: 'Failed to generate membership summary' })
+  }
+})
+
+// GET /api/reports/attendance-summary - Attendance statistics
+router.get('/attendance-summary', requireAuth, requirePermission('reports.view'), async (req, res) => {
+  try {
+    const { dateFrom, dateTo, format } = req.query
+
+    if (!dateFrom || !dateTo) {
+      return res.status(400).json({ error: 'dateFrom and dateTo are required' })
+    }
+
+    const startDate = new Date(dateFrom as string)
+    const endDate = new Date(dateTo as string)
+
+    // Get occurrences with check-in counts
+    const occurrences = await prisma.eventOccurrence.findMany({
+      where: {
+        startsAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        event: {
+          select: { id: true, title: true },
+        },
+        _count: {
+          select: { checkIns: true },
+        },
+      },
+      orderBy: { startsAt: 'asc' },
+    })
+
+    // Total check-ins in period
+    const totalCheckIns = occurrences.reduce((sum, occ) => sum + occ._count.checkIns, 0)
+
+    // Top events by attendance
+    const eventAttendance = new Map<string, { title: string; checkIns: number }>()
+    for (const occ of occurrences) {
+      const existing = eventAttendance.get(occ.event.id)
+      if (existing) {
+        existing.checkIns += occ._count.checkIns
+      } else {
+        eventAttendance.set(occ.event.id, {
+          title: occ.event.title,
+          checkIns: occ._count.checkIns,
+        })
+      }
+    }
+
+    const topEvents = Array.from(eventAttendance.entries())
+      .map(([eventId, data]) => ({ eventId, ...data }))
+      .sort((a, b) => b.checkIns - a.checkIns)
+      .slice(0, 10)
+
+    const result = {
+      dateFrom: startDate.toISOString(),
+      dateTo: endDate.toISOString(),
+      totalCheckIns,
+      occurrenceCount: occurrences.length,
+      topEvents,
+      occurrences: occurrences.map(occ => ({
+        occurrenceId: occ.id,
+        eventTitle: occ.event.title,
+        startsAt: occ.startsAt.toISOString(),
+        checkIns: occ._count.checkIns,
+      })),
+    }
+
+    if (format === 'csv') {
+      const headers = ['Event', 'Date', 'Check-ins']
+      const rows = occurrences.map(occ => [
+        occ.event.title,
+        occ.startsAt.toISOString().split('T')[0],
+        String(occ._count.checkIns),
+      ])
+      return sendCSV(res, 'attendance-summary.csv', headers, rows)
+    }
+
+    res.json(result)
+  } catch (error) {
+    console.error('Error generating attendance summary:', error)
+    res.status(500).json({ error: 'Failed to generate attendance summary' })
+  }
+})
+
+// GET /api/reports/giving-report - Public giving report (fund totals only, no donor names)
+router.get('/giving-report', requireAuth, requirePermission('reports.view'), async (req, res) => {
+  try {
+    const { dateFrom, dateTo, format } = req.query
+
+    if (!dateFrom || !dateTo) {
+      return res.status(400).json({ error: 'dateFrom and dateTo are required' })
+    }
+
+    const startDate = new Date(dateFrom as string)
+    const endDate = new Date(dateTo as string)
+
+    // Get donations grouped by fund
+    const donations = await prisma.donation.groupBy({
+      by: ['fundId'],
+      where: {
+        receivedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      _sum: { amountCents: true },
+      _count: { id: true },
+    })
+
+    // Get fund names
+    const fundIds = donations.map(d => d.fundId).filter((id): id is string => id !== null)
+    const funds = await prisma.fund.findMany({
+      where: { id: { in: fundIds } },
+    })
+    const fundMap = new Map(funds.map(f => [f.id, f.name]))
+
+    const fundTotals = donations.map(d => ({
+      fundId: d.fundId,
+      fundName: d.fundId ? (fundMap.get(d.fundId) || 'Unknown') : 'Undesignated',
+      totalCents: d._sum.amountCents || 0,
+      donationCount: d._count.id,
+    })).sort((a, b) => b.totalCents - a.totalCents)
+
+    const totalCents = fundTotals.reduce((sum, f) => sum + f.totalCents, 0)
+    const totalDonations = fundTotals.reduce((sum, f) => sum + f.donationCount, 0)
+
+    const result = {
+      dateFrom: startDate.toISOString(),
+      dateTo: endDate.toISOString(),
+      fundTotals,
+      totalCents,
+      totalDonations,
+    }
+
+    if (format === 'csv') {
+      const headers = ['Fund', 'Donations', 'Total ($)']
+      const rows = fundTotals.map(f => [
+        f.fundName,
+        String(f.donationCount),
+        (f.totalCents / 100).toFixed(2),
+      ])
+      rows.push(['TOTAL', String(totalDonations), (totalCents / 100).toFixed(2)])
+      return sendCSV(res, 'giving-report.csv', headers, rows)
+    }
+
+    res.json(result)
+  } catch (error) {
+    console.error('Error generating giving report:', error)
+    res.status(500).json({ error: 'Failed to generate giving report' })
+  }
+})
+
+// GET /api/reports/volunteer-summary - Placeholder for volunteer assignments report
+router.get('/volunteer-summary', requireAuth, requirePermission('reports.view'), async (_req, res) => {
+  res.json({
+    message: 'Volunteer/assignments report not yet implemented',
+    status: 'placeholder',
+    note: 'This report will be available when the volunteer management module is completed',
+  })
+})
+
+// GET /api/reports/sales-summary - Sales statistics
+router.get('/sales-summary', requireAuth, requirePermission('reports.view'), async (req, res) => {
+  try {
+    const { dateFrom, dateTo, format } = req.query
+
+    if (!dateFrom || !dateTo) {
+      return res.status(400).json({ error: 'dateFrom and dateTo are required' })
+    }
+
+    const startDate = new Date(dateFrom as string)
+    const endDate = new Date(dateTo as string)
+
+    // Get sales in period (completed only)
+    const sales = await prisma.sale.findMany({
+      where: {
+        soldAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: 'completed',
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: { id: true, name: true },
+            },
+          },
+        },
+      },
+    })
+
+    // Calculate totals
+    const totalSales = sales.length
+    const totalRevenueCents = sales.reduce((sum, s) => sum + s.totalCents, 0)
+    const totalTaxCents = sales.reduce((sum, s) => sum + s.taxCents, 0)
+
+    // Top products by quantity sold
+    const productSales = new Map<string, { name: string; quantity: number; revenueCents: number }>()
+    for (const sale of sales) {
+      for (const item of sale.items) {
+        const existing = productSales.get(item.productId)
+        if (existing) {
+          existing.quantity += item.quantity
+          existing.revenueCents += item.lineTotalCents
+        } else {
+          productSales.set(item.productId, {
+            name: item.product.name,
+            quantity: item.quantity,
+            revenueCents: item.lineTotalCents,
+          })
+        }
+      }
+    }
+
+    const topProducts = Array.from(productSales.entries())
+      .map(([productId, data]) => ({ productId, ...data }))
+      .sort((a, b) => b.revenueCents - a.revenueCents)
+      .slice(0, 10)
+
+    const result = {
+      dateFrom: startDate.toISOString(),
+      dateTo: endDate.toISOString(),
+      totalSales,
+      totalRevenueCents,
+      totalTaxCents,
+      topProducts,
+    }
+
+    if (format === 'csv') {
+      const headers = ['Product', 'Quantity Sold', 'Revenue ($)']
+      const rows = topProducts.map(p => [
+        p.name,
+        String(p.quantity),
+        (p.revenueCents / 100).toFixed(2),
+      ])
+      rows.push(['TOTAL', '', (totalRevenueCents / 100).toFixed(2)])
+      return sendCSV(res, 'sales-summary.csv', headers, rows)
+    }
+
+    res.json(result)
+  } catch (error) {
+    console.error('Error generating sales summary:', error)
+    res.status(500).json({ error: 'Failed to generate sales summary' })
   }
 })
 

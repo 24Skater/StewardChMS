@@ -22,6 +22,10 @@ import expensesRouter from './routes/expenses.js'
 import invoicesRouter from './routes/invoices.js'
 import purchaseOrdersRouter from './routes/purchase-orders.js'
 import reportsRouter from './routes/reports.js'
+// Phase 6: Reporting + Sales
+import productsRouter from './routes/products.js'
+import inventoryRouter from './routes/inventory.js'
+import salesRouter from './routes/sales.js'
 
 const app = express()
 
@@ -58,10 +62,12 @@ app.use('/api/pledges', pledgesRouter)
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/expenses', expensesRouter)
 app.use('/api/invoices', invoicesRouter)
-app.use('/api', invoicesRouter) // Also mount for /api/invoice-items/:id routes
 app.use('/api/purchase-orders', purchaseOrdersRouter)
-app.use('/api', purchaseOrdersRouter) // Also mount for /api/purchase-order-items/:id routes
 app.use('/api/reports', reportsRouter)
+// Phase 6: Reporting + Sales
+app.use('/api/products', productsRouter)
+app.use('/api/inventory', inventoryRouter)
+app.use('/api/sales', salesRouter)
 
 // 404 handler
 app.use((_req, res) => {

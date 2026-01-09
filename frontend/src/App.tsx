@@ -34,6 +34,17 @@ import PurchaseOrdersPage from './pages/accounting/PurchaseOrdersPage'
 import PurchaseOrderFormPage from './pages/accounting/PurchaseOrderFormPage'
 import PurchaseOrderDetailPage from './pages/accounting/PurchaseOrderDetailPage'
 import FinanceReportsPage from './pages/reports/FinanceReportsPage'
+// Phase 6: Reporting + Sales
+import ReportsHubPage from './pages/reports/ReportsHubPage'
+import MembershipReportPage from './pages/reports/MembershipReportPage'
+import AttendanceReportPage from './pages/reports/AttendanceReportPage'
+import GivingReportPage from './pages/reports/GivingReportPage'
+import SalesReportPage from './pages/reports/SalesReportPage'
+import ProductsPage from './pages/products/ProductsPage'
+import InventoryPage from './pages/inventory/InventoryPage'
+import SalesPage from './pages/sales/SalesPage'
+import SaleFormPage from './pages/sales/SaleFormPage'
+import SaleDetailPage from './pages/sales/SaleDetailPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
@@ -358,6 +369,90 @@ function App() {
         element={
           <ProtectedRoute requiredPermission="accounting.view">
             <FinanceReportsPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Phase 6: Reports Hub */}
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute requiredPermission="reports.view">
+            <ReportsHubPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/membership"
+        element={
+          <ProtectedRoute requiredPermission="reports.view">
+            <MembershipReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/attendance"
+        element={
+          <ProtectedRoute requiredPermission="reports.view">
+            <AttendanceReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/giving"
+        element={
+          <ProtectedRoute requiredPermission="reports.view">
+            <GivingReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/sales"
+        element={
+          <ProtectedRoute requiredPermission="reports.view">
+            <SalesReportPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Phase 6: Products */}
+      <Route
+        path="/products"
+        element={
+          <ProtectedRoute requiredPermission="inventory.view">
+            <ProductsPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Phase 6: Inventory */}
+      <Route
+        path="/inventory"
+        element={
+          <ProtectedRoute requiredPermission="inventory.view">
+            <InventoryPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Phase 6: Sales */}
+      <Route
+        path="/sales"
+        element={
+          <ProtectedRoute requiredPermission="sales.view">
+            <SalesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sales/new"
+        element={
+          <ProtectedRoute requiredPermission="sales.edit">
+            <SaleFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sales/:id"
+        element={
+          <ProtectedRoute requiredPermission="sales.view">
+            <SaleDetailPage />
           </ProtectedRoute>
         }
       />

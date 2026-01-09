@@ -28,6 +28,7 @@ model User {
   auditLogs      AuditLog[]      @relation("ActorAuditLogs")
   messages       Message[]
   purchaseOrders PurchaseOrder[]
+  sales          Sale[]
 
   @@map("users")
 }
@@ -128,6 +129,7 @@ model Member {
   optInPreferences  OptInPreference[]
   donations         Donation[]
   pledges           Pledge[]
+  sales             Sale[]
 
   @@index([lastName])
   @@index([email])
@@ -613,4 +615,98 @@ model PurchaseOrderItem {
 
   @@index([purchaseOrderId])
   @@map("purchase_order_items")
+}
+
+// ============================================
+// Sales + Fundraising Models (Phase 6)
+// ============================================
+
+enum InventoryTransactionType {
+  adjustment
+  purchase
+  sale
+  return
+}
+
+enum SaleStatus {
+  completed
+  void
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  sku         String?  @unique
+  priceCents  Int      @map("price_cents")
+  currency    String   @default("USD")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  inventoryTransactions InventoryTransaction[]
+  saleItems             SaleItem[]
+
+  @@index([isActive])
+  @@map("products")
+}
+
+model InventoryTransaction {
+  id            String                   @id @default(cuid())
+  productId     String                   @map("product_id")
+  type          InventoryTransactionType
+  quantityDelta Int                      @map("quantity_delta")
+  note          String?
+  createdAt     DateTime                 @default(now()) @map("created_at")
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([createdAt])
+  @@map("inventory_transactions")
+}
+
+model Sale {
+  id              String     @id @default(cuid())
+  saleNumber      String     @unique @map("sale_number")
+  memberId        String?    @map("member_id")
+  guestName       String?    @map("guest_name")
+  status          SaleStatus @default(completed)
+  subtotalCents   Int        @map("subtotal_cents")
+  taxCents        Int        @default(0) @map("tax_cents")
+  totalCents      Int        @map("total_cents")
+  soldAt          DateTime   @map("sold_at")
+  createdByUserId String     @map("created_by_user_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  // Relations
+  member        Member?    @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  createdByUser User       @relation(fields: [createdByUserId], references: [id])
+  items         SaleItem[]
+
+  @@index([saleNumber])
+  @@index([soldAt])
+  @@index([status])
+  @@index([createdByUserId])
+  @@map("sales")
+}
+
+model SaleItem {
+  id             String @id @default(cuid())
+  saleId         String @map("sale_id")
+  productId      String @map("product_id")
+  quantity       Int
+  unitPriceCents Int    @map("unit_price_cents")
+  lineTotalCents Int    @map("line_total_cents")
+  sortOrder      Int    @map("sort_order")
+
+  // Relations
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([saleId])
+  @@index([productId])
+  @@map("sale_items")
 }

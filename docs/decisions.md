@@ -250,3 +250,70 @@ Template:
 - Reason: Test JWT tokens use fake user IDs that don't exist in database; audit_logs table requires valid user reference
 - Alternatives considered: Create test users in beforeAll (adds database state management), skip audit logging in tests (reduces coverage), use mock Prisma (more test complexity)
 - Impact: Integration tests that create/update records fail; unit tests and RBAC tests pass. Requires future investment in test infrastructure to properly seed test users.
+
+---
+
+## Phase 6 Decisions
+
+### Decision 32: Product Soft Delete
+- Date: 2026-01-08
+- Decision: Products are soft-deleted by setting isActive=false, not removed from database
+- Reason: Products may be referenced by historical sale items; removing them would break data integrity
+- Alternatives considered: Hard delete with CASCADE (loses history), archive table (more complex)
+- Impact: "Deleted" products still exist with isActive=false; filtered out by default in product lists
+
+### Decision 33: Sale Number Format
+- Date: 2026-01-08
+- Decision: Auto-generate sale numbers as SALE-YYYY-NNNN with year prefix
+- Reason: Consistent with Invoice/PO format; human-readable; easy year identification
+- Alternatives considered: Simple numeric increment (loses year context), UUID (not human-readable)
+- Impact: Sale number generated in transaction to prevent race conditions; unique constraint at database level
+
+### Decision 34: Inventory as Transaction Sum
+- Date: 2026-01-08
+- Decision: On-hand inventory calculated as sum of all InventoryTransaction.quantityDelta values per product
+- Reason: Full audit trail of all inventory changes; no separate "current stock" field to sync
+- Alternatives considered: Separate onHand column (requires sync), running balance per transaction (more complex queries)
+- Impact: Inventory queries aggregate transactions; initial stock added via adjustment transaction with type='purchase'
+
+### Decision 35: Sale Void Behavior
+- Date: 2026-01-08
+- Decision: Voiding a sale reverses inventory by creating return transactions; status changes to 'void'
+- Reason: Maintains accurate inventory; provides audit trail; prevents re-voiding
+- Alternatives considered: Delete sale and transactions (loses history), keep inventory unchanged (inaccurate)
+- Impact: Voided sales remain in database for reporting; inventory restored automatically
+
+### Decision 36: Server-Side Sale Totals
+- Date: 2026-01-08
+- Decision: All sale totals (line total, subtotal, total) calculated server-side, never trusting client values
+- Reason: Security; prevents price manipulation; ensures data integrity
+- Alternatives considered: Trust client totals (security risk), calculate on read only (inconsistent)
+- Impact: API accepts items with productId and quantity only; server looks up prices and calculates totals
+
+### Decision 37: Reports Permission Model
+- Date: 2026-01-08
+- Decision: Single reports.view permission for all Phase 6 reports
+- Reason: Simplified permission model; all reports are read-only aggregate data
+- Alternatives considered: Per-report permissions (too granular), reuse existing view permissions (inconsistent access)
+- Impact: Users with reports.view can access membership, attendance, giving, and sales summaries
+
+### Decision 38: Volunteer Report Placeholder
+- Date: 2026-01-08
+- Decision: Volunteer summary report returns "not implemented" status instead of failing
+- Reason: Spec requires report endpoint; volunteer module not yet implemented; clean degradation
+- Alternatives considered: Skip endpoint entirely (would fail API contract), throw error (poor UX)
+- Impact: API contract fulfilled; UI can show placeholder; easy to implement when volunteer module added
+
+### Decision 39: CSV Export Strategy
+- Date: 2026-01-08
+- Decision: CSV exports generated on backend via format=csv query parameter
+- Reason: Consistent data between JSON and CSV views; server handles formatting
+- Alternatives considered: Frontend-only CSV (can already do this too), dedicated export endpoints
+- Impact: Same endpoints serve JSON (default) or CSV; frontend has helper for client-side CSV if needed
+
+### Decision 40: Giving Report Privacy
+- Date: 2026-01-08
+- Decision: The public giving-report endpoint shows fund totals only, not individual donor names
+- Reason: Privacy; detailed donor information requires giving.view permission via giving-summary endpoint
+- Alternatives considered: No privacy distinction (inappropriate), exclude giving from general reports (incomplete)
+- Impact: Two endpoints: giving-report (reports.view, aggregates only) and giving-summary (giving.view, donor details)

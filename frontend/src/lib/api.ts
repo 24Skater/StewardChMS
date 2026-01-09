@@ -1662,3 +1662,325 @@ export async function getDonorStatement(memberId: string, year: number): Promise
   return apiRequest<DonorStatementResponse>(`/reports/donor-statement?memberId=${memberId}&year=${year}`)
 }
 
+// ============================================
+// Phase 6: Products, Inventory, Sales, Reports
+// ============================================
+
+// --- Products ---
+
+export interface Product {
+  id: string
+  name: string
+  description: string | null
+  sku: string | null
+  priceCents: number
+  currency: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProductListResponse {
+  products: Product[]
+}
+
+export interface CreateProductData {
+  name: string
+  description?: string | null
+  sku?: string | null
+  priceCents: number
+  currency?: string
+  isActive?: boolean
+}
+
+export async function getProducts(activeOnly?: boolean): Promise<ProductListResponse> {
+  const params = new URLSearchParams()
+  if (activeOnly !== undefined) params.set('active', String(activeOnly))
+  const query = params.toString()
+  return apiRequest<ProductListResponse>(`/products${query ? `?${query}` : ''}`)
+}
+
+export async function getProduct(id: string): Promise<Product> {
+  return apiRequest<Product>(`/products/${id}`)
+}
+
+export async function createProduct(data: CreateProductData): Promise<Product> {
+  return apiRequest<Product>('/products', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function updateProduct(id: string, data: Partial<CreateProductData>): Promise<Product> {
+  return apiRequest<Product>(`/products/${id}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export async function deleteProduct(id: string): Promise<{ message: string; product: Product }> {
+  return apiRequest<{ message: string; product: Product }>(`/products/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// --- Inventory ---
+
+export type InventoryTransactionType = 'adjustment' | 'purchase' | 'sale' | 'return'
+
+export interface InventoryTransaction {
+  id: string
+  productId: string
+  type: InventoryTransactionType
+  quantityDelta: number
+  note: string | null
+  createdAt: string
+  product?: {
+    id: string
+    name: string
+    sku: string | null
+  }
+}
+
+export interface InventorySummaryItem {
+  productId: string
+  productName: string
+  sku: string | null
+  priceCents: number
+  isActive: boolean
+  onHand: number
+}
+
+export interface InventorySummaryResponse {
+  inventory: InventorySummaryItem[]
+}
+
+export interface InventoryTransactionListResponse {
+  transactions: InventoryTransaction[]
+}
+
+export interface AdjustInventoryData {
+  productId: string
+  quantityDelta: number
+  note?: string
+}
+
+export async function getInventorySummary(activeOnly?: boolean): Promise<InventorySummaryResponse> {
+  const params = new URLSearchParams()
+  if (activeOnly) params.set('activeOnly', 'true')
+  const query = params.toString()
+  return apiRequest<InventorySummaryResponse>(`/inventory/summary${query ? `?${query}` : ''}`)
+}
+
+export async function getInventoryTransactions(productId?: string, limit?: number): Promise<InventoryTransactionListResponse> {
+  const params = new URLSearchParams()
+  if (productId) params.set('productId', productId)
+  if (limit) params.set('limit', String(limit))
+  const query = params.toString()
+  return apiRequest<InventoryTransactionListResponse>(`/inventory/transactions${query ? `?${query}` : ''}`)
+}
+
+export async function adjustInventory(data: AdjustInventoryData): Promise<InventoryTransaction> {
+  return apiRequest<InventoryTransaction>('/inventory/adjust', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+// --- Sales ---
+
+export type SaleStatus = 'completed' | 'void'
+
+export interface SaleItem {
+  id: string
+  saleId: string
+  productId: string
+  quantity: number
+  unitPriceCents: number
+  lineTotalCents: number
+  sortOrder: number
+  product?: {
+    id: string
+    name: string
+    sku: string | null
+  }
+}
+
+export interface Sale {
+  id: string
+  saleNumber: string
+  memberId: string | null
+  guestName: string | null
+  status: SaleStatus
+  subtotalCents: number
+  taxCents: number
+  totalCents: number
+  soldAt: string
+  createdByUserId: string
+  createdAt: string
+  member?: {
+    id: string
+    firstName: string
+    lastName: string
+  } | null
+  createdByUser?: {
+    id: string
+    name: string | null
+    email: string
+  }
+  items?: SaleItem[]
+  _count?: {
+    items: number
+  }
+}
+
+export interface SaleListResponse {
+  sales: Sale[]
+}
+
+export interface SaleSearchParams {
+  dateFrom?: string
+  dateTo?: string
+  status?: SaleStatus
+  limit?: number
+}
+
+export interface SaleItemInput {
+  productId: string
+  quantity: number
+}
+
+export interface CreateSaleData {
+  memberId?: string | null
+  guestName?: string | null
+  taxCents?: number
+  items: SaleItemInput[]
+}
+
+export async function getSales(params: SaleSearchParams = {}): Promise<SaleListResponse> {
+  const searchParams = new URLSearchParams()
+  if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
+  if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+  if (params.status) searchParams.set('status', params.status)
+  if (params.limit) searchParams.set('limit', params.limit.toString())
+  
+  const query = searchParams.toString()
+  return apiRequest<SaleListResponse>(`/sales${query ? `?${query}` : ''}`)
+}
+
+export async function getSale(id: string): Promise<Sale> {
+  return apiRequest<Sale>(`/sales/${id}`)
+}
+
+export async function createSale(data: CreateSaleData): Promise<Sale> {
+  return apiRequest<Sale>('/sales', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+export async function voidSale(id: string): Promise<Sale> {
+  return apiRequest<Sale>(`/sales/${id}/void`, {
+    method: 'POST',
+  })
+}
+
+// --- Phase 6 Reports ---
+
+export interface MembershipSummaryResponse {
+  dateFrom: string
+  dateTo: string
+  byStatus: {
+    active: number
+    inactive: number
+    visitor: number
+  }
+  newMembersInPeriod: number
+  missingFields: {
+    email: number
+    phone: number
+  }
+  totalMembers: number
+}
+
+export interface AttendanceOccurrence {
+  occurrenceId: string
+  eventTitle: string
+  startsAt: string
+  checkIns: number
+}
+
+export interface TopEvent {
+  eventId: string
+  title: string
+  checkIns: number
+}
+
+export interface AttendanceSummaryResponse {
+  dateFrom: string
+  dateTo: string
+  totalCheckIns: number
+  occurrenceCount: number
+  topEvents: TopEvent[]
+  occurrences: AttendanceOccurrence[]
+}
+
+export interface GivingReportFund {
+  fundId: string | null
+  fundName: string
+  totalCents: number
+  donationCount: number
+}
+
+export interface GivingReportResponse {
+  dateFrom: string
+  dateTo: string
+  fundTotals: GivingReportFund[]
+  totalCents: number
+  totalDonations: number
+}
+
+export interface TopProduct {
+  productId: string
+  name: string
+  quantity: number
+  revenueCents: number
+}
+
+export interface SalesSummaryResponse {
+  dateFrom: string
+  dateTo: string
+  totalSales: number
+  totalRevenueCents: number
+  totalTaxCents: number
+  topProducts: TopProduct[]
+}
+
+export async function getMembershipSummary(dateFrom: string, dateTo: string, format?: 'csv'): Promise<MembershipSummaryResponse | string> {
+  const params = new URLSearchParams({ dateFrom, dateTo })
+  if (format) params.set('format', format)
+  return apiRequest<MembershipSummaryResponse | string>(`/reports/membership-summary?${params.toString()}`)
+}
+
+export async function getAttendanceSummary(dateFrom: string, dateTo: string, format?: 'csv'): Promise<AttendanceSummaryResponse | string> {
+  const params = new URLSearchParams({ dateFrom, dateTo })
+  if (format) params.set('format', format)
+  return apiRequest<AttendanceSummaryResponse | string>(`/reports/attendance-summary?${params.toString()}`)
+}
+
+export async function getGivingReport(dateFrom: string, dateTo: string, format?: 'csv'): Promise<GivingReportResponse | string> {
+  const params = new URLSearchParams({ dateFrom, dateTo })
+  if (format) params.set('format', format)
+  return apiRequest<GivingReportResponse | string>(`/reports/giving-report?${params.toString()}`)
+}
+
+export async function getSalesSummary(dateFrom: string, dateTo: string, format?: 'csv'): Promise<SalesSummaryResponse | string> {
+  const params = new URLSearchParams({ dateFrom, dateTo })
+  if (format) params.set('format', format)
+  return apiRequest<SalesSummaryResponse | string>(`/reports/sales-summary?${params.toString()}`)
+}
+
+export async function getVolunteerSummary(): Promise<{ message: string; status: string; note: string }> {
+  return apiRequest<{ message: string; status: string; note: string }>('/reports/volunteer-summary')
+}
+

@@ -33,6 +33,12 @@ const DEFAULT_PERMISSIONS = [
   { key: 'giving.edit', description: 'Create and edit donations and pledges' },
   { key: 'accounting.view', description: 'View funds, expenses, invoices, and purchase orders' },
   { key: 'accounting.edit', description: 'Create and edit funds, expenses, invoices, and purchase orders' },
+  // Reporting + Sales permissions (Phase 6)
+  { key: 'reports.view', description: 'View all reports' },
+  { key: 'sales.view', description: 'View sales' },
+  { key: 'sales.edit', description: 'Create and void sales' },
+  { key: 'inventory.view', description: 'View inventory and products' },
+  { key: 'inventory.edit', description: 'Create products and adjust inventory' },
 ]
 
 async function main() {
