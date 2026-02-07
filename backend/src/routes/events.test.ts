@@ -48,9 +48,14 @@ describe('Events API', () => {
       data: { userId: testUser.id, roleId: role.id },
     })
 
-    // Generate auth token
+    // Generate auth token with roles and permissions
     authToken = jwt.sign(
-      { userId: testUser.id, email: testUser.email },
+      { 
+        userId: testUser.id, 
+        email: testUser.email,
+        roles: ['events-test-role'],
+        permissions: ['events.read', 'events.write', 'worship.read', 'worship.write']
+      },
       process.env.JWT_SECRET || 'test-secret',
       { expiresIn: '1h' }
     )

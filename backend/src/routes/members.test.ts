@@ -18,7 +18,7 @@ const testToken = signToken({
   email: 'test@example.com',
   roles: ['admin'],
   permissions: ['members.read', 'members.write', 'members.delete', 'members.notes'],
-})
+}).accessToken
 
 // Token without notes permission
 const tokenWithoutNotes = signToken({
@@ -26,7 +26,7 @@ const tokenWithoutNotes = signToken({
   email: 'test@example.com',
   roles: ['staff'],
   permissions: ['members.read', 'members.write'],
-})
+}).accessToken
 
 // Skip all tests if no database
 const describeWithDb = DATABASE_URL ? describe : describe.skip

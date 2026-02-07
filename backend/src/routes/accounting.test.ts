@@ -17,10 +17,10 @@ const isDatabaseAvailable = async () => {
 // Mock JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'test-secret'
 
-// Create a test token
+// Create a test token with roles and permissions
 function createTestToken(userId: string, permissions: string[]) {
   return jwt.sign(
-    { userId, email: 'test@example.com', permissions },
+    { userId, email: 'test@example.com', roles: ['test-role'], permissions },
     JWT_SECRET,
     { expiresIn: '1h' }
   )
