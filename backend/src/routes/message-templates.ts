@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 // Type alias for Prisma enum
 type MessageChannel = 'email' | 'sms'
@@ -78,14 +79,12 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MESSAGE_TEMPLATE_CREATED',
-        entityType: 'MessageTemplate',
-        entityId: template.id,
-        metadata: { name: template.name, channel: template.channel },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MESSAGE_TEMPLATE_CREATED',
+      entityType: 'MessageTemplate',
+      entityId: template.id,
+      metadata: { name: template.name, channel: template.channel },
     })
 
     res.status(201).json(formatTemplateResponse(template))
@@ -195,14 +194,12 @@ router.put('/:id', requireAuth, requirePermission('communications.send'), async 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MESSAGE_TEMPLATE_UPDATED',
-        entityType: 'MessageTemplate',
-        entityId: template.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MESSAGE_TEMPLATE_UPDATED',
+      entityType: 'MessageTemplate',
+      entityId: template.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     res.json(formatTemplateResponse(template))
@@ -229,14 +226,12 @@ router.delete('/:id', requireAuth, requirePermission('communications.send'), asy
     await prisma.messageTemplate.delete({ where: { id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MESSAGE_TEMPLATE_DELETED',
-        entityType: 'MessageTemplate',
-        entityId: id,
-        metadata: { name: existing.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MESSAGE_TEMPLATE_DELETED',
+      entityType: 'MessageTemplate',
+      entityId: id,
+      metadata: { name: existing.name },
     })
 
     res.json({ message: 'Message template deleted successfully' })

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { hashPassword, signToken, COOKIE_OPTIONS, COOKIE_NAME } from '../lib/auth.js'
 import { validatePassword, generateSecureToken } from '../lib/security.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -197,14 +198,12 @@ router.post('/step1', async (req: Request, res: Response) => {
     res.cookie(COOKIE_NAME, accessToken, COOKIE_OPTIONS)
 
     // Log setup
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.id,
-        action: 'SETUP_STEP1_COMPLETE',
-        entityType: 'User',
-        entityId: user.id,
-        metadata: { email },
-      },
+    await createAuditLog({
+      actorUserId: user.id,
+      action: 'SETUP_STEP1_COMPLETE',
+      entityType: 'User',
+      entityId: user.id,
+      metadata: { email },
     })
 
     res.json({
@@ -391,12 +390,10 @@ router.post('/complete', async (_req: Request, res: Response) => {
     })
 
     // Log setup completion
-    await prisma.auditLog.create({
-      data: {
-        action: 'SETUP_COMPLETE',
-        entityType: 'System',
-        metadata: { completedAt: new Date().toISOString() },
-      },
+    await createAuditLog({
+      action: 'SETUP_COMPLETE',
+      entityType: 'System',
+      metadata: { completedAt: new Date().toISOString() },
     })
 
     res.json({ success: true, message: 'Setup completed successfully!' })

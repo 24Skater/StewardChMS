@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { getProviderForChannel } from '../providers/messaging/index.js'
+import { createAuditLog } from '../lib/audit.js'
 
 // Type aliases for Prisma enums (to avoid import issues with generated client)
 type MessageChannel = 'email' | 'sms'
@@ -254,17 +255,15 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: userId,
-        action: 'MESSAGE_SENT',
-        entityType: 'Message',
-        entityId: message.id,
-        metadata: {
-          channel,
-          recipientCount: validMembers.length,
-          targetType: target.type,
-        },
+    await createAuditLog({
+      actorUserId: userId,
+      action: 'MESSAGE_SENT',
+      entityType: 'Message',
+      entityId: message.id,
+      metadata: {
+        channel,
+        recipientCount: validMembers.length,
+        targetType: target.type,
       },
     })
 

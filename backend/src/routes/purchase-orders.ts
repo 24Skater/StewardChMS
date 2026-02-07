@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -232,14 +233,12 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_PURCHASE_ORDER',
-        entityType: 'PurchaseOrder',
-        entityId: po.id,
-        metadata: { poNumber, totalCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_PURCHASE_ORDER',
+      entityType: 'PurchaseOrder',
+      entityId: po.id,
+      metadata: { poNumber, totalCents },
     })
 
     res.status(201).json({
@@ -313,14 +312,12 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_PURCHASE_ORDER',
-        entityType: 'PurchaseOrder',
-        entityId: po.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_PURCHASE_ORDER',
+      entityType: 'PurchaseOrder',
+      entityId: po.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -346,14 +343,12 @@ router.delete('/:id', requireAuth, requirePermission('accounting.edit'), async (
     await prisma.purchaseOrder.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_PURCHASE_ORDER',
-        entityType: 'PurchaseOrder',
-        entityId: req.params.id,
-        metadata: { poNumber: po.poNumber },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_PURCHASE_ORDER',
+      entityType: 'PurchaseOrder',
+      entityId: req.params.id,
+      metadata: { poNumber: po.poNumber },
     })
 
     res.json({ message: 'Purchase order deleted successfully' })

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -123,14 +124,12 @@ router.put('/:category/:key', async (req: Request, res: Response) => {
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'SETTING_UPDATED',
-        entityType: 'Setting',
-        entityId: setting.id,
-        metadata: { category, key },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'SETTING_UPDATED',
+      entityType: 'Setting',
+      entityId: setting.id,
+      metadata: { category, key },
     })
 
     res.json(setting)
@@ -176,13 +175,11 @@ router.put('/', async (req: Request, res: Response) => {
     )
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'SETTINGS_BULK_UPDATED',
-        entityType: 'Setting',
-        metadata: { count: settings.length, categories: [...new Set(settings.map(s => s.category))] },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'SETTINGS_BULK_UPDATED',
+      entityType: 'Setting',
+      metadata: { count: settings.length, categories: [...new Set(settings.map(s => s.category))] },
     })
 
     res.json({ success: true, count: results.length })

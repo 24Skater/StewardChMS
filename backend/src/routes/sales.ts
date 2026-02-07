@@ -1,12 +1,16 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { Prisma, Product } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from '../lib/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 // Type for Prisma transaction client
 type TransactionClient = Prisma.TransactionClient
+
+// Infer Product type from Prisma client
+type Product = Prisma.ProductGetPayload<Record<string, never>>
 
 const router = Router()
 
@@ -143,14 +147,12 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'CREATE',
-        entityType: 'Sale',
-        entityId: result.id,
-        metadata: { saleNumber: result.saleNumber, totalCents: result.totalCents },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'CREATE',
+      entityType: 'Sale',
+      entityId: result.id,
+      metadata: { saleNumber: result.saleNumber, totalCents: result.totalCents },
     })
 
     res.status(201).json(result)
@@ -302,14 +304,12 @@ router.post('/:id/void', requireAuth, requirePermission('sales.edit'), async (re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'VOID',
-        entityType: 'Sale',
-        entityId: result.id,
-        metadata: { saleNumber: result.saleNumber },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'VOID',
+      entityType: 'Sale',
+      entityId: result.id,
+      metadata: { saleNumber: result.saleNumber },
     })
 
     res.json(result)

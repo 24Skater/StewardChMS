@@ -3,6 +3,7 @@ import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from 'jsonwebtoken'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -62,14 +63,12 @@ router.post('/', requireAuth, requirePermission('inventory.edit'), async (req, r
 
     // Audit log
     const user = req.user as JwtPayload
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'CREATE',
-        entityType: 'Product',
-        entityId: product.id,
-        metadata: { name },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'CREATE',
+      entityType: 'Product',
+      entityId: product.id,
+      metadata: { name },
     })
 
     res.status(201).json(product)
@@ -171,14 +170,12 @@ router.put('/:id', requireAuth, requirePermission('inventory.edit'), async (req,
 
     // Audit log
     const user = req.user as JwtPayload
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'UPDATE',
-        entityType: 'Product',
-        entityId: product.id,
-        metadata: { changes: Object.keys(parsed.data) },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'UPDATE',
+      entityType: 'Product',
+      entityId: product.id,
+      metadata: { changes: Object.keys(parsed.data) },
     })
 
     res.json(product)
@@ -206,14 +203,12 @@ router.delete('/:id', requireAuth, requirePermission('inventory.edit'), async (r
 
     // Audit log
     const user = req.user as JwtPayload
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'DELETE',
-        entityType: 'Product',
-        entityId: product.id,
-        metadata: { softDelete: true },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'DELETE',
+      entityType: 'Product',
+      entityId: product.id,
+      metadata: { softDelete: true },
     })
 
     res.json({ message: 'Product deactivated', product })

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -165,14 +166,12 @@ router.post('/', requireAuth, requirePermission('giving.edit'), async (req, res)
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_PLEDGE',
-        entityType: 'Pledge',
-        entityId: pledge.id,
-        metadata: { memberId, amountCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_PLEDGE',
+      entityType: 'Pledge',
+      entityId: pledge.id,
+      metadata: { memberId, amountCents },
     })
 
     res.status(201).json({
@@ -243,14 +242,12 @@ router.put('/:id', requireAuth, requirePermission('giving.edit'), async (req, re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_PLEDGE',
-        entityType: 'Pledge',
-        entityId: pledge.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_PLEDGE',
+      entityType: 'Pledge',
+      entityId: pledge.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -277,14 +274,12 @@ router.delete('/:id', requireAuth, requirePermission('giving.edit'), async (req,
     await prisma.pledge.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_PLEDGE',
-        entityType: 'Pledge',
-        entityId: req.params.id,
-        metadata: { amountCents: pledge.amountCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_PLEDGE',
+      entityType: 'Pledge',
+      entityId: req.params.id,
+      metadata: { amountCents: pledge.amountCents },
     })
 
     res.json({ message: 'Pledge deleted successfully' })

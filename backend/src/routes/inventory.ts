@@ -3,6 +3,7 @@ import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from 'jsonwebtoken'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -46,14 +47,12 @@ router.post('/adjust', requireAuth, requirePermission('inventory.edit'), async (
 
     // Audit log
     const user = req.user as JwtPayload
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.userId,
-        action: 'ADJUST_INVENTORY',
-        entityType: 'InventoryTransaction',
-        entityId: transaction.id,
-        metadata: { productId, quantityDelta, note },
-      },
+    await createAuditLog({
+      actorUserId: user.userId,
+      action: 'ADJUST_INVENTORY',
+      entityType: 'InventoryTransaction',
+      entityId: transaction.id,
+      metadata: { productId, quantityDelta, note },
     })
 
     res.status(201).json(transaction)

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -79,14 +80,12 @@ router.post('/', requireAuth, requirePermission('worship.write'), async (req: Re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'SONG_CREATED',
-        entityType: 'Song',
-        entityId: song.id,
-        metadata: { title: song.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'SONG_CREATED',
+      entityType: 'Song',
+      entityId: song.id,
+      metadata: { title: song.title },
     })
 
     res.status(201).json(formatSongResponse(song))
@@ -204,14 +203,12 @@ router.put('/:id', requireAuth, requirePermission('worship.write'), async (req: 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'SONG_UPDATED',
-        entityType: 'Song',
-        entityId: song.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'SONG_UPDATED',
+      entityType: 'Song',
+      entityId: song.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     res.json(formatSongResponse(song))
@@ -238,14 +235,12 @@ router.delete('/:id', requireAuth, requirePermission('worship.write'), async (re
     await prisma.song.delete({ where: { id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'SONG_DELETED',
-        entityType: 'Song',
-        entityId: id,
-        metadata: { title: existing.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'SONG_DELETED',
+      entityType: 'Song',
+      entityId: id,
+      metadata: { title: existing.title },
     })
 
     res.json({ message: 'Song deleted successfully' })

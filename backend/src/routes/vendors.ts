@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -100,14 +101,12 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_VENDOR',
-        entityType: 'Vendor',
-        entityId: vendor.id,
-        metadata: { name },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_VENDOR',
+      entityType: 'Vendor',
+      entityId: vendor.id,
+      metadata: { name },
     })
 
     res.status(201).json({
@@ -161,14 +160,12 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_VENDOR',
-        entityType: 'Vendor',
-        entityId: vendor.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_VENDOR',
+      entityType: 'Vendor',
+      entityId: vendor.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -218,14 +215,12 @@ router.delete('/:id', requireAuth, requirePermission('accounting.edit'), async (
     await prisma.vendor.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_VENDOR',
-        entityType: 'Vendor',
-        entityId: req.params.id,
-        metadata: { name: vendor.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_VENDOR',
+      entityType: 'Vendor',
+      entityId: req.params.id,
+      metadata: { name: vendor.name },
     })
 
     res.json({ message: 'Vendor deleted successfully' })

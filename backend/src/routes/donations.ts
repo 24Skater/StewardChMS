@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -176,14 +177,12 @@ router.post('/', requireAuth, requirePermission('giving.edit'), async (req, res)
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_DONATION',
-        entityType: 'Donation',
-        entityId: donation.id,
-        metadata: { amountCents, method },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_DONATION',
+      entityType: 'Donation',
+      entityId: donation.id,
+      metadata: { amountCents, method },
     })
 
     res.status(201).json({
@@ -254,14 +253,12 @@ router.put('/:id', requireAuth, requirePermission('giving.edit'), async (req, re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_DONATION',
-        entityType: 'Donation',
-        entityId: donation.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_DONATION',
+      entityType: 'Donation',
+      entityId: donation.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -286,14 +283,12 @@ router.delete('/:id', requireAuth, requirePermission('giving.edit'), async (req,
     await prisma.donation.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_DONATION',
-        entityType: 'Donation',
-        entityId: req.params.id,
-        metadata: { amountCents: donation.amountCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_DONATION',
+      entityType: 'Donation',
+      entityId: req.params.id,
+      metadata: { amountCents: donation.amountCents },
     })
 
     res.json({ message: 'Donation deleted successfully' })

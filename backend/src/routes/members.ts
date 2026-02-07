@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -240,14 +241,12 @@ router.post('/', requireAuth, requirePermission('members.write'), async (req: Re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MEMBER_CREATED',
-        entityType: 'Member',
-        entityId: member.id,
-        metadata: { firstName: member.firstName, lastName: member.lastName },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MEMBER_CREATED',
+      entityType: 'Member',
+      entityId: member.id,
+      metadata: { firstName: member.firstName, lastName: member.lastName },
     })
 
     const canViewNotes = req.user?.permissions.includes('members.notes') ?? false
@@ -326,14 +325,12 @@ router.put('/:id', requireAuth, requirePermission('members.write'), async (req: 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MEMBER_UPDATED',
-        entityType: 'Member',
-        entityId: member.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MEMBER_UPDATED',
+      entityType: 'Member',
+      entityId: member.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     const canViewNotes = req.user?.permissions.includes('members.notes') ?? false
@@ -365,14 +362,12 @@ router.delete('/:id', requireAuth, requirePermission('members.delete'), async (r
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MEMBER_DELETED',
-        entityType: 'Member',
-        entityId: id,
-        metadata: { firstName: existing.firstName, lastName: existing.lastName, softDelete: true },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MEMBER_DELETED',
+      entityType: 'Member',
+      entityId: id,
+      metadata: { firstName: existing.firstName, lastName: existing.lastName, softDelete: true },
     })
 
     res.json({ message: 'Member deleted successfully' })
@@ -465,13 +460,11 @@ router.post('/import', requireAuth, requirePermission('members.write'), async (r
     }
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MEMBERS_IMPORTED',
-        entityType: 'Member',
-        metadata: { success: results.success, failed: results.failed },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MEMBERS_IMPORTED',
+      entityType: 'Member',
+      metadata: { success: results.success, failed: results.failed },
     })
 
     res.json(results)

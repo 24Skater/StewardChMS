@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 // Type alias for Prisma enum
 type MessageChannel = 'email' | 'sms'
@@ -107,14 +108,12 @@ router.put('/members/:id/opt-in', requireAuth, requirePermission('members.write'
     }
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'OPT_IN_UPDATED',
-        entityType: 'Member',
-        entityId: id,
-        metadata: { changes: parseResult.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'OPT_IN_UPDATED',
+      entityType: 'Member',
+      entityId: id,
+      metadata: { changes: parseResult.data },
     })
 
     // Return updated preferences

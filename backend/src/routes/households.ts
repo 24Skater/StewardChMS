@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -160,14 +161,12 @@ router.post('/', requireAuth, requirePermission('members.write'), async (req: Re
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'HOUSEHOLD_CREATED',
-        entityType: 'Household',
-        entityId: household.id,
-        metadata: { name: household.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'HOUSEHOLD_CREATED',
+      entityType: 'Household',
+      entityId: household.id,
+      metadata: { name: household.name },
     })
 
     res.status(201).json(formatHouseholdResponse(household))
@@ -222,14 +221,12 @@ router.put('/:id', requireAuth, requirePermission('members.write'), async (req: 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'HOUSEHOLD_UPDATED',
-        entityType: 'Household',
-        entityId: household.id,
-        metadata: { name: household.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'HOUSEHOLD_UPDATED',
+      entityType: 'Household',
+      entityId: household.id,
+      metadata: { name: household.name },
     })
 
     res.json(formatHouseholdResponse(household))
@@ -258,14 +255,12 @@ router.delete('/:id', requireAuth, requirePermission('members.delete'), async (r
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'HOUSEHOLD_DELETED',
-        entityType: 'Household',
-        entityId: id,
-        metadata: { name: existing.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'HOUSEHOLD_DELETED',
+      entityType: 'Household',
+      entityId: id,
+      metadata: { name: existing.name },
     })
 
     res.json({ message: 'Household deleted successfully' })
@@ -338,18 +333,16 @@ router.post('/:id/members', requireAuth, requirePermission('members.write'), asy
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'HOUSEHOLD_MEMBER_LINKED',
-        entityType: 'HouseholdMember',
-        entityId: householdMember.id,
-        metadata: {
-          householdId: id,
-          memberId,
-          relationshipType,
-          memberName: `${member.firstName} ${member.lastName}`,
-        },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'HOUSEHOLD_MEMBER_LINKED',
+      entityType: 'HouseholdMember',
+      entityId: householdMember.id,
+      metadata: {
+        householdId: id,
+        memberId,
+        relationshipType,
+        memberName: `${member.firstName} ${member.lastName}`,
       },
     })
 
@@ -406,17 +399,15 @@ router.delete('/:id/members/:memberId', requireAuth, requirePermission('members.
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'HOUSEHOLD_MEMBER_UNLINKED',
-        entityType: 'HouseholdMember',
-        entityId: existingLink.id,
-        metadata: {
-          householdId: id,
-          memberId,
-          memberName: `${existingLink.member.firstName} ${existingLink.member.lastName}`,
-        },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'HOUSEHOLD_MEMBER_UNLINKED',
+      entityType: 'HouseholdMember',
+      entityId: existingLink.id,
+      metadata: {
+        householdId: id,
+        memberId,
+        memberName: `${existingLink.member.firstName} ${existingLink.member.lastName}`,
       },
     })
 

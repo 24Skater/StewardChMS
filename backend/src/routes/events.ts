@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -184,14 +185,12 @@ router.post('/', requireAuth, requirePermission('events.write'), async (req: Req
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'EVENT_CREATED',
-        entityType: 'Event',
-        entityId: event.id,
-        metadata: { title: event.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'EVENT_CREATED',
+      entityType: 'Event',
+      entityId: event.id,
+      metadata: { title: event.title },
     })
 
     res.status(201).json(formatEventResponse(event))
@@ -347,14 +346,12 @@ router.put('/:id', requireAuth, requirePermission('events.write'), async (req: R
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'EVENT_UPDATED',
-        entityType: 'Event',
-        entityId: event.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'EVENT_UPDATED',
+      entityType: 'Event',
+      entityId: event.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     res.json(formatEventResponse(event))
@@ -381,14 +378,12 @@ router.delete('/:id', requireAuth, requirePermission('events.write'), async (req
     await prisma.event.delete({ where: { id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'EVENT_DELETED',
-        entityType: 'Event',
-        entityId: id,
-        metadata: { title: existing.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'EVENT_DELETED',
+      entityType: 'Event',
+      entityId: id,
+      metadata: { title: existing.title },
     })
 
     res.json({ message: 'Event deleted successfully' })
@@ -486,14 +481,12 @@ router.post('/:id/generate-occurrences', requireAuth, requirePermission('events.
     }
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'OCCURRENCES_GENERATED',
-        entityType: 'Event',
-        entityId: id,
-        metadata: { created, skipped, daysAhead },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'OCCURRENCES_GENERATED',
+      entityType: 'Event',
+      entityId: id,
+      metadata: { created, skipped, daysAhead },
     })
 
     res.json({

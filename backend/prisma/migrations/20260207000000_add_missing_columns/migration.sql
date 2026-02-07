@@ -24,3 +24,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS "donations_stripe_charge_id_key" ON "donations
 
 -- Add index for stripe_payment_intent_id
 CREATE INDEX IF NOT EXISTS "donations_stripe_payment_intent_id_idx" ON "donations"("stripe_payment_intent_id");
+
+-- Add missing checked_out_at column to check_ins table
+ALTER TABLE "check_ins" ADD COLUMN IF NOT EXISTS "checked_out_at" TIMESTAMP(3);

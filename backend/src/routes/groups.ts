@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -153,14 +154,12 @@ router.post('/', requirePermission('groups.edit'), async (req: Request, res: Res
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'GROUP_CREATED',
-        entityType: 'Group',
-        entityId: group.id,
-        metadata: { name: group.name, ministryId: group.ministryId },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'GROUP_CREATED',
+      entityType: 'Group',
+      entityId: group.id,
+      metadata: { name: group.name, ministryId: group.ministryId },
     })
 
     res.status(201).json(group)
@@ -217,14 +216,12 @@ router.put('/:id', requirePermission('groups.edit'), async (req: Request, res: R
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'GROUP_UPDATED',
-        entityType: 'Group',
-        entityId: group.id,
-        metadata: { name: group.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'GROUP_UPDATED',
+      entityType: 'Group',
+      entityId: group.id,
+      metadata: { name: group.name },
     })
 
     res.json(group)
@@ -257,14 +254,12 @@ router.delete('/:id', requirePermission('groups.edit'), async (req: Request, res
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'GROUP_DELETED',
-        entityType: 'Group',
-        entityId: id,
-        metadata: { name: existing.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'GROUP_DELETED',
+      entityType: 'Group',
+      entityId: id,
+      metadata: { name: existing.name },
     })
 
     res.json({ message: 'Group deleted successfully' })

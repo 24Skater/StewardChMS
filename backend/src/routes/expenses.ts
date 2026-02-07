@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -172,14 +173,12 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_EXPENSE',
-        entityType: 'Expense',
-        entityId: expense.id,
-        metadata: { amountCents, category },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_EXPENSE',
+      entityType: 'Expense',
+      entityId: expense.id,
+      metadata: { amountCents, category },
     })
 
     res.status(201).json({
@@ -249,14 +248,12 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_EXPENSE',
-        entityType: 'Expense',
-        entityId: expense.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_EXPENSE',
+      entityType: 'Expense',
+      entityId: expense.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -281,14 +278,12 @@ router.delete('/:id', requireAuth, requirePermission('accounting.edit'), async (
     await prisma.expense.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_EXPENSE',
-        entityType: 'Expense',
-        entityId: req.params.id,
-        metadata: { amountCents: expense.amountCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_EXPENSE',
+      entityType: 'Expense',
+      entityId: req.params.id,
+      metadata: { amountCents: expense.amountCents },
     })
 
     res.json({ message: 'Expense deleted successfully' })

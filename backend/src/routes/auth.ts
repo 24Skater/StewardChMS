@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword, signToken, invalidateToken, COOKIE_OPTION
 import { requireAuth } from '../middleware/auth.js'
 import { loginRateLimiter } from '../middleware/rateLimiter.js'
 import { validatePassword } from '../lib/security.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -58,12 +59,10 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
 
     if (!user) {
       // Log failed login attempt (user not found)
-      await prisma.auditLog.create({
-        data: {
-          action: 'LOGIN_FAILED',
-          entityType: 'User',
-          metadata: { email, reason: 'User not found' },
-        },
+      await createAuditLog({
+        action: 'LOGIN_FAILED',
+        entityType: 'User',
+        metadata: { email, reason: 'User not found' },
       })
 
       res.status(401).json({ error: 'Invalid email or password' })
@@ -72,14 +71,12 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
 
     // Check if user is active
     if (!user.isActive) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: user.id,
-          action: 'LOGIN_FAILED',
-          entityType: 'User',
-          entityId: user.id,
-          metadata: { reason: 'Account inactive' },
-        },
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'LOGIN_FAILED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { reason: 'Account inactive' },
       })
 
       res.status(401).json({ error: 'Account is inactive' })
@@ -89,14 +86,12 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
     // Verify password
     const isValidPassword = await verifyPassword(password, user.passwordHash)
     if (!isValidPassword) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: user.id,
-          action: 'LOGIN_FAILED',
-          entityType: 'User',
-          entityId: user.id,
-          metadata: { reason: 'Invalid password' },
-        },
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'LOGIN_FAILED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { reason: 'Invalid password' },
       })
 
       res.status(401).json({ error: 'Invalid email or password' })
@@ -119,14 +114,12 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
     })
 
     // Log successful login
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.id,
-        action: 'LOGIN_SUCCESS',
-        entityType: 'User',
-        entityId: user.id,
-        metadata: { roles, permissions },
-      },
+    await createAuditLog({
+      actorUserId: user.id,
+      action: 'LOGIN_SUCCESS',
+      entityType: 'User',
+      entityId: user.id,
+      metadata: { roles, permissions },
     })
 
     // Set httpOnly cookie
@@ -165,14 +158,12 @@ router.post('/logout', requireAuth, async (req: Request, res: Response) => {
 
     // Log logout
     if (req.user) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: req.user.userId,
-          action: 'LOGOUT',
-          entityType: 'User',
-          entityId: req.user.userId,
-          metadata: {},
-        },
+      await createAuditLog({
+        actorUserId: req.user.userId,
+        action: 'LOGOUT',
+        entityType: 'User',
+        entityId: req.user.userId,
+        metadata: {},
       })
     }
 
@@ -232,14 +223,12 @@ router.post('/change-password', requireAuth, async (req: Request, res: Response)
     // Verify current password
     const isValidPassword = await verifyPassword(currentPassword, user.passwordHash)
     if (!isValidPassword) {
-      await prisma.auditLog.create({
-        data: {
-          actorUserId: user.id,
-          action: 'PASSWORD_CHANGE_FAILED',
-          entityType: 'User',
-          entityId: user.id,
-          metadata: { reason: 'Invalid current password' },
-        },
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'PASSWORD_CHANGE_FAILED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { reason: 'Invalid current password' },
       })
 
       res.status(401).json({ error: 'Current password is incorrect' })
@@ -254,14 +243,12 @@ router.post('/change-password', requireAuth, async (req: Request, res: Response)
     })
 
     // Log password change
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.id,
-        action: 'PASSWORD_CHANGED',
-        entityType: 'User',
-        entityId: user.id,
-        metadata: {},
-      },
+    await createAuditLog({
+      actorUserId: user.id,
+      action: 'PASSWORD_CHANGED',
+      entityType: 'User',
+      entityId: user.id,
+      metadata: {},
     })
 
     // Invalidate current token to force re-login

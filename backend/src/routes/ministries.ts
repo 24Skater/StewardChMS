@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -140,14 +141,12 @@ router.post('/', requirePermission('groups.edit'), async (req: Request, res: Res
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MINISTRY_CREATED',
-        entityType: 'Ministry',
-        entityId: ministry.id,
-        metadata: { name: ministry.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MINISTRY_CREATED',
+      entityType: 'Ministry',
+      entityId: ministry.id,
+      metadata: { name: ministry.name },
     })
 
     res.status(201).json(ministry)
@@ -218,14 +217,12 @@ router.put('/:id', requirePermission('groups.edit'), async (req: Request, res: R
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MINISTRY_UPDATED',
-        entityType: 'Ministry',
-        entityId: ministry.id,
-        metadata: { name: ministry.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MINISTRY_UPDATED',
+      entityType: 'Ministry',
+      entityId: ministry.id,
+      metadata: { name: ministry.name },
     })
 
     res.json(ministry)
@@ -269,14 +266,12 @@ router.delete('/:id', requirePermission('groups.edit'), async (req: Request, res
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'MINISTRY_DELETED',
-        entityType: 'Ministry',
-        entityId: id,
-        metadata: { name: existing.name },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'MINISTRY_DELETED',
+      entityType: 'Ministry',
+      entityId: id,
+      metadata: { name: existing.name },
     })
 
     res.json({ message: 'Ministry deleted successfully' })

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -146,14 +147,12 @@ router.post('/occurrences/:id/worship-plan', requireAuth, requirePermission('wor
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_UPSERTED',
-        entityType: 'WorshipPlan',
-        entityId: plan.id,
-        metadata: { occurrenceId },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_UPSERTED',
+      entityType: 'WorshipPlan',
+      entityId: plan.id,
+      metadata: { occurrenceId },
     })
 
     res.status(201).json(formatWorshipPlanResponse(plan))
@@ -271,14 +270,12 @@ router.put('/worship-plans/:id', requireAuth, requirePermission('worship.write')
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_UPDATED',
-        entityType: 'WorshipPlan',
-        entityId: plan.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_UPDATED',
+      entityType: 'WorshipPlan',
+      entityId: plan.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     res.json(formatWorshipPlanResponse(plan))
@@ -362,14 +359,12 @@ router.post('/worship-plans/:id/items', requireAuth, requirePermission('worship.
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_ITEM_CREATED',
-        entityType: 'WorshipPlanItem',
-        entityId: item.id,
-        metadata: { planId, itemType: data.itemType, title: data.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_ITEM_CREATED',
+      entityType: 'WorshipPlanItem',
+      entityId: item.id,
+      metadata: { planId, itemType: data.itemType, title: data.title },
     })
 
     res.status(201).json({
@@ -465,14 +460,12 @@ router.put('/worship-plans/items/:itemId', requireAuth, requirePermission('worsh
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_ITEM_UPDATED',
-        entityType: 'WorshipPlanItem',
-        entityId: item.id,
-        metadata: { changes: Object.keys(data) },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_ITEM_UPDATED',
+      entityType: 'WorshipPlanItem',
+      entityId: item.id,
+      metadata: { changes: Object.keys(data) },
     })
 
     res.json({
@@ -511,14 +504,12 @@ router.delete('/worship-plans/items/:itemId', requireAuth, requirePermission('wo
     await prisma.worshipPlanItem.delete({ where: { id: itemId } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_ITEM_DELETED',
-        entityType: 'WorshipPlanItem',
-        entityId: itemId,
-        metadata: { planId: existing.worshipPlanId, title: existing.title },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_ITEM_DELETED',
+      entityType: 'WorshipPlanItem',
+      entityId: itemId,
+      metadata: { planId: existing.worshipPlanId, title: existing.title },
     })
 
     res.json({ message: 'Worship plan item deleted successfully' })
@@ -591,14 +582,12 @@ router.put('/worship-plans/:id/reorder', requireAuth, requirePermission('worship
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'WORSHIP_PLAN_ITEMS_REORDERED',
-        entityType: 'WorshipPlan',
-        entityId: planId,
-        metadata: { itemCount: items.length },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'WORSHIP_PLAN_ITEMS_REORDERED',
+      entityType: 'WorshipPlan',
+      entityId: planId,
+      metadata: { itemCount: items.length },
     })
 
     res.json(formatWorshipPlanResponse(updatedPlan!))

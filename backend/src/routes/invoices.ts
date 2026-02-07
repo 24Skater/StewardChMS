@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -228,14 +229,12 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'CREATE_INVOICE',
-        entityType: 'Invoice',
-        entityId: invoice.id,
-        metadata: { invoiceNumber, totalCents },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'CREATE_INVOICE',
+      entityType: 'Invoice',
+      entityId: invoice.id,
+      metadata: { invoiceNumber, totalCents },
     })
 
     res.status(201).json({
@@ -309,14 +308,12 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'UPDATE_INVOICE',
-        entityType: 'Invoice',
-        entityId: invoice.id,
-        metadata: { changes: parsed.data },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'UPDATE_INVOICE',
+      entityType: 'Invoice',
+      entityId: invoice.id,
+      metadata: { changes: parsed.data },
     })
 
     res.json({
@@ -343,14 +340,12 @@ router.delete('/:id', requireAuth, requirePermission('accounting.edit'), async (
     await prisma.invoice.delete({ where: { id: req.params.id } })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user!.userId,
-        action: 'DELETE_INVOICE',
-        entityType: 'Invoice',
-        entityId: req.params.id,
-        metadata: { invoiceNumber: invoice.invoiceNumber },
-      },
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'DELETE_INVOICE',
+      entityType: 'Invoice',
+      entityId: req.params.id,
+      metadata: { invoiceNumber: invoice.invoiceNumber },
     })
 
     res.json({ message: 'Invoice deleted successfully' })

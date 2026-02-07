@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
+import { createAuditLog } from '../lib/audit.js'
 
 const router = Router()
 
@@ -85,17 +86,15 @@ router.post('/occurrences/:id/registrations', requireAuth, requirePermission('ev
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'REGISTRATION_CREATED',
-        entityType: 'Registration',
-        entityId: registration.id,
-        metadata: {
-          occurrenceId,
-          memberId: data.memberId,
-          guestName: data.guestName,
-        },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'REGISTRATION_CREATED',
+      entityType: 'Registration',
+      entityId: registration.id,
+      metadata: {
+        occurrenceId,
+        memberId: data.memberId,
+        guestName: data.guestName,
       },
     })
 
@@ -186,14 +185,12 @@ router.delete('/registrations/:id', requireAuth, requirePermission('events.write
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'REGISTRATION_CANCELED',
-        entityType: 'Registration',
-        entityId: id,
-        metadata: { occurrenceId: registration.eventOccurrenceId },
-      },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'REGISTRATION_CANCELED',
+      entityType: 'Registration',
+      entityId: id,
+      metadata: { occurrenceId: registration.eventOccurrenceId },
     })
 
     res.json({ message: 'Registration canceled successfully' })
@@ -256,18 +253,16 @@ router.post('/occurrences/:id/checkins', requireAuth, requirePermission('events.
     })
 
     // Audit log
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: req.user?.userId,
-        action: 'CHECKIN_CREATED',
-        entityType: 'CheckIn',
-        entityId: checkIn.id,
-        metadata: {
-          occurrenceId,
-          memberId: data.memberId,
-          guestName: data.guestName,
-          method: data.method,
-        },
+    await createAuditLog({
+      actorUserId: req.user?.userId,
+      action: 'CHECKIN_CREATED',
+      entityType: 'CheckIn',
+      entityId: checkIn.id,
+      metadata: {
+        occurrenceId,
+        memberId: data.memberId,
+        guestName: data.guestName,
+        method: data.method,
       },
     })
 
