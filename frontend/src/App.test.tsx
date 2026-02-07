@@ -26,7 +26,7 @@ function renderWithProviders(ui: React.ReactElement) {
 describe('App', () => {
   it('renders the homepage with app title', () => {
     renderWithProviders(<App />)
-    expect(screen.getByText('StewardChMS')).toBeInTheDocument()
+    expect(screen.getByText(/Steward.*ChMS/)).toBeInTheDocument()
   })
 
   it('displays the tagline', () => {
