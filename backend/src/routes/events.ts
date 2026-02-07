@@ -436,8 +436,12 @@ router.post('/:id/generate-occurrences', requireAuth, requirePermission('events.
           date.setHours(
             event.startDatetime.getHours(),
             event.startDatetime.getMinutes(),
-            event.startDatetime.getSeconds()
+            event.startDatetime.getSeconds(),
+            0 // Reset milliseconds to ensure consistent duplicate detection
           )
+        } else {
+          // No start time - normalize to midnight
+          date.setHours(0, 0, 0, 0)
         }
         
         return {
