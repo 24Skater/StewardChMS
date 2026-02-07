@@ -73,15 +73,15 @@ export default function PledgesPage() {
       ]
 
       const rows = allData.pledges.map(pledge => [
-        pledge.memberName || 'Unknown',
+        pledge.member ? `${pledge.member.firstName} ${pledge.member.lastName}` : 'Unknown',
         formatCentsToDollars(pledge.amountCents),
-        formatCentsToDollars(pledge.fulfilledCents),
-        formatCentsToDollars(pledge.amountCents - pledge.fulfilledCents),
-        pledge.fundName || 'General',
+        '', // Fulfilled amount not in list response
+        formatCentsToDollars(pledge.amountCents),
+        pledge.fund?.name || 'General',
         pledge.status,
         formatDateExport(pledge.startDate),
         formatDateExport(pledge.endDate),
-        pledge.note || '',
+        '', // Note not in list response
       ])
 
       downloadCSV(generateExportFilename('pledges'), headers, rows)

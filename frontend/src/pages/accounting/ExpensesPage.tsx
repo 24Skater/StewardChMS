@@ -64,22 +64,20 @@ export default function ExpensesPage() {
 
       const headers = [
         'Date',
-        'Description',
+        'Category',
         'Amount',
         'Vendor',
         'Fund',
-        'Reference Number',
         'Note',
         'Created At',
       ]
 
       const rows = allData.expenses.map(expense => [
         formatDateExport(expense.expenseDate),
-        expense.description,
+        expense.category || '',
         formatCentsToDollars(expense.amountCents),
-        expense.vendorName || '',
-        expense.fundName || 'General',
-        expense.referenceNumber || '',
+        expense.vendor?.name || '',
+        expense.fund?.name || 'General',
         expense.note || '',
         formatDateExport(expense.createdAt),
       ])

@@ -56,22 +56,18 @@ export default function SalesPage() {
         'Customer',
         'Items',
         'Total',
-        'Payment Method',
         'Status',
         'Sold By',
-        'Note',
       ]
 
       const rows = allData.sales.map(sale => [
         sale.saleNumber || sale.id,
-        formatDateTime(sale.saleDate),
-        sale.memberName || sale.guestName || 'Walk-in',
-        sale.lineItems?.map(li => `${li.productName} x${li.quantity}`).join('; ') || '',
+        formatDateTime(sale.soldAt),
+        sale.member ? `${sale.member.firstName} ${sale.member.lastName}` : sale.guestName || 'Walk-in',
+        sale.items?.map((item) => `${item.product?.name || 'Product'} x${item.quantity}`).join('; ') || '',
         formatCentsToDollars(sale.totalCents),
-        sale.paymentMethod,
         sale.status,
-        sale.soldByUserName || '',
-        sale.note || '',
+        sale.createdByUser?.name || sale.createdByUser?.email || '',
       ])
 
       downloadCSV(generateExportFilename('sales'), headers, rows)

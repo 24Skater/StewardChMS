@@ -71,10 +71,10 @@ export default function DonationsPage() {
 
       const rows = allData.donations.map(donation => [
         formatDateExport(donation.receivedAt),
-        donation.memberName || donation.guestName || 'Anonymous',
-        donation.guestEmail || '',
+        donation.member ? `${donation.member.firstName} ${donation.member.lastName}` : donation.guestName || 'Anonymous',
+        '', // Guest email not available in list response
         formatCentsToDollars(donation.amountCents),
-        donation.fundName || 'General',
+        donation.fund?.name || 'General',
         donation.method,
         donation.note || '',
         formatDateExport(donation.createdAt),

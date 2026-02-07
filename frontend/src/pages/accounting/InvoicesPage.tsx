@@ -74,7 +74,7 @@ export default function InvoicesPage() {
 
       const rows = allData.invoices.map(invoice => [
         invoice.invoiceNumber || invoice.id,
-        invoice.vendorName || '',
+        invoice.vendor?.name || invoice.billToName || '',
         formatDateExport(invoice.issueDate),
         formatDateExport(invoice.dueDate),
         formatCentsToDollars(invoice.totalCents),
