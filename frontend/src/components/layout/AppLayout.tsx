@@ -14,9 +14,18 @@ const navItems = [
   { label: 'Groups', href: '/groups', icon: '🏛️' },
   { label: 'Communications', href: '/communications', icon: '✉️' },
   { label: 'Kids Check-In', href: '/kids-checkin', icon: '🧒' },
-  { label: 'Reports', href: '/reports', icon: '📊' },
+  // Accounting
+  { label: 'Funds', href: '/funds', icon: '🏦' },
+  { label: 'Expenses', href: '/expenses', icon: '📤' },
+  { label: 'Invoices', href: '/invoices', icon: '📄' },
+  { label: 'Purchase Orders', href: '/purchase-orders', icon: '📋' },
+  { label: 'Vendors', href: '/vendors', icon: '🏢' },
+  // Inventory & Sales
   { label: 'Products', href: '/products', icon: '🛒' },
+  { label: 'Inventory', href: '/inventory', icon: '📦' },
   { label: 'Sales', href: '/sales', icon: '💳' },
+  // Reports & Settings
+  { label: 'Reports', href: '/reports', icon: '📊' },
   { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
 ]
 

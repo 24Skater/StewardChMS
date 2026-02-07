@@ -55,43 +55,47 @@ export default function ExpensesPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading expenses</div>
+    return <div className="p-4 text-red-500">Error loading expenses</div>
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Expenses</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Expenses</h1>
         <Link to="/expenses/new">
-          <Button>Add Expense</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Add Expense
+          </Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-fg)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-fg)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>Fund</Label>
+          <Label className="text-[var(--st-fg)]">Fund</Label>
           <Select value={fundId} onValueChange={setFundId}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Funds" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Funds</SelectItem>
               {fundsData?.funds.map((fund) => (
                 <SelectItem key={fund.id} value={fund.id}>
@@ -102,12 +106,12 @@ export default function ExpensesPage() {
           </Select>
         </div>
         <div>
-          <Label>Vendor</Label>
+          <Label className="text-[var(--st-fg)]">Vendor</Label>
           <Select value={vendorId} onValueChange={setVendorId}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Vendors" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Vendors</SelectItem>
               {vendorsData?.vendors.map((vendor) => (
                 <SelectItem key={vendor.id} value={vendor.id}>
@@ -126,6 +130,7 @@ export default function ExpensesPage() {
               setFundId('')
               setVendorId('')
             }}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
           >
             Clear Filters
           </Button>
@@ -133,35 +138,35 @@ export default function ExpensesPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Fund</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Vendor</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Category</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Amount</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.expenses.map((expense) => (
-                  <TableRow key={expense.id}>
-                    <TableCell>{formatDate(expense.expenseDate)}</TableCell>
-                    <TableCell>{expense.vendor?.name || '-'}</TableCell>
-                    <TableCell>{expense.category || '-'}</TableCell>
-                    <TableCell>{expense.fund?.name || 'Undesignated'}</TableCell>
-                    <TableCell className="font-semibold">
+                  <TableRow key={expense.id} className="border-[var(--st-border)]">
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(expense.expenseDate)}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{expense.vendor?.name || '-'}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{expense.category || '-'}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{expense.fund?.name || 'Undesignated'}</TableCell>
+                    <TableCell className="font-semibold text-[var(--st-fg)]">
                       {formatCents(expense.amountCents)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/expenses/${expense.id}/edit`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)]">
                             Edit
                           </Button>
                         </Link>
@@ -177,8 +182,8 @@ export default function ExpensesPage() {
                   </TableRow>
                 ))}
                 {data?.expenses.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={6} className="text-center py-8 text-[var(--st-muted)]">
                       No expenses found
                     </TableCell>
                   </TableRow>
@@ -194,16 +199,18 @@ export default function ExpensesPage() {
                 variant="outline"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={page === data.totalPages}
                 onClick={() => setPage(page + 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -214,4 +221,3 @@ export default function ExpensesPage() {
     </div>
   )
 }
-

@@ -29,10 +29,10 @@ function formatDate(dateStr: string): string {
 }
 
 const statusColors: Record<InvoiceStatus, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  sent: 'bg-blue-100 text-blue-800',
-  paid: 'bg-green-100 text-green-800',
-  void: 'bg-red-100 text-red-800',
+  draft: 'bg-gray-500/20 text-gray-400',
+  sent: 'bg-blue-500/20 text-blue-400',
+  paid: 'bg-green-500/20 text-green-400',
+  void: 'bg-red-500/20 text-red-400',
 }
 
 export default function InvoicesPage() {
@@ -57,27 +57,29 @@ export default function InvoicesPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading invoices</div>
+    return <div className="p-4 text-red-500">Error loading invoices</div>
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Invoices</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Invoices</h1>
         <Link to="/invoices/new">
-          <Button>Create Invoice</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Create Invoice
+          </Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
         <div>
-          <Label>Status</Label>
+          <Label className="text-[var(--st-fg)]">Status</Label>
           <Select value={status} onValueChange={(v) => setStatus(v as InvoiceStatus | '')}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="sent">Sent</SelectItem>
@@ -87,12 +89,12 @@ export default function InvoicesPage() {
           </Select>
         </div>
         <div>
-          <Label>Vendor</Label>
+          <Label className="text-[var(--st-fg)]">Vendor</Label>
           <Select value={vendorId} onValueChange={setVendorId}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Vendors" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Vendors</SelectItem>
               {vendorsData?.vendors.map((vendor) => (
                 <SelectItem key={vendor.id} value={vendor.id}>
@@ -109,6 +111,7 @@ export default function InvoicesPage() {
               setStatus('')
               setVendorId('')
             }}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
           >
             Clear Filters
           </Button>
@@ -116,35 +119,35 @@ export default function InvoicesPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice #</TableHead>
-                  <TableHead>Bill To</TableHead>
-                  <TableHead>Issue Date</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Invoice #</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Bill To</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Issue Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Due Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Total</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.invoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
+                  <TableRow key={invoice.id} className="border-[var(--st-border)]">
                     <TableCell className="font-medium">
-                      <Link to={`/invoices/${invoice.id}`} className="text-blue-600 hover:underline">
+                      <Link to={`/invoices/${invoice.id}`} className="text-[var(--st-link)] hover:underline">
                         {invoice.invoiceNumber}
                       </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {invoice.vendor?.name || invoice.billToName || '-'}
                     </TableCell>
-                    <TableCell>{formatDate(invoice.issueDate)}</TableCell>
-                    <TableCell>{invoice.dueDate ? formatDate(invoice.dueDate) : '-'}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(invoice.issueDate)}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{invoice.dueDate ? formatDate(invoice.dueDate) : '-'}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
@@ -154,13 +157,13 @@ export default function InvoicesPage() {
                         {invoice.status}
                       </span>
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold text-[var(--st-fg)]">
                       {formatCents(invoice.totalCents)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/invoices/${invoice.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)]">
                             View
                           </Button>
                         </Link>
@@ -176,8 +179,8 @@ export default function InvoicesPage() {
                   </TableRow>
                 ))}
                 {data?.invoices.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={7} className="text-center py-8 text-[var(--st-muted)]">
                       No invoices found
                     </TableCell>
                   </TableRow>
@@ -193,16 +196,18 @@ export default function InvoicesPage() {
                 variant="outline"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={page === data.totalPages}
                 onClick={() => setPage(page + 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -213,4 +218,3 @@ export default function InvoicesPage() {
     </div>
   )
 }
-

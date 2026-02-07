@@ -29,12 +29,12 @@ function formatDate(dateStr: string): string {
 }
 
 const statusColors: Record<PurchaseOrderStatus, string> = {
-  draft: 'bg-gray-100 text-gray-800',
-  submitted: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  closed: 'bg-blue-100 text-blue-800',
-  void: 'bg-gray-200 text-gray-600',
+  draft: 'bg-gray-500/20 text-gray-400',
+  submitted: 'bg-yellow-500/20 text-yellow-400',
+  approved: 'bg-green-500/20 text-green-400',
+  rejected: 'bg-red-500/20 text-red-400',
+  closed: 'bg-blue-500/20 text-blue-400',
+  void: 'bg-gray-500/20 text-gray-500',
 }
 
 export default function PurchaseOrdersPage() {
@@ -59,27 +59,29 @@ export default function PurchaseOrdersPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading purchase orders</div>
+    return <div className="p-4 text-red-500">Error loading purchase orders</div>
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Purchase Orders</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Purchase Orders</h1>
         <Link to="/purchase-orders/new">
-          <Button>Create PO</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Create PO
+          </Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
         <div>
-          <Label>Status</Label>
+          <Label className="text-[var(--st-fg)]">Status</Label>
           <Select value={status} onValueChange={(v) => setStatus(v as PurchaseOrderStatus | '')}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="submitted">Submitted</SelectItem>
@@ -91,12 +93,12 @@ export default function PurchaseOrdersPage() {
           </Select>
         </div>
         <div>
-          <Label>Vendor</Label>
+          <Label className="text-[var(--st-fg)]">Vendor</Label>
           <Select value={vendorId} onValueChange={setVendorId}>
-            <SelectTrigger>
+            <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Vendors" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
               <SelectItem value="all">All Vendors</SelectItem>
               {vendorsData?.vendors.map((vendor) => (
                 <SelectItem key={vendor.id} value={vendor.id}>
@@ -113,6 +115,7 @@ export default function PurchaseOrdersPage() {
               setStatus('')
               setVendorId('')
             }}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
           >
             Clear Filters
           </Button>
@@ -120,33 +123,33 @@ export default function PurchaseOrdersPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>PO #</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Issue Date</TableHead>
-                  <TableHead>Requestor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">PO #</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Vendor</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Issue Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Requestor</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Total</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.purchaseOrders.map((po) => (
-                  <TableRow key={po.id}>
+                  <TableRow key={po.id} className="border-[var(--st-border)]">
                     <TableCell className="font-medium">
-                      <Link to={`/purchase-orders/${po.id}`} className="text-blue-600 hover:underline">
+                      <Link to={`/purchase-orders/${po.id}`} className="text-[var(--st-link)] hover:underline">
                         {po.poNumber}
                       </Link>
                     </TableCell>
-                    <TableCell>{po.vendor?.name || '-'}</TableCell>
-                    <TableCell>{formatDate(po.issueDate)}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{po.vendor?.name || '-'}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(po.issueDate)}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {po.requestorUser?.name || po.requestorUser?.email || '-'}
                     </TableCell>
                     <TableCell>
@@ -158,13 +161,13 @@ export default function PurchaseOrdersPage() {
                         {po.status}
                       </span>
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold text-[var(--st-fg)]">
                       {formatCents(po.totalCents)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/purchase-orders/${po.id}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)]">
                             View
                           </Button>
                         </Link>
@@ -180,8 +183,8 @@ export default function PurchaseOrdersPage() {
                   </TableRow>
                 ))}
                 {data?.purchaseOrders.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={7} className="text-center py-8 text-[var(--st-muted)]">
                       No purchase orders found
                     </TableCell>
                   </TableRow>
@@ -197,16 +200,18 @@ export default function PurchaseOrdersPage() {
                 variant="outline"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={page === data.totalPages}
                 onClick={() => setPage(page + 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -217,4 +222,3 @@ export default function PurchaseOrdersPage() {
     </div>
   )
 }
-
