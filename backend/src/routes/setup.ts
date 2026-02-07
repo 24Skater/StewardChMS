@@ -4,6 +4,7 @@ import prisma from '../lib/prisma.js'
 import { hashPassword, signToken, COOKIE_OPTIONS, COOKIE_NAME } from '../lib/auth.js'
 import { validatePassword, generateSecureToken } from '../lib/security.js'
 import { createAuditLog } from '../lib/audit.js'
+import { requireAuth, requirePrimaryAdmin } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -53,8 +54,15 @@ const setupStep4Schema = z.object({
 // ============================================
 router.get('/status', async (_req: Request, res: Response) => {
   try {
-    // Check if any users exist
-    const userCount = await prisma.user.count()
+    // Check if a primary admin exists
+    const primaryAdmin = await prisma.user.findFirst({
+      where: { isPrimaryAdmin: true },
+    })
+
+    // Check non-seed user count
+    const nonSeedUserCount = await prisma.user.count({
+      where: { isSeedAccount: false },
+    })
     
     // Check if setup has been completed
     const setupComplete = await prisma.setting.findUnique({
@@ -62,8 +70,9 @@ router.get('/status', async (_req: Request, res: Response) => {
     })
 
     res.json({
-      needsSetup: userCount === 0 || !setupComplete,
-      hasUsers: userCount > 0,
+      needsSetup: !primaryAdmin || !setupComplete,
+      hasPrimaryAdmin: !!primaryAdmin,
+      hasUsers: nonSeedUserCount > 0,
       isComplete: !!setupComplete?.value,
     })
   } catch (error) {
@@ -72,14 +81,30 @@ router.get('/status', async (_req: Request, res: Response) => {
   }
 })
 
+// Schema for enabling seed account
+const enableSeedAccountSchema = z.object({
+  password: z.string().min(12, 'Password must be at least 12 characters'),
+})
+
 // ============================================
 // POST /api/setup/step1 - Create Admin Account
 // ============================================
 router.post('/step1', async (req: Request, res: Response) => {
   try {
-    // Check if users already exist
-    const userCount = await prisma.user.count()
-    if (userCount > 0) {
+    // Check if a primary admin already exists
+    const existingPrimaryAdmin = await prisma.user.findFirst({
+      where: { isPrimaryAdmin: true },
+    })
+    if (existingPrimaryAdmin) {
+      res.status(400).json({ error: 'Setup has already been completed. Primary admin exists.' })
+      return
+    }
+
+    // Also check for non-seed users (backward compatibility)
+    const nonSeedUserCount = await prisma.user.count({
+      where: { isSeedAccount: false },
+    })
+    if (nonSeedUserCount > 0) {
       res.status(400).json({ error: 'Setup has already been completed. Users exist.' })
       return
     }
@@ -134,7 +159,7 @@ router.post('/step1', async (req: Request, res: Response) => {
       })
     }
 
-    // Create admin user
+    // Create admin user as PRIMARY ADMIN
     const passwordHash = await hashPassword(password)
     const user = await prisma.user.create({
       data: {
@@ -142,6 +167,8 @@ router.post('/step1', async (req: Request, res: Response) => {
         name,
         passwordHash,
         isActive: true,
+        isPrimaryAdmin: true, // This is the primary admin - highest authority
+        isSeedAccount: false,
         userRoles: {
           create: {
             roleId: adminRole.id,
@@ -163,6 +190,12 @@ router.post('/step1', async (req: Request, res: Response) => {
           },
         },
       },
+    })
+
+    // Ensure seed account is disabled (if it exists)
+    await prisma.user.updateMany({
+      where: { isSeedAccount: true },
+      data: { isActive: false },
     })
 
     // Generate JWT secret and store it
@@ -192,6 +225,7 @@ router.post('/step1', async (req: Request, res: Response) => {
       email: user.email,
       roles,
       permissions: userPermissions,
+      isPrimaryAdmin: user.isPrimaryAdmin,
     })
 
     // Set cookie
@@ -216,6 +250,7 @@ router.post('/step1', async (req: Request, res: Response) => {
         name: user.name,
         roles,
         permissions: userPermissions,
+        isPrimaryAdmin: user.isPrimaryAdmin,
       },
     })
   } catch (error) {
@@ -433,6 +468,177 @@ router.get('/summary', async (_req: Request, res: Response) => {
   } catch (error) {
     console.error('Setup summary error:', error)
     res.status(500).json({ error: 'Failed to get setup summary' })
+  }
+})
+
+// ============================================
+// SEED ACCOUNT MANAGEMENT (Primary Admin Only)
+// ============================================
+
+// ============================================
+// GET /api/setup/seed-account/status
+// Check seed account status (Primary Admin only)
+// ============================================
+router.get('/seed-account/status', requireAuth, requirePrimaryAdmin(), async (_req: Request, res: Response) => {
+  try {
+    const seedAccount = await prisma.user.findFirst({
+      where: { isSeedAccount: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    if (!seedAccount) {
+      res.json({
+        exists: false,
+        message: 'No seed account exists. Run the seed script to create one.',
+      })
+      return
+    }
+
+    res.json({
+      exists: true,
+      id: seedAccount.id,
+      email: seedAccount.email,
+      name: seedAccount.name,
+      isActive: seedAccount.isActive,
+      createdAt: seedAccount.createdAt.toISOString(),
+      updatedAt: seedAccount.updatedAt.toISOString(),
+    })
+  } catch (error) {
+    console.error('Get seed account status error:', error)
+    res.status(500).json({ error: 'Failed to get seed account status' })
+  }
+})
+
+// ============================================
+// POST /api/setup/seed-account/enable
+// Enable seed account with new password (Primary Admin only)
+// ============================================
+router.post('/seed-account/enable', requireAuth, requirePrimaryAdmin(), async (req: Request, res: Response) => {
+  try {
+    const parseResult = enableSeedAccountSchema.safeParse(req.body)
+    if (!parseResult.success) {
+      res.status(400).json({
+        error: 'Validation failed',
+        details: parseResult.error.flatten().fieldErrors,
+      })
+      return
+    }
+
+    const { password } = parseResult.data
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.isValid) {
+      res.status(400).json({
+        error: 'Password does not meet requirements',
+        details: passwordValidation.errors,
+      })
+      return
+    }
+
+    // Find seed account
+    const seedAccount = await prisma.user.findFirst({
+      where: { isSeedAccount: true },
+    })
+
+    if (!seedAccount) {
+      res.status(404).json({ error: 'Seed account not found. Run the seed script to create one.' })
+      return
+    }
+
+    if (seedAccount.isActive) {
+      res.status(400).json({ error: 'Seed account is already active' })
+      return
+    }
+
+    // Update seed account with new password and enable it
+    const passwordHash = await hashPassword(password)
+    await prisma.user.update({
+      where: { id: seedAccount.id },
+      data: {
+        passwordHash,
+        isActive: true,
+      },
+    })
+
+    // Log the action
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'SEED_ACCOUNT_ENABLED',
+      entityType: 'User',
+      entityId: seedAccount.id,
+      metadata: {
+        enabledBy: req.user!.email,
+        timestamp: new Date().toISOString(),
+      },
+    })
+
+    res.json({
+      success: true,
+      message: 'Seed account has been enabled. Use the email and new password to log in.',
+      email: seedAccount.email,
+    })
+  } catch (error) {
+    console.error('Enable seed account error:', error)
+    res.status(500).json({ error: 'Failed to enable seed account' })
+  }
+})
+
+// ============================================
+// POST /api/setup/seed-account/disable
+// Disable seed account (Primary Admin only)
+// ============================================
+router.post('/seed-account/disable', requireAuth, requirePrimaryAdmin(), async (req: Request, res: Response) => {
+  try {
+    // Find seed account
+    const seedAccount = await prisma.user.findFirst({
+      where: { isSeedAccount: true },
+    })
+
+    if (!seedAccount) {
+      res.status(404).json({ error: 'Seed account not found' })
+      return
+    }
+
+    if (!seedAccount.isActive) {
+      res.status(400).json({ error: 'Seed account is already disabled' })
+      return
+    }
+
+    // Disable the seed account
+    await prisma.user.update({
+      where: { id: seedAccount.id },
+      data: {
+        isActive: false,
+      },
+    })
+
+    // Log the action
+    await createAuditLog({
+      actorUserId: req.user!.userId,
+      action: 'SEED_ACCOUNT_DISABLED',
+      entityType: 'User',
+      entityId: seedAccount.id,
+      metadata: {
+        disabledBy: req.user!.email,
+        timestamp: new Date().toISOString(),
+      },
+    })
+
+    res.json({
+      success: true,
+      message: 'Seed account has been disabled',
+    })
+  } catch (error) {
+    console.error('Disable seed account error:', error)
+    res.status(500).json({ error: 'Failed to disable seed account' })
   }
 })
 

@@ -111,6 +111,7 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
       email: user.email,
       roles,
       permissions,
+      isPrimaryAdmin: user.isPrimaryAdmin,
     })
 
     // Log successful login
@@ -119,7 +120,7 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
       action: 'LOGIN_SUCCESS',
       entityType: 'User',
       entityId: user.id,
-      metadata: { roles, permissions },
+      metadata: { roles, permissions, isPrimaryAdmin: user.isPrimaryAdmin },
     })
 
     // Set httpOnly cookie
@@ -135,6 +136,7 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
         name: user.name,
         roles,
         permissions,
+        isPrimaryAdmin: user.isPrimaryAdmin,
       },
     })
   } catch (error) {
@@ -339,6 +341,8 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
       email: user.email,
       name: user.name,
       isActive: user.isActive,
+      isPrimaryAdmin: user.isPrimaryAdmin,
+      isSeedAccount: user.isSeedAccount,
       roles,
       permissions,
       createdAt: user.createdAt.toISOString(),

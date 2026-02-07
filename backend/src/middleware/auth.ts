@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { verifyToken, COOKIE_NAME } from '../lib/auth.js'
+import prisma from '../lib/prisma.js'
 
 // Type augmentation is in src/types/express.d.ts
 
@@ -94,4 +95,53 @@ export function optionalAuth(
   }
 
   next()
+}
+
+/**
+ * Middleware that requires the user to be the primary admin.
+ * This is the highest authority level - used for critical operations like
+ * managing the seed account.
+ * 
+ * SECURITY: Verifies against database, not just JWT, to prevent token tampering.
+ * Must be used after requireAuth.
+ */
+export function requirePrimaryAdmin() {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' })
+      return
+    }
+
+    try {
+      // Verify primary admin status directly from database for security
+      // (cannot trust JWT alone for this critical check)
+      const user = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        select: { isPrimaryAdmin: true, isActive: true },
+      })
+
+      if (!user) {
+        res.status(401).json({ error: 'User not found' })
+        return
+      }
+
+      if (!user.isActive) {
+        res.status(401).json({ error: 'Account is inactive' })
+        return
+      }
+
+      if (!user.isPrimaryAdmin) {
+        res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'This action requires primary admin privileges'
+        })
+        return
+      }
+
+      next()
+    } catch (error) {
+      console.error('Primary admin verification error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
 }

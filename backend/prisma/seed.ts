@@ -1,7 +1,16 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
+
+// Seed account email (fixed identifier)
+const SEED_ACCOUNT_EMAIL = 'seed@stewardchms.local'
+
+// Generate a secure random password
+function generateSecurePassword(length: number = 32): string {
+  return crypto.randomBytes(length).toString('base64').slice(0, length)
+}
 
 // Default permissions for the system
 const DEFAULT_PERMISSIONS = [
@@ -52,10 +61,15 @@ const DEFAULT_PERMISSIONS = [
 async function main() {
   console.log('🌱 Starting seed...')
 
-  // Get admin credentials from environment
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@stewardchms.local'
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
-  const adminName = process.env.ADMIN_NAME || 'System Administrator'
+  // Check if a primary admin already exists - if so, skip seed account creation
+  const primaryAdmin = await prisma.user.findFirst({
+    where: { isPrimaryAdmin: true },
+  })
+
+  if (primaryAdmin) {
+    console.log('⚠️  Primary admin already exists. Skipping seed account creation.')
+    console.log('   Only seeding permissions and roles...')
+  }
 
   // Seed permissions (idempotent)
   console.log('📋 Seeding permissions...')
@@ -99,62 +113,89 @@ async function main() {
   }
   console.log(`   ✓ ${allPermissions.length} permissions assigned to admin role`)
 
-  // Seed admin user (idempotent)
-  console.log('🔐 Seeding admin user...')
-  const passwordHash = await bcrypt.hash(adminPassword, 12)
-  
-  const adminUser = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {
-      name: adminName,
-      // Don't update password on existing user to preserve manual changes
-    },
-    create: {
-      email: adminEmail,
-      name: adminName,
-      passwordHash,
-      isActive: true,
-    },
-  })
-  console.log(`   ✓ Admin user created/updated: ${adminEmail}`)
+  // Only create seed account if no primary admin exists
+  if (!primaryAdmin) {
+    // Generate a secure random password for the seed account
+    const seedPassword = generateSecurePassword(32)
+    const passwordHash = await bcrypt.hash(seedPassword, 12)
 
-  // Assign admin role to admin user
-  await prisma.userRole.upsert({
-    where: {
-      userId_roleId: {
-        userId: adminUser.id,
+    // Create or update seed account (DISABLED by default)
+    console.log('🔐 Creating seed account (emergency recovery)...')
+    const seedUser = await prisma.user.upsert({
+      where: { email: SEED_ACCOUNT_EMAIL },
+      update: {
+        // If seed account exists, ensure it stays disabled and marked as seed
+        isSeedAccount: true,
+        // Don't update password to preserve any manual changes by primary admin
+      },
+      create: {
+        email: SEED_ACCOUNT_EMAIL,
+        name: 'Seed Account (Emergency Recovery)',
+        passwordHash,
+        isActive: false, // DISABLED by default - only primary admin can enable
+        isSeedAccount: true,
+        isPrimaryAdmin: false,
+      },
+    })
+    console.log(`   ✓ Seed account created: ${SEED_ACCOUNT_EMAIL}`)
+    console.log('   ⚠️  Seed account is DISABLED by default')
+    console.log('   ⚠️  Only the primary admin can enable it')
+
+    // Assign admin role to seed account (for when it's enabled)
+    await prisma.userRole.upsert({
+      where: {
+        userId_roleId: {
+          userId: seedUser.id,
+          roleId: adminRole.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: seedUser.id,
         roleId: adminRole.id,
       },
-    },
-    update: {},
-    create: {
-      userId: adminUser.id,
-      roleId: adminRole.id,
-    },
-  })
-  console.log('   ✓ Admin role assigned to admin user')
+    })
+    console.log('   ✓ Admin role assigned to seed account')
 
-  // Log seed completion
-  await prisma.auditLog.create({
-    data: {
-      action: 'SEED_COMPLETED',
-      entityType: 'System',
-      metadata: {
-        permissions: DEFAULT_PERMISSIONS.length,
-        adminEmail,
-        timestamp: new Date().toISOString(),
+    // Log seed completion
+    await prisma.auditLog.create({
+      data: {
+        action: 'SEED_COMPLETED',
+        entityType: 'System',
+        metadata: {
+          permissions: DEFAULT_PERMISSIONS.length,
+          seedAccountEmail: SEED_ACCOUNT_EMAIL,
+          seedAccountStatus: 'disabled',
+          timestamp: new Date().toISOString(),
+        },
       },
-    },
-  })
+    })
 
-  console.log('')
-  console.log('✅ Seed completed successfully!')
-  console.log('')
-  console.log('📝 Admin credentials:')
-  console.log(`   Email: ${adminEmail}`)
-  console.log(`   Password: ${adminPassword}`)
-  console.log('')
-  console.log('⚠️  Please change the admin password after first login!')
+    console.log('')
+    console.log('✅ Seed completed successfully!')
+    console.log('')
+    console.log('📝 Next steps:')
+    console.log('   1. Run the setup wizard to create your primary admin account')
+    console.log('   2. The seed account will remain disabled until needed')
+    console.log('   3. Only the primary admin can enable the seed account')
+  } else {
+    // Log seed completion (permissions/roles only)
+    await prisma.auditLog.create({
+      data: {
+        action: 'SEED_COMPLETED',
+        entityType: 'System',
+        metadata: {
+          permissions: DEFAULT_PERMISSIONS.length,
+          note: 'Primary admin exists - seed account not modified',
+          timestamp: new Date().toISOString(),
+        },
+      },
+    })
+
+    console.log('')
+    console.log('✅ Seed completed successfully!')
+    console.log('   Permissions and roles have been updated.')
+  }
 }
 
 main()

@@ -30,6 +30,7 @@ export interface JwtPayload {
   email: string
   roles: string[]
   permissions: string[]
+  isPrimaryAdmin?: boolean // Highest authority admin flag
   jti?: string // JWT ID for blacklisting
 }
 
