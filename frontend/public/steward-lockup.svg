@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
+  <title>Steward Horizontal Lockup</title>
+  
+  <!-- Shield mark -->
+  <g transform="translate(0, 0)">
+    <path 
+      d="M32 4L8 16v16c0 14.4 10.24 27.84 24 32 13.76-4.16 24-17.6 24-32V16L32 4z" 
+      fill="#1B2A41"
+    />
+    <path 
+      d="M32 14c-6.627 0-12 4.477-12 10 0 3.314 2.015 6.236 5.143 8L32 36l6.857-4c3.128-1.764 5.143-4.686 5.143-8 0-5.523-5.373-10-12-10z" 
+      fill="#2563EB"
+    />
+    <path 
+      d="M32 50c6.627 0 12-4.477 12-10 0-3.314-2.015-6.236-5.143-8L32 28l-6.857 4c-3.128 1.764-5.143 4.686-5.143 8 0 5.523 5.373 10 12 10z" 
+      fill="#2563EB"
+    />
+  </g>
+  
+  <!-- Wordmark -->
+  <text 
+    x="80" 
+    y="42" 
+    font-family="Inter, system-ui, -apple-system, sans-serif" 
+    font-size="36" 
+    font-weight="600" 
+    fill="#1B2A41"
+    letter-spacing="-0.02em"
+  >Steward</text>
+</svg>
+

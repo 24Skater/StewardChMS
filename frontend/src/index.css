@@ -1,62 +1,120 @@
+/**
+ * Steward UI Global Styles
+ * https://github.com/24Skater/steward-brand
+ */
+
+@import "./styles/steward-tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-    --font-sans: "DM Sans", system-ui, sans-serif;
+  *,
+  *::before,
+  *::after {
+    border-color: var(--st-border);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+  html {
+    font-family: var(--st-font-sans);
+    font-size: var(--st-font-size-body);
+    line-height: var(--st-line-height-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: var(--st-bg);
+    color: var(--st-fg);
+  }
+
+  /* Focus visible styles */
+  :focus-visible {
+    outline: 2px solid var(--st-focusRing);
+    outline-offset: 2px;
+  }
+
+  /* Selection styles */
+  ::selection {
+    background-color: var(--st-primary);
+    color: var(--st-primaryFg);
   }
 }
 
+@layer components {
+  /* Typography presets */
+  .text-display {
+    font-size: var(--st-font-size-display);
+    line-height: var(--st-line-height-display);
+    font-weight: var(--st-font-weight-bold);
+    letter-spacing: -0.02em;
+  }
+
+  .text-h1 {
+    font-size: var(--st-font-size-h1);
+    line-height: var(--st-line-height-h1);
+    font-weight: var(--st-font-weight-semibold);
+    letter-spacing: -0.01em;
+  }
+
+  .text-h2 {
+    font-size: var(--st-font-size-h2);
+    line-height: var(--st-line-height-h2);
+    font-weight: var(--st-font-weight-semibold);
+  }
+
+  .text-h3 {
+    font-size: var(--st-font-size-h3);
+    line-height: var(--st-line-height-h3);
+    font-weight: var(--st-font-weight-medium);
+  }
+
+  .text-body {
+    font-size: var(--st-font-size-body);
+    line-height: var(--st-line-height-body);
+  }
+
+  .text-small {
+    font-size: var(--st-font-size-small);
+    line-height: var(--st-line-height-small);
+  }
+
+  .text-caption {
+    font-size: var(--st-font-size-caption);
+    line-height: var(--st-line-height-caption);
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-in {
+    animation: animate-in 0.2s ease-out;
+  }
+
+  .animate-out {
+    animation: animate-out 0.2s ease-in;
+  }
+
+  @keyframes animate-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes animate-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+}
