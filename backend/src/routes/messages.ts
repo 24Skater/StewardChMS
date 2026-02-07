@@ -228,7 +228,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     }
 
     // Create message and recipients in a transaction
-    const message = await prisma.$transaction(async (tx) => {
+    const message = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
       const newMessage = await tx.message.create({
         data: {
           channel: channel as MessageChannel,

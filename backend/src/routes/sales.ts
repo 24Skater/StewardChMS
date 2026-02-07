@@ -5,6 +5,14 @@ import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from '../lib/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
+// Product type for map lookups
+interface ProductData {
+  id: string
+  name: string
+  priceCents: number
+  sku: string | null
+}
+
 const router = Router()
 
 // Zod schemas
@@ -32,7 +40,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
     const user = req.user as JwtPayload
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
       // Generate sale number within transaction
       const saleNumber = await (async () => {
         const year = new Date().getFullYear()
@@ -62,7 +70,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
         throw new Error('One or more products not found')
       }
 
-      const productMap = new Map(products.map((p: typeof products[0]) => [p.id, p] as const))
+      const productMap = new Map<string, ProductData>(products.map((p) => [p.id, p as ProductData]))
 
       // Calculate line items and subtotal
       let subtotalCents = 0
@@ -244,7 +252,7 @@ router.post('/:id/void', requireAuth, requirePermission('sales.edit'), async (re
     const user = req.user as JwtPayload
 
     // Use transaction for atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
       const sale = await tx.sale.findUnique({
         where: { id },
         include: {
