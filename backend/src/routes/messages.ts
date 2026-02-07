@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { getProviderForChannel } from '../providers/messaging/index.js'
@@ -8,6 +9,9 @@ import { getProviderForChannel } from '../providers/messaging/index.js'
 type MessageChannel = 'email' | 'sms'
 type MemberStatus = 'active' | 'inactive' | 'visitor'
 type DeliveryStatus = 'pending' | 'sent' | 'failed'
+
+// Type for Prisma transaction client
+type TransactionClient = Prisma.TransactionClient
 
 const router = Router()
 
@@ -227,7 +231,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     }
 
     // Create message and recipients in a transaction
-    const message = await prisma.$transaction(async (tx) => {
+    const message = await prisma.$transaction(async (tx: TransactionClient) => {
       const newMessage = await tx.message.create({
         data: {
           channel: channel as MessageChannel,

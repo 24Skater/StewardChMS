@@ -181,13 +181,10 @@ router.post('/step1', async (req: Request, res: Response) => {
 
     // Generate token for the new user
     const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
-    const userPermissions: string[] = [
-      ...new Set(
-        user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
-          ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
-        )
-      ),
-    ]
+    const permKeys = user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+      ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
+    )
+    const userPermissions: string[] = Array.from(new Set(permKeys))
 
     const { accessToken, expiresAt } = signToken({
       userId: user.id,

@@ -105,13 +105,10 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
 
     // Extract roles and permissions
     const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
-    const permissions: string[] = [
-      ...new Set(
-        user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
-          ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
-        )
-      ),
-    ]
+    const permissionKeys = user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+      ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
+    )
+    const permissions: string[] = Array.from(new Set(permissionKeys))
 
     // Generate JWT
     const { accessToken, expiresAt } = signToken({
@@ -345,13 +342,10 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
     }
 
     const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
-    const permissions: string[] = [
-      ...new Set(
-        user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
-          ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
-        )
-      ),
-    ]
+    const permKeys = user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+      ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
+    )
+    const permissions: string[] = Array.from(new Set(permKeys))
 
     res.json({
       id: user.id,
