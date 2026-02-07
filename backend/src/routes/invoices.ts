@@ -117,7 +117,7 @@ router.get('/', requireAuth, requirePermission('accounting.view'), async (req, r
     ])
 
     res.json({
-      invoices: invoices.map(inv => ({
+      invoices: invoices.map((inv: typeof invoices[0]) => ({
         ...inv,
         issueDate: inv.issueDate.toISOString(),
         dueDate: inv.dueDate?.toISOString() ?? null,
@@ -283,7 +283,7 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
     // Recalculate totals if tax changed
     const newTaxCents = taxCents ?? existing.taxCents
     const { subtotalCents, totalCents } = calculateTotals(
-      existing.items.map(i => ({ quantity: i.quantity, unitPriceCents: i.unitPriceCents })),
+      existing.items.map((i: { quantity: number; unitPriceCents: number }) => ({ quantity: i.quantity, unitPriceCents: i.unitPriceCents })),
       newTaxCents
     )
 
@@ -382,7 +382,7 @@ router.post('/:id/items', requireAuth, requirePermission('accounting.edit'), asy
     const { description, quantity, unitPriceCents, sortOrder } = parsed.data
     const lineTotalCents = Math.round(quantity * unitPriceCents)
     const newSortOrder = sortOrder ?? (invoice.items.length > 0 
-      ? Math.max(...invoice.items.map(i => i.sortOrder)) + 1 
+      ? Math.max(...invoice.items.map((i: { sortOrder: number }) => i.sortOrder)) + 1 
       : 0)
 
     // Create item and update invoice totals in a transaction

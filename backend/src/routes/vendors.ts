@@ -33,7 +33,7 @@ router.get('/', requireAuth, requirePermission('accounting.view'), async (_req, 
     })
 
     res.json({
-      vendors: vendors.map(v => ({
+      vendors: vendors.map((v: typeof vendors[0]) => ({
         ...v,
         createdAt: v.createdAt.toISOString(),
         updatedAt: v.updatedAt.toISOString(),

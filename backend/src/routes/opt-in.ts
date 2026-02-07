@@ -2,7 +2,9 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
-import { MessageChannel } from '@prisma/client'
+
+// Type alias for Prisma enum
+type MessageChannel = 'email' | 'sms'
 
 const router = Router()
 

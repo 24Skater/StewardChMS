@@ -68,7 +68,7 @@ router.get('/', requireAuth, requirePermission('giving.view'), async (req, res) 
     ])
 
     res.json({
-      pledges: pledges.map(p => ({
+      pledges: pledges.map((p: typeof pledges[0]) => ({
         ...p,
         startDate: p.startDate?.toISOString() ?? null,
         endDate: p.endDate?.toISOString() ?? null,

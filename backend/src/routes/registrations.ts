@@ -146,7 +146,7 @@ router.get('/occurrences/:id/registrations', requireAuth, requirePermission('eve
     })
 
     res.json({
-      registrations: registrations.map(reg => ({
+      registrations: registrations.map((reg: typeof registrations[0]) => ({
         id: reg.id,
         eventOccurrenceId: reg.eventOccurrenceId,
         memberId: reg.memberId,
@@ -315,7 +315,7 @@ router.get('/occurrences/:id/checkins', requireAuth, requirePermission('events.r
     })
 
     res.json({
-      checkIns: checkIns.map(ci => ({
+      checkIns: checkIns.map((ci: typeof checkIns[0]) => ({
         id: ci.id,
         eventOccurrenceId: ci.eventOccurrenceId,
         memberId: ci.memberId,

@@ -89,11 +89,11 @@ router.get('/summary', requireAuth, requirePermission('inventory.view'), async (
 
     // Create a map for quick lookup
     const inventoryMap = new Map(
-      inventorySums.map(item => [item.productId, item._sum.quantityDelta || 0])
+      inventorySums.map((item: typeof inventorySums[0]) => [item.productId, item._sum.quantityDelta || 0])
     )
 
     // Build summary with on-hand quantities
-    const summary = products.map(product => ({
+    const summary = products.map((product: typeof products[0]) => ({
       productId: product.id,
       productName: product.name,
       sku: product.sku,

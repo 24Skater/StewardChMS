@@ -79,7 +79,7 @@ router.get('/', requireAuth, requirePermission('giving.view'), async (req, res) 
     ])
 
     res.json({
-      donations: donations.map(d => ({
+      donations: donations.map((d: typeof donations[0]) => ({
         ...d,
         receivedAt: d.receivedAt.toISOString(),
         createdAt: d.createdAt.toISOString(),

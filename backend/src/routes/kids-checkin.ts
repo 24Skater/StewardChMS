@@ -83,11 +83,11 @@ router.get('/children', requirePermission('checkin.view'), async (_req: Request,
     })
 
     // Transform to include parents/guardians
-    const result = children.map((child) => {
+    const result = children.map((child: typeof children[0]) => {
       const parents = child.householdMembers
-        .flatMap((hm) => hm.household.members)
-        .filter((hm) => !hm.member.isChild)
-        .map((hm) => ({
+        .flatMap((hm: typeof child.householdMembers[0]) => hm.household.members)
+        .filter((hm: { member: { isChild: boolean } }) => !hm.member.isChild)
+        .map((hm: { member: { id: string; firstName: string; lastName: string; phone: string | null } }) => ({
           id: hm.member.id,
           firstName: hm.member.firstName,
           lastName: hm.member.lastName,
@@ -97,7 +97,7 @@ router.get('/children', requirePermission('checkin.view'), async (_req: Request,
       return {
         ...child,
         householdMembers: undefined,
-        parents: [...new Map(parents.map((p) => [p.id, p])).values()],
+        parents: [...new Map(parents.map((p: { id: string }) => [p.id, p])).values()],
       }
     })
 

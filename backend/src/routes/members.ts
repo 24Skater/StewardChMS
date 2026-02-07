@@ -143,7 +143,7 @@ router.get('/', requireAuth, requirePermission('members.read'), async (req: Requ
     const canViewNotes = req.user?.permissions.includes('members.notes') ?? false
 
     res.json({
-      members: members.map(m => formatMemberResponse(m, canViewNotes)),
+      members: members.map((m: typeof members[0]) => formatMemberResponse(m, canViewNotes)),
       total,
       page,
       limit,

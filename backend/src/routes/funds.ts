@@ -29,7 +29,7 @@ router.get('/', requireAuth, requirePermission('accounting.view'), async (_req, 
     })
 
     res.json({
-      funds: funds.map(fund => ({
+      funds: funds.map((fund: typeof funds[0]) => ({
         ...fund,
         createdAt: fund.createdAt.toISOString(),
         updatedAt: fund.updatedAt.toISOString(),

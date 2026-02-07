@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
-import { JwtPayload } from 'jsonwebtoken'
+import { JwtPayload } from '../lib/auth.js'
 
 const router = Router()
 
@@ -61,7 +61,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
         throw new Error('One or more products not found')
       }
 
-      const productMap = new Map(products.map(p => [p.id, p]))
+      const productMap = new Map(products.map((p: typeof products[0]) => [p.id, p] as const))
 
       // Calculate line items and subtotal
       let subtotalCents = 0

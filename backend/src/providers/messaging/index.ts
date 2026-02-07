@@ -71,6 +71,7 @@ export function getProviderForChannel(channel: 'email' | 'sms'): MessageProvider
   return channel === 'email' ? getEmailProvider() : getSmsProvider()
 }
 
-// Re-export types
-export type { MessageChannel, DeliveryStatus } from '@prisma/client'
+// Type aliases for Prisma enums
+export type MessageChannel = 'email' | 'sms'
+export type DeliveryStatus = 'pending' | 'sent' | 'failed'
 

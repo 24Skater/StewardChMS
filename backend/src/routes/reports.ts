@@ -62,8 +62,12 @@ router.get('/funds-summary', requireAuth, requirePermission('accounting.view'), 
     })
 
     // Create a map of fund balances
-    const donationsByFund = new Map(donations.map(d => [d.fundId, d._sum.amountCents || 0]))
-    const expensesByFund = new Map(expenses.map(e => [e.fundId, e._sum.amountCents || 0]))
+    const donationsByFund = new Map<string | null, number>(
+      donations.map((d: typeof donations[0]) => [d.fundId, d._sum.amountCents || 0])
+    )
+    const expensesByFund = new Map<string | null, number>(
+      expenses.map((e: typeof expenses[0]) => [e.fundId, e._sum.amountCents || 0])
+    )
 
     // Calculate per-fund balances
     const fundBalances: Array<{
@@ -72,7 +76,7 @@ router.get('/funds-summary', requireAuth, requirePermission('accounting.view'), 
       incomeCents: number
       expensesCents: number
       netCents: number
-    }> = funds.map(fund => {
+    }> = funds.map((fund: typeof funds[0]) => {
       const incomeCents = donationsByFund.get(fund.id) || 0
       const expensesCents = expensesByFund.get(fund.id) || 0
       return {
@@ -85,8 +89,8 @@ router.get('/funds-summary', requireAuth, requirePermission('accounting.view'), 
     })
 
     // Add undesignated (null fund) totals
-    const undesignatedIncome = donationsByFund.get(null) || 0
-    const undesignatedExpenses = expensesByFund.get(null) || 0
+    const undesignatedIncome: number = donationsByFund.get(null) || 0
+    const undesignatedExpenses: number = expensesByFund.get(null) || 0
     if (undesignatedIncome > 0 || undesignatedExpenses > 0) {
       fundBalances.push({
         fundId: null,
@@ -247,12 +251,12 @@ router.get('/donor-statement', requireAuth, requirePermission('giving.view'), as
       orderBy: { receivedAt: 'asc' },
     })
 
-    const totalCents = donations.reduce((sum, d) => sum + d.amountCents, 0)
+    const totalCents = donations.reduce((sum: number, d: typeof donations[0]) => sum + d.amountCents, 0)
 
     res.json({
       member,
       year: yearNum,
-      donations: donations.map(d => ({
+      donations: donations.map((d: typeof donations[0]) => ({
         id: d.id,
         receivedAt: d.receivedAt.toISOString(),
         amountCents: d.amountCents,
@@ -316,9 +320,9 @@ router.get('/membership-summary', requireAuth, requirePermission('reports.view')
     })
 
     // Total active members
-    const totalActive = membersByStatus.find(s => s.status === 'active')?._count.id || 0
-    const totalInactive = membersByStatus.find(s => s.status === 'inactive')?._count.id || 0
-    const totalVisitor = membersByStatus.find(s => s.status === 'visitor')?._count.id || 0
+    const totalActive = membersByStatus.find((s: typeof membersByStatus[0]) => s.status === 'active')?._count.id || 0
+    const totalInactive = membersByStatus.find((s: typeof membersByStatus[0]) => s.status === 'inactive')?._count.id || 0
+    const totalVisitor = membersByStatus.find((s: typeof membersByStatus[0]) => s.status === 'visitor')?._count.id || 0
 
     const result = {
       dateFrom: startDate.toISOString(),
@@ -389,7 +393,7 @@ router.get('/attendance-summary', requireAuth, requirePermission('reports.view')
     })
 
     // Total check-ins in period
-    const totalCheckIns = occurrences.reduce((sum, occ) => sum + occ._count.checkIns, 0)
+    const totalCheckIns = occurrences.reduce((sum: number, occ: typeof occurrences[0]) => sum + occ._count.checkIns, 0)
 
     // Top events by attendance
     const eventAttendance = new Map<string, { title: string; checkIns: number }>()
@@ -416,7 +420,7 @@ router.get('/attendance-summary', requireAuth, requirePermission('reports.view')
       totalCheckIns,
       occurrenceCount: occurrences.length,
       topEvents,
-      occurrences: occurrences.map(occ => ({
+      occurrences: occurrences.map((occ: typeof occurrences[0]) => ({
         occurrenceId: occ.id,
         eventTitle: occ.event.title,
         startsAt: occ.startsAt.toISOString(),
@@ -426,7 +430,7 @@ router.get('/attendance-summary', requireAuth, requirePermission('reports.view')
 
     if (format === 'csv') {
       const headers = ['Event', 'Date', 'Check-ins']
-      const rows = occurrences.map(occ => [
+      const rows = occurrences.map((occ: typeof occurrences[0]) => [
         occ.event.title,
         occ.startsAt.toISOString().split('T')[0],
         String(occ._count.checkIns),
@@ -467,21 +471,21 @@ router.get('/giving-report', requireAuth, requirePermission('reports.view'), asy
     })
 
     // Get fund names
-    const fundIds = donations.map(d => d.fundId).filter((id): id is string => id !== null)
+    const fundIds = donations.map((d: typeof donations[0]) => d.fundId).filter((id: string | null): id is string => id !== null)
     const funds = await prisma.fund.findMany({
       where: { id: { in: fundIds } },
     })
-    const fundMap = new Map(funds.map(f => [f.id, f.name]))
+    const fundMap = new Map(funds.map((f: typeof funds[0]) => [f.id, f.name]))
 
-    const fundTotals = donations.map(d => ({
+    const fundTotals = donations.map((d: typeof donations[0]) => ({
       fundId: d.fundId,
       fundName: d.fundId ? (fundMap.get(d.fundId) || 'Unknown') : 'Undesignated',
       totalCents: d._sum.amountCents || 0,
       donationCount: d._count.id,
-    })).sort((a, b) => b.totalCents - a.totalCents)
+    })).sort((a: { totalCents: number }, b: { totalCents: number }) => b.totalCents - a.totalCents)
 
-    const totalCents = fundTotals.reduce((sum, f) => sum + f.totalCents, 0)
-    const totalDonations = fundTotals.reduce((sum, f) => sum + f.donationCount, 0)
+    const totalCents = fundTotals.reduce((sum: number, f: { totalCents: number }) => sum + f.totalCents, 0)
+    const totalDonations = fundTotals.reduce((sum: number, f: { donationCount: number }) => sum + f.donationCount, 0)
 
     const result = {
       dateFrom: startDate.toISOString(),
@@ -493,7 +497,7 @@ router.get('/giving-report', requireAuth, requirePermission('reports.view'), asy
 
     if (format === 'csv') {
       const headers = ['Fund', 'Donations', 'Total ($)']
-      const rows = fundTotals.map(f => [
+      const rows = fundTotals.map((f: { fundName: string; donationCount: number; totalCents: number }) => [
         f.fundName,
         String(f.donationCount),
         (f.totalCents / 100).toFixed(2),
@@ -552,8 +556,8 @@ router.get('/sales-summary', requireAuth, requirePermission('reports.view'), asy
 
     // Calculate totals
     const totalSales = sales.length
-    const totalRevenueCents = sales.reduce((sum, s) => sum + s.totalCents, 0)
-    const totalTaxCents = sales.reduce((sum, s) => sum + s.taxCents, 0)
+    const totalRevenueCents = sales.reduce((sum: number, s: typeof sales[0]) => sum + s.totalCents, 0)
+    const totalTaxCents = sales.reduce((sum: number, s: typeof sales[0]) => sum + s.taxCents, 0)
 
     // Top products by quantity sold
     const productSales = new Map<string, { name: string; quantity: number; revenueCents: number }>()

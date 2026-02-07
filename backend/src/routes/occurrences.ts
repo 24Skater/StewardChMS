@@ -207,7 +207,7 @@ router.get('/:id', requireAuth, requirePermission('events.read'), async (req: Re
 
     res.json({
       ...formatOccurrenceResponse(occurrence),
-      registrations: occurrence.registrations.map(reg => ({
+      registrations: occurrence.registrations.map((reg: typeof occurrence.registrations[0]) => ({
         id: reg.id,
         memberId: reg.memberId,
         guestName: reg.guestName,
@@ -218,7 +218,7 @@ router.get('/:id', requireAuth, requirePermission('events.read'), async (req: Re
         createdAt: reg.createdAt.toISOString(),
         member: reg.member,
       })),
-      checkIns: occurrence.checkIns.map(ci => ({
+      checkIns: occurrence.checkIns.map((ci: typeof occurrence.checkIns[0]) => ({
         id: ci.id,
         memberId: ci.memberId,
         guestName: ci.guestName,
@@ -232,7 +232,7 @@ router.get('/:id', requireAuth, requirePermission('events.read'), async (req: Re
         notes: occurrence.worshipPlan.notes,
         createdAt: occurrence.worshipPlan.createdAt.toISOString(),
         updatedAt: occurrence.worshipPlan.updatedAt.toISOString(),
-        items: occurrence.worshipPlan.items.map(item => ({
+        items: occurrence.worshipPlan.items.map((item: typeof occurrence.worshipPlan.items[0]) => ({
           id: item.id,
           sortOrder: item.sortOrder,
           itemType: item.itemType,

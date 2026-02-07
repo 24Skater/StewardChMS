@@ -2,8 +2,12 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
-import { MessageChannel, MemberStatus, DeliveryStatus } from '@prisma/client'
 import { getProviderForChannel } from '../providers/messaging/index.js'
+
+// Type aliases for Prisma enums (to avoid import issues with generated client)
+type MessageChannel = 'email' | 'sms'
+type MemberStatus = 'active' | 'inactive' | 'visitor'
+type DeliveryStatus = 'pending' | 'sent' | 'failed'
 
 const router = Router()
 
@@ -209,7 +213,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     })
 
     // Filter members based on contact info availability
-    const validMembers = members.filter(m => {
+    const validMembers = members.filter((m: { id: string; firstName: string; lastName: string; email: string | null; phone: string | null }) => {
       if (channel === 'email') return !!m.email
       return !!m.phone
     })
@@ -235,7 +239,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
 
       // Create recipients
       await tx.messageRecipient.createMany({
-        data: validMembers.map(member => ({
+        data: validMembers.map((member: { id: string }) => ({
           messageId: newMessage.id,
           memberId: member.id,
           deliveryStatus: 'pending' as DeliveryStatus,
@@ -409,7 +413,7 @@ router.get('/:id/recipients', requireAuth, requirePermission('communications.vie
     ])
 
     res.json({
-      recipients: recipients.map(r => ({
+      recipients: recipients.map((r: typeof recipients[0]) => ({
         id: r.id,
         messageId: r.messageId,
         memberId: r.memberId,
@@ -450,7 +454,7 @@ router.get('/:id/stats', requireAuth, requirePermission('communications.view'), 
       _count: true,
     })
 
-    const result = {
+    const result: Record<string, number> = {
       pending: 0,
       sent: 0,
       failed: 0,
@@ -458,7 +462,7 @@ router.get('/:id/stats', requireAuth, requirePermission('communications.view'), 
     }
 
     for (const s of stats) {
-      result[s.deliveryStatus] = s._count
+      result[s.deliveryStatus as string] = s._count
       result.total += s._count
     }
 

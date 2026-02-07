@@ -104,11 +104,11 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
     }
 
     // Extract roles and permissions
-    const roles = user.userRoles.map((ur) => ur.role.name)
-    const permissions = [
+    const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
+    const permissions: string[] = [
       ...new Set(
-        user.userRoles.flatMap((ur) =>
-          ur.role.rolePermissions.map((rp) => rp.permission.key)
+        user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+          ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
         )
       ),
     ]
@@ -344,11 +344,11 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
       return
     }
 
-    const roles = user.userRoles.map((ur) => ur.role.name)
-    const permissions = [
+    const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
+    const permissions: string[] = [
       ...new Set(
-        user.userRoles.flatMap((ur) =>
-          ur.role.rolePermissions.map((rp) => rp.permission.key)
+        user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+          ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
         )
       ),
     ]

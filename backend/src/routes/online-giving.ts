@@ -334,7 +334,7 @@ router.get('/stats', requireAuth, requirePermission('giving.view'), async (_req:
       monthlyCount: monthlyOnline._count,
       yearlyTotal: yearlyOnline._sum.amountCents || 0,
       yearlyCount: yearlyOnline._count,
-      recentDonations: recentDonations.map((d) => ({
+      recentDonations: recentDonations.map((d: typeof recentDonations[0]) => ({
         id: d.id,
         amountCents: d.amountCents,
         receivedAt: d.receivedAt,

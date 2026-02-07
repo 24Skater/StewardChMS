@@ -76,7 +76,7 @@ router.get('/', requireAuth, requirePermission('accounting.view'), async (req, r
     ])
 
     res.json({
-      expenses: expenses.map(e => ({
+      expenses: expenses.map((e: typeof expenses[0]) => ({
         ...e,
         expenseDate: e.expenseDate.toISOString(),
         createdAt: e.createdAt.toISOString(),

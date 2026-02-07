@@ -282,7 +282,7 @@ router.get('/:id', requireAuth, requirePermission('events.read'), async (req: Re
 
     res.json({
       ...formatEventResponse(event),
-      occurrences: event.occurrences.map(occ => ({
+      occurrences: event.occurrences.map((occ: typeof event.occurrences[0]) => ({
         id: occ.id,
         startsAt: occ.startsAt.toISOString(),
         endsAt: occ.endsAt?.toISOString() ?? null,
