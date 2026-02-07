@@ -43,32 +43,34 @@ export default function SalesPage() {
   const { data, isLoading } = useSales({ dateFrom, dateTo })
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Sales</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Sales</h1>
         <Link to="/sales/new">
-          <Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
             <Plus className="h-4 w-4 mr-2" /> New Sale
           </Button>
         </Link>
       </div>
 
       {/* Date Range Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-muted)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-muted)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div className="flex items-end">
@@ -79,6 +81,7 @@ export default function SalesPage() {
               setDateFrom(today)
               setDateTo(today)
             }}
+            className="border-[var(--st-border)] text-[var(--st-muted)] bg-[var(--st-surface)]"
           >
             Today
           </Button>
@@ -91,60 +94,61 @@ export default function SalesPage() {
               setDateFrom(d.dateFrom)
               setDateTo(d.dateTo)
             }}
+            className="border-[var(--st-border)] text-[var(--st-muted)] bg-[var(--st-surface)]"
           >
             This Month
           </Button>
         </div>
       </div>
 
-      {isLoading && <div className="text-center py-8">Loading...</div>}
+      {isLoading && <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>}
 
       {data && (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Sale #</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Status</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Sale #</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Customer</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Items</TableHead>
+                <TableHead className="text-right text-[var(--st-muted)]">Total</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.sales.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableRow className="border-[var(--st-border)]">
+                  <TableCell colSpan={6} className="text-center py-8 text-[var(--st-muted)]">
                     No sales found in this date range
                   </TableCell>
                 </TableRow>
               ) : (
                 data.sales.map((sale) => (
-                  <TableRow key={sale.id} className={sale.status === 'void' ? 'opacity-50' : ''}>
+                  <TableRow key={sale.id} className={`border-[var(--st-border)] ${sale.status === 'void' ? 'opacity-50' : ''}`}>
                     <TableCell>
-                      <Link to={`/sales/${sale.id}`} className="text-blue-600 hover:underline font-medium">
+                      <Link to={`/sales/${sale.id}`} className="text-[var(--st-link)] hover:underline font-medium">
                         {sale.saleNumber}
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <div>{formatDate(sale.soldAt)}</div>
-                      <div className="text-sm text-gray-500">{formatTime(sale.soldAt)}</div>
+                      <div className="text-[var(--st-fg)]">{formatDate(sale.soldAt)}</div>
+                      <div className="text-sm text-[var(--st-muted)]">{formatTime(sale.soldAt)}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {sale.member
                         ? `${sale.member.firstName} ${sale.member.lastName}`
                         : sale.guestName || 'Guest'}
                     </TableCell>
-                    <TableCell>{sale._count?.items || '-'}</TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-[var(--st-muted)]">{sale._count?.items || '-'}</TableCell>
+                    <TableCell className="text-right font-medium text-emerald-500">
                       {formatCents(sale.totalCents)}
                     </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
                         sale.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-emerald-500/20 text-emerald-400'
+                          : 'bg-red-500/20 text-red-400'
                       }`}>
                         {sale.status}
                       </span>
@@ -159,5 +163,3 @@ export default function SalesPage() {
     </div>
   )
 }
-
-

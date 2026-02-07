@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from '@/context/ThemeContext'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import {
   useSetupStatus,
   useSetupStep1,
@@ -87,6 +89,7 @@ const CURRENCIES = [
 function SetupWizardPage() {
   const navigate = useNavigate()
   const { setUser, setToken } = useAuth()
+  const { resolvedTheme } = useTheme()
   const [currentStep, setCurrentStep] = useState(1)
   const [error, setError] = useState<string | null>(null)
 
@@ -97,6 +100,9 @@ function SetupWizardPage() {
   const step3Mutation = useSetupStep3()
   const step4Mutation = useSetupStep4()
   const completeMutation = useCompleteSetup()
+
+  // Choose logo based on theme
+  const logoSrc = resolvedTheme === 'dark' ? '/steward-mark-light.svg' : '/steward-mark.svg'
 
   // Redirect if setup is already complete
   useEffect(() => {
@@ -217,8 +223,8 @@ function SetupWizardPage() {
 
   if (statusLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0F172A]">
-        <div className="text-[#94A3B8]">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[var(--st-bg)]">
+        <div className="text-[var(--st-muted)]">Loading...</div>
       </div>
     )
   }
@@ -232,22 +238,27 @@ function SetupWizardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[var(--st-bg)]">
+      {/* Theme Toggle - top right */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* Decorative background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[#2563EB]/10 blur-3xl" />
-        <div className="absolute top-1/2 -left-40 h-96 w-96 rounded-full bg-[#16A34A]/10 blur-3xl" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[var(--st-primary)]/10 blur-3xl" />
+        <div className="absolute top-1/2 -left-40 h-96 w-96 rounded-full bg-[var(--st-success)]/10 blur-3xl" />
       </div>
 
       <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-2xl">
           {/* Logo */}
           <div className="mb-8 text-center">
-            <img src="/steward-mark-light.svg" alt="Steward" className="mx-auto h-16 w-16 mb-4" />
-            <h1 className="text-2xl font-bold text-white">
-              Steward <span className="text-[#64748B]">·</span> ChMS Setup
+            <img src={logoSrc} alt="Steward" className="mx-auto h-16 w-16 mb-4" />
+            <h1 className="text-2xl font-bold text-[var(--st-fg)]">
+              Steward <span className="text-[var(--st-muted)]">·</span> ChMS Setup
             </h1>
-            <p className="mt-1 text-sm text-[#94A3B8]">
+            <p className="mt-1 text-sm text-[var(--st-muted)]">
               Let's get your church management system ready
             </p>
           </div>
@@ -259,16 +270,16 @@ function SetupWizardPage() {
                 <div
                   key={step.number}
                   className={`flex flex-col items-center ${
-                    step.number <= currentStep ? 'text-[#2563EB]' : 'text-[#64748B]'
+                    step.number <= currentStep ? 'text-[var(--st-primary)]' : 'text-[var(--st-muted)]'
                   }`}
                 >
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
                       step.number < currentStep
-                        ? 'bg-[#16A34A] text-white'
+                        ? 'bg-[var(--st-success)] text-white'
                         : step.number === currentStep
-                        ? 'bg-[#2563EB] text-white'
-                        : 'bg-[#334155] text-[#64748B]'
+                        ? 'bg-[var(--st-primary)] text-white'
+                        : 'bg-[var(--st-surfaceMuted)] text-[var(--st-muted)]'
                     }`}
                   >
                     {step.number < currentStep ? '✓' : step.number}
@@ -281,77 +292,77 @@ function SetupWizardPage() {
 
           {/* Error Display */}
           {error && (
-            <div className="mb-6 rounded-lg border border-[#DC2626]/50 bg-[#DC2626]/10 p-4">
-              <p className="text-sm text-[#DC2626]">{error}</p>
+            <div className="mb-6 rounded-lg border border-[var(--st-danger)]/50 bg-[var(--st-danger)]/10 p-4">
+              <p className="text-sm text-[var(--st-danger)]">{error}</p>
             </div>
           )}
 
           {/* Form Container */}
-          <div className="rounded-xl border border-[#334155] bg-[#1E293B]/50 p-8 backdrop-blur-sm">
+          <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-8 backdrop-blur-sm">
             {/* Step 1: Admin Account */}
             {currentStep === 1 && (
               <form onSubmit={step1Form.handleSubmit(handleStep1Submit)} className="space-y-4">
-                <h2 className="text-xl font-semibold text-white mb-6">Create Admin Account</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-fg)] mb-6">Create Admin Account</h2>
                 
                 <div>
-                  <Label htmlFor="name" className="text-[#CBD5E1]">Full Name</Label>
+                  <Label htmlFor="name" className="text-[var(--st-mutedFg)]">Full Name</Label>
                   <Input
                     {...step1Form.register('name')}
                     id="name"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="John Smith"
                   />
                   {step1Form.formState.errors.name && (
-                    <p className="mt-1 text-sm text-[#DC2626]">{step1Form.formState.errors.name.message}</p>
+                    <p className="mt-1 text-sm text-[var(--st-danger)]">{step1Form.formState.errors.name.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="text-[#CBD5E1]">Email Address</Label>
+                  <Label htmlFor="email" className="text-[var(--st-mutedFg)]">Email Address</Label>
                   <Input
                     {...step1Form.register('email')}
                     id="email"
                     type="email"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="admin@yourchurch.org"
                   />
                   {step1Form.formState.errors.email && (
-                    <p className="mt-1 text-sm text-[#DC2626]">{step1Form.formState.errors.email.message}</p>
+                    <p className="mt-1 text-sm text-[var(--st-danger)]">{step1Form.formState.errors.email.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="password" className="text-[#CBD5E1]">Password</Label>
+                  <Label htmlFor="password" className="text-[var(--st-mutedFg)]">Password</Label>
                   <Input
                     {...step1Form.register('password')}
                     id="password"
                     type="password"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="At least 12 characters"
                   />
                   {step1Form.formState.errors.password && (
-                    <p className="mt-1 text-sm text-[#DC2626]">{step1Form.formState.errors.password.message}</p>
+                    <p className="mt-1 text-sm text-[var(--st-danger)]">{step1Form.formState.errors.password.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-[#CBD5E1]">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-[var(--st-mutedFg)]">Confirm Password</Label>
                   <Input
                     {...step1Form.register('confirmPassword')}
                     id="confirmPassword"
                     type="password"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="Confirm your password"
                   />
                   {step1Form.formState.errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-[#DC2626]">{step1Form.formState.errors.confirmPassword.message}</p>
+                    <p className="mt-1 text-sm text-[var(--st-danger)]">{step1Form.formState.errors.confirmPassword.message}</p>
                   )}
                 </div>
 
                 <Button
                   type="submit"
                   disabled={step1Mutation.isPending}
-                  className="w-full bg-[#2563EB] hover:bg-[#3B82F6] text-white"
+                  className="w-full bg-[var(--st-primary)] hover:opacity-90 text-white"
                 >
                   {step1Mutation.isPending ? 'Creating Account...' : 'Continue'}
                 </Button>
@@ -361,37 +372,37 @@ function SetupWizardPage() {
             {/* Step 2: Church Profile */}
             {currentStep === 2 && (
               <form onSubmit={step2Form.handleSubmit(handleStep2Submit)} className="space-y-4">
-                <h2 className="text-xl font-semibold text-white mb-6">Church Profile</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-fg)] mb-6">Church Profile</h2>
                 
                 <div>
-                  <Label htmlFor="churchName" className="text-[#CBD5E1]">Church Name *</Label>
+                  <Label htmlFor="churchName" className="text-[var(--st-mutedFg)]">Church Name *</Label>
                   <Input
                     {...step2Form.register('churchName')}
                     id="churchName"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="First Baptist Church"
                   />
                   {step2Form.formState.errors.churchName && (
-                    <p className="mt-1 text-sm text-[#DC2626]">{step2Form.formState.errors.churchName.message}</p>
+                    <p className="mt-1 text-sm text-[var(--st-danger)]">{step2Form.formState.errors.churchName.message}</p>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="address" className="text-[#CBD5E1]">Address</Label>
+                    <Label htmlFor="address" className="text-[var(--st-mutedFg)]">Address</Label>
                     <Input
                       {...step2Form.register('address')}
                       id="address"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="123 Main St"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="city" className="text-[#CBD5E1]">City</Label>
+                    <Label htmlFor="city" className="text-[var(--st-mutedFg)]">City</Label>
                     <Input
                       {...step2Form.register('city')}
                       id="city"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="Springfield"
                     />
                   </div>
@@ -399,52 +410,52 @@ function SetupWizardPage() {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="state" className="text-[#CBD5E1]">State</Label>
+                    <Label htmlFor="state" className="text-[var(--st-mutedFg)]">State</Label>
                     <Input
                       {...step2Form.register('state')}
                       id="state"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="MO"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="zip" className="text-[#CBD5E1]">ZIP</Label>
+                    <Label htmlFor="zip" className="text-[var(--st-mutedFg)]">ZIP</Label>
                     <Input
                       {...step2Form.register('zip')}
                       id="zip"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="65802"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone" className="text-[#CBD5E1]">Phone</Label>
+                    <Label htmlFor="phone" className="text-[var(--st-mutedFg)]">Phone</Label>
                     <Input
                       {...step2Form.register('phone')}
                       id="phone"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="(555) 123-4567"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="website" className="text-[#CBD5E1]">Website</Label>
+                  <Label htmlFor="website" className="text-[var(--st-mutedFg)]">Website</Label>
                   <Input
                     {...step2Form.register('website')}
                     id="website"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="https://yourchurch.org"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="timezone" className="text-[#CBD5E1]">Timezone</Label>
+                    <Label htmlFor="timezone" className="text-[var(--st-mutedFg)]">Timezone</Label>
                     <Select
                       value={step2Form.watch('timezone')}
                       onValueChange={(value) => step2Form.setValue('timezone', value)}
                     >
-                      <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
+                      <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                         <SelectValue placeholder="Select timezone" />
                       </SelectTrigger>
                       <SelectContent>
@@ -455,12 +466,12 @@ function SetupWizardPage() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="currency" className="text-[#CBD5E1]">Currency</Label>
+                    <Label htmlFor="currency" className="text-[var(--st-mutedFg)]">Currency</Label>
                     <Select
                       value={step2Form.watch('currency')}
                       onValueChange={(value) => step2Form.setValue('currency', value)}
                     >
-                      <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
+                      <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -477,14 +488,14 @@ function SetupWizardPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setCurrentStep(1)}
-                    className="flex-1 border-[#334155] text-[#CBD5E1]"
+                    className="flex-1 border-[var(--st-border)] text-[var(--st-mutedFg)]"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
                     disabled={step2Mutation.isPending}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#3B82F6] text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
                   >
                     {step2Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>
@@ -495,38 +506,38 @@ function SetupWizardPage() {
             {/* Step 3: Branding */}
             {currentStep === 3 && (
               <form onSubmit={step3Form.handleSubmit(handleStep3Submit)} className="space-y-4">
-                <h2 className="text-xl font-semibold text-white mb-6">Branding</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-fg)] mb-6">Branding</h2>
                 
                 <div>
-                  <Label htmlFor="primaryColor" className="text-[#CBD5E1]">Primary Color</Label>
+                  <Label htmlFor="primaryColor" className="text-[var(--st-mutedFg)]">Primary Color</Label>
                   <div className="mt-1 flex gap-2">
                     <Input
                       {...step3Form.register('primaryColor')}
                       id="primaryColor"
                       type="color"
-                      className="w-16 h-10 p-1 bg-[#1E293B] border-[#334155]"
+                      className="w-16 h-10 p-1 bg-[var(--st-surface)] border-[var(--st-border)]"
                     />
                     <Input
                       value={step3Form.watch('primaryColor')}
                       onChange={(e) => step3Form.setValue('primaryColor', e.target.value)}
-                      className="flex-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="flex-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="#2563EB"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="tagline" className="text-[#CBD5E1]">Tagline / Slogan</Label>
+                  <Label htmlFor="tagline" className="text-[var(--st-mutedFg)]">Tagline / Slogan</Label>
                   <Input
                     {...step3Form.register('tagline')}
                     id="tagline"
-                    className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                     placeholder="A place to belong"
                   />
                 </div>
 
-                <div className="p-4 rounded-lg bg-[#334155]/30">
-                  <p className="text-sm text-[#94A3B8]">
+                <div className="p-4 rounded-lg bg-[var(--st-surfaceMuted)]">
+                  <p className="text-sm text-[var(--st-muted)]">
                     Logo and favicon upload will be available in the Admin Settings after setup is complete.
                   </p>
                 </div>
@@ -536,14 +547,14 @@ function SetupWizardPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setCurrentStep(2)}
-                    className="flex-1 border-[#334155] text-[#CBD5E1]"
+                    className="flex-1 border-[var(--st-border)] text-[var(--st-mutedFg)]"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
                     disabled={step3Mutation.isPending}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#3B82F6] text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
                   >
                     {step3Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>
@@ -554,15 +565,15 @@ function SetupWizardPage() {
             {/* Step 4: Email Setup */}
             {currentStep === 4 && (
               <form onSubmit={step4Form.handleSubmit(handleStep4Submit)} className="space-y-4">
-                <h2 className="text-xl font-semibold text-white mb-6">Email Setup (Optional)</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-fg)] mb-6">Email Setup (Optional)</h2>
                 
                 <div>
-                  <Label htmlFor="emailProvider" className="text-[#CBD5E1]">Email Provider</Label>
+                  <Label htmlFor="emailProvider" className="text-[var(--st-mutedFg)]">Email Provider</Label>
                   <Select
                     value={emailProvider}
                     onValueChange={(value: 'none' | 'smtp' | 'sendgrid') => step4Form.setValue('emailProvider', value)}
                   >
-                    <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
+                    <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                       <SelectValue placeholder="Select provider" />
                     </SelectTrigger>
                     <SelectContent>
@@ -577,41 +588,41 @@ function SetupWizardPage() {
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="smtpHost" className="text-[#CBD5E1]">SMTP Host</Label>
+                        <Label htmlFor="smtpHost" className="text-[var(--st-mutedFg)]">SMTP Host</Label>
                         <Input
                           {...step4Form.register('smtpHost')}
                           id="smtpHost"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                           placeholder="smtp.example.com"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtpPort" className="text-[#CBD5E1]">Port</Label>
+                        <Label htmlFor="smtpPort" className="text-[var(--st-mutedFg)]">Port</Label>
                         <Input
                           {...step4Form.register('smtpPort')}
                           id="smtpPort"
                           type="number"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                           placeholder="587"
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="smtpUser" className="text-[#CBD5E1]">Username</Label>
+                        <Label htmlFor="smtpUser" className="text-[var(--st-mutedFg)]">Username</Label>
                         <Input
                           {...step4Form.register('smtpUser')}
                           id="smtpUser"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="smtpPassword" className="text-[#CBD5E1]">Password</Label>
+                        <Label htmlFor="smtpPassword" className="text-[var(--st-mutedFg)]">Password</Label>
                         <Input
                           {...step4Form.register('smtpPassword')}
                           id="smtpPassword"
                           type="password"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                         />
                       </div>
                     </div>
@@ -620,12 +631,12 @@ function SetupWizardPage() {
 
                 {emailProvider === 'sendgrid' && (
                   <div>
-                    <Label htmlFor="sendgridApiKey" className="text-[#CBD5E1]">SendGrid API Key</Label>
+                    <Label htmlFor="sendgridApiKey" className="text-[var(--st-mutedFg)]">SendGrid API Key</Label>
                     <Input
                       {...step4Form.register('sendgridApiKey')}
                       id="sendgridApiKey"
                       type="password"
-                      className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       placeholder="SG.xxxxxxxxx"
                     />
                   </div>
@@ -634,21 +645,21 @@ function SetupWizardPage() {
                 {emailProvider !== 'none' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="fromEmail" className="text-[#CBD5E1]">From Email</Label>
+                      <Label htmlFor="fromEmail" className="text-[var(--st-mutedFg)]">From Email</Label>
                       <Input
                         {...step4Form.register('fromEmail')}
                         id="fromEmail"
                         type="email"
-                        className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                        className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                         placeholder="noreply@yourchurch.org"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="fromName" className="text-[#CBD5E1]">From Name</Label>
+                      <Label htmlFor="fromName" className="text-[var(--st-mutedFg)]">From Name</Label>
                       <Input
                         {...step4Form.register('fromName')}
                         id="fromName"
-                        className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                        className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                         placeholder="Your Church Name"
                       />
                     </div>
@@ -660,14 +671,14 @@ function SetupWizardPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setCurrentStep(3)}
-                    className="flex-1 border-[#334155] text-[#CBD5E1]"
+                    className="flex-1 border-[var(--st-border)] text-[var(--st-mutedFg)]"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
                     disabled={step4Mutation.isPending}
-                    className="flex-1 bg-[#2563EB] hover:bg-[#3B82F6] text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
                   >
                     {step4Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>
@@ -678,40 +689,40 @@ function SetupWizardPage() {
             {/* Step 5: Review */}
             {currentStep === 5 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-white mb-6">Review & Complete</h2>
+                <h2 className="text-xl font-semibold text-[var(--st-fg)] mb-6">Review & Complete</h2>
                 
                 {summary && (
                   <div className="space-y-4">
                     {summary.church && (
-                      <div className="p-4 rounded-lg bg-[#334155]/30">
-                        <h3 className="font-medium text-white mb-2">Church Profile</h3>
-                        <dl className="text-sm text-[#94A3B8] space-y-1">
+                      <div className="p-4 rounded-lg bg-[var(--st-surfaceMuted)]">
+                        <h3 className="font-medium text-[var(--st-fg)] mb-2">Church Profile</h3>
+                        <dl className="text-sm text-[var(--st-muted)] space-y-1">
                           <div className="flex justify-between">
                             <dt>Name:</dt>
-                            <dd className="text-white">{String(summary.church.name || '-')}</dd>
+                            <dd className="text-[var(--st-fg)]">{String(summary.church.name || '-')}</dd>
                           </div>
                           <div className="flex justify-between">
                             <dt>Location:</dt>
-                            <dd className="text-white">
+                            <dd className="text-[var(--st-fg)]">
                               {[summary.church.city, summary.church.state].filter(Boolean).join(', ') || '-'}
                             </dd>
                           </div>
                           <div className="flex justify-between">
                             <dt>Timezone:</dt>
-                            <dd className="text-white">{String(summary.church.timezone || '-')}</dd>
+                            <dd className="text-[var(--st-fg)]">{String(summary.church.timezone || '-')}</dd>
                           </div>
                           <div className="flex justify-between">
                             <dt>Currency:</dt>
-                            <dd className="text-white">{String(summary.church.currency || '-')}</dd>
+                            <dd className="text-[var(--st-fg)]">{String(summary.church.currency || '-')}</dd>
                           </div>
                         </dl>
                       </div>
                     )}
 
                     {summary.branding && (
-                      <div className="p-4 rounded-lg bg-[#334155]/30">
-                        <h3 className="font-medium text-white mb-2">Branding</h3>
-                        <dl className="text-sm text-[#94A3B8] space-y-1">
+                      <div className="p-4 rounded-lg bg-[var(--st-surfaceMuted)]">
+                        <h3 className="font-medium text-[var(--st-fg)] mb-2">Branding</h3>
+                        <dl className="text-sm text-[var(--st-muted)] space-y-1">
                           <div className="flex justify-between items-center">
                             <dt>Primary Color:</dt>
                             <dd className="flex items-center gap-2">
@@ -719,29 +730,29 @@ function SetupWizardPage() {
                                 className="w-6 h-6 rounded"
                                 style={{ backgroundColor: String(summary.branding.primary_color) }}
                               />
-                              <span className="text-white">{String(summary.branding.primary_color)}</span>
+                              <span className="text-[var(--st-fg)]">{String(summary.branding.primary_color)}</span>
                             </dd>
                           </div>
                           <div className="flex justify-between">
                             <dt>Tagline:</dt>
-                            <dd className="text-white">{String(summary.branding.tagline || '-')}</dd>
+                            <dd className="text-[var(--st-fg)]">{String(summary.branding.tagline || '-')}</dd>
                           </div>
                         </dl>
                       </div>
                     )}
 
                     {summary.email && (
-                      <div className="p-4 rounded-lg bg-[#334155]/30">
-                        <h3 className="font-medium text-white mb-2">Email</h3>
-                        <dl className="text-sm text-[#94A3B8] space-y-1">
+                      <div className="p-4 rounded-lg bg-[var(--st-surfaceMuted)]">
+                        <h3 className="font-medium text-[var(--st-fg)] mb-2">Email</h3>
+                        <dl className="text-sm text-[var(--st-muted)] space-y-1">
                           <div className="flex justify-between">
                             <dt>Provider:</dt>
-                            <dd className="text-white capitalize">{String(summary.email.provider || 'None')}</dd>
+                            <dd className="text-[var(--st-fg)] capitalize">{String(summary.email.provider || 'None')}</dd>
                           </div>
                           {summary.email.provider !== 'none' && (
                             <div className="flex justify-between">
                               <dt>From:</dt>
-                              <dd className="text-white">{String(summary.email.from_email || '-')}</dd>
+                              <dd className="text-[var(--st-fg)]">{String(summary.email.from_email || '-')}</dd>
                             </div>
                           )}
                         </dl>
@@ -750,8 +761,8 @@ function SetupWizardPage() {
                   </div>
                 )}
 
-                <div className="p-4 rounded-lg bg-[#16A34A]/10 border border-[#16A34A]/30">
-                  <p className="text-sm text-[#16A34A]">
+                <div className="p-4 rounded-lg bg-[var(--st-success)]/10 border border-[var(--st-success)]/30">
+                  <p className="text-sm text-[var(--st-success)]">
                     You're all set! Click "Complete Setup" to finish and start using StewardChMS.
                   </p>
                 </div>
@@ -761,14 +772,14 @@ function SetupWizardPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setCurrentStep(4)}
-                    className="flex-1 border-[#334155] text-[#CBD5E1]"
+                    className="flex-1 border-[var(--st-border)] text-[var(--st-mutedFg)]"
                   >
                     Back
                   </Button>
                   <Button
                     onClick={handleComplete}
                     disabled={completeMutation.isPending}
-                    className="flex-1 bg-[#16A34A] hover:bg-[#22C55E] text-white"
+                    className="flex-1 bg-[var(--st-success)] hover:opacity-90 text-white"
                   >
                     {completeMutation.isPending ? 'Completing...' : 'Complete Setup'}
                   </Button>
@@ -778,7 +789,7 @@ function SetupWizardPage() {
           </div>
 
           {/* Footer */}
-          <p className="mt-6 text-center text-sm text-[#475569]">
+          <p className="mt-6 text-center text-sm text-[var(--st-muted)]">
             Part of the Steward Ecosystem
           </p>
         </div>
@@ -788,4 +799,3 @@ function SetupWizardPage() {
 }
 
 export default SetupWizardPage
-

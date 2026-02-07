@@ -40,31 +40,31 @@ export default function SaleDetailPage() {
   }
 
   if (isLoading) {
-    return <div className="p-6 text-center">Loading...</div>
+    return <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
   }
 
   if (error || !sale) {
-    return <div className="p-6 text-center text-red-600">Error loading sale</div>
+    return <div className="text-center py-8 text-red-500">Error loading sale</div>
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Link to="/sales" className="inline-flex items-center text-blue-600 hover:underline mb-4">
+    <div className="space-y-6">
+      <Link to="/sales" className="inline-flex items-center text-[var(--st-link)] hover:underline">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Sales
       </Link>
 
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold">Sale {sale.saleNumber}</h1>
-          <div className="text-gray-500">
+          <h1 className="text-2xl font-bold text-[var(--st-fg)]">Sale {sale.saleNumber}</h1>
+          <div className="text-[var(--st-muted)]">
             {formatDate(sale.soldAt)} at {formatTime(sale.soldAt)}
           </div>
         </div>
         <div className="flex items-center gap-4">
           <span className={`px-3 py-1 rounded text-sm font-medium ${
             sale.status === 'completed'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+              ? 'bg-emerald-500/20 text-emerald-400'
+              : 'bg-red-500/20 text-red-400'
           }`}>
             {sale.status.toUpperCase()}
           </span>
@@ -82,41 +82,41 @@ export default function SaleDetailPage() {
       </div>
 
       {/* Sale Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold mb-2">Customer</h3>
-          <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
+          <h3 className="font-semibold text-[var(--st-fg)] mb-2">Customer</h3>
+          <div className="text-[var(--st-muted)]">
             {sale.member
               ? `${sale.member.firstName} ${sale.member.lastName}`
               : sale.guestName || 'Guest'}
           </div>
         </div>
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold mb-2">Processed By</h3>
-          <div>{sale.createdByUser?.name || sale.createdByUser?.email || '-'}</div>
+        <div className="p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
+          <h3 className="font-semibold text-[var(--st-fg)] mb-2">Processed By</h3>
+          <div className="text-[var(--st-muted)]">{sale.createdByUser?.name || sale.createdByUser?.email || '-'}</div>
         </div>
       </div>
 
       {/* Items */}
-      <div className="border rounded-lg overflow-hidden mb-6">
+      <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead className="text-right">Unit Price</TableHead>
-              <TableHead className="text-center">Qty</TableHead>
-              <TableHead className="text-right">Line Total</TableHead>
+            <TableRow className="border-[var(--st-border)]">
+              <TableHead className="text-[var(--st-muted)]">Product</TableHead>
+              <TableHead className="text-[var(--st-muted)]">SKU</TableHead>
+              <TableHead className="text-right text-[var(--st-muted)]">Unit Price</TableHead>
+              <TableHead className="text-center text-[var(--st-muted)]">Qty</TableHead>
+              <TableHead className="text-right text-[var(--st-muted)]">Line Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sale.items?.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.product?.name || 'Unknown'}</TableCell>
-                <TableCell>{item.product?.sku || '-'}</TableCell>
-                <TableCell className="text-right">{formatCents(item.unitPriceCents)}</TableCell>
-                <TableCell className="text-center">{item.quantity}</TableCell>
-                <TableCell className="text-right font-medium">{formatCents(item.lineTotalCents)}</TableCell>
+              <TableRow key={item.id} className="border-[var(--st-border)]">
+                <TableCell className="font-medium text-[var(--st-fg)]">{item.product?.name || 'Unknown'}</TableCell>
+                <TableCell className="text-[var(--st-muted)]">{item.product?.sku || '-'}</TableCell>
+                <TableCell className="text-right text-[var(--st-muted)]">{formatCents(item.unitPriceCents)}</TableCell>
+                <TableCell className="text-center text-[var(--st-fg)]">{item.quantity}</TableCell>
+                <TableCell className="text-right font-medium text-emerald-500">{formatCents(item.lineTotalCents)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -125,25 +125,25 @@ export default function SaleDetailPage() {
 
       {/* Totals */}
       <div className="flex justify-end">
-        <div className="w-64 space-y-2">
+        <div className="w-64 space-y-2 text-[var(--st-fg)]">
           <div className="flex justify-between">
-            <span>Subtotal:</span>
+            <span className="text-[var(--st-muted)]">Subtotal:</span>
             <span>{formatCents(sale.subtotalCents)}</span>
           </div>
           <div className="flex justify-between">
-            <span>Tax:</span>
+            <span className="text-[var(--st-muted)]">Tax:</span>
             <span>{formatCents(sale.taxCents)}</span>
           </div>
-          <div className="flex justify-between text-lg font-bold border-t pt-2">
+          <div className="flex justify-between text-lg font-bold border-t border-[var(--st-border)] pt-2">
             <span>Total:</span>
-            <span>{formatCents(sale.totalCents)}</span>
+            <span className="text-emerald-500">{formatCents(sale.totalCents)}</span>
           </div>
         </div>
       </div>
 
       {sale.status === 'void' && (
-        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800">
+        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-red-400">
             This sale has been voided. Inventory has been restored.
           </p>
         </div>
@@ -151,4 +151,3 @@ export default function SaleDetailPage() {
     </div>
   )
 }
-

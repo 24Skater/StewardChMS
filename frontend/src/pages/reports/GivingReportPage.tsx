@@ -50,29 +50,31 @@ export default function GivingReportPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Link to="/reports" className="inline-flex items-center text-blue-600 hover:underline mb-4">
+    <div className="space-y-6">
+      <Link to="/reports" className="inline-flex items-center text-[var(--st-link)] hover:underline">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Reports
       </Link>
 
-      <h1 className="text-2xl font-bold mb-6">Giving Summary</h1>
+      <h1 className="text-2xl font-bold text-[var(--st-fg)]">Giving Summary</h1>
 
       {/* Date Range Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div className="flex items-end">
@@ -83,64 +85,65 @@ export default function GivingReportPage() {
               setDateFrom(d.dateFrom)
               setDateTo(d.dateTo)
             }}
+            className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
           >
             Year to Date
           </Button>
         </div>
         <div className="flex items-end">
-          <Button onClick={handleExportCSV} disabled={!data}>
+          <Button onClick={handleExportCSV} disabled={!data} className="bg-[var(--st-primary)] text-white">
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
         </div>
       </div>
 
-      {isLoading && <div className="text-center py-8">Loading...</div>}
-      {error && <div className="text-center py-8 text-red-600">Error loading report</div>}
+      {isLoading && <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>}
+      {error && <div className="text-center py-8 text-[var(--st-danger)]">Error loading report</div>}
 
       {data && (
         <div className="space-y-6">
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-white border rounded-lg">
-              <div className="text-sm text-gray-500">Total Giving</div>
-              <div className="text-3xl font-bold text-green-600">{formatCents(data.totalCents)}</div>
+            <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+              <div className="text-sm text-[var(--st-muted)]">Total Giving</div>
+              <div className="text-3xl font-bold text-emerald-500">{formatCents(data.totalCents)}</div>
             </div>
-            <div className="p-4 bg-white border rounded-lg">
-              <div className="text-sm text-gray-500">Total Donations</div>
-              <div className="text-3xl font-bold">{data.totalDonations}</div>
+            <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+              <div className="text-sm text-[var(--st-muted)]">Total Donations</div>
+              <div className="text-3xl font-bold text-[var(--st-fg)]">{data.totalDonations}</div>
             </div>
           </div>
 
           {/* Fund Breakdown Table */}
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Fund</TableHead>
-                  <TableHead className="text-right">Donations</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Donations</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.fundTotals.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={3} className="text-center py-8 text-[var(--st-muted)]">
                       No donations found in this date range
                     </TableCell>
                   </TableRow>
                 ) : (
                   <>
                     {data.fundTotals.map((fund) => (
-                      <TableRow key={fund.fundId || 'undesignated'}>
-                        <TableCell className="font-medium">{fund.fundName}</TableCell>
-                        <TableCell className="text-right">{fund.donationCount}</TableCell>
-                        <TableCell className="text-right">{formatCents(fund.totalCents)}</TableCell>
+                      <TableRow key={fund.fundId || 'undesignated'} className="border-[var(--st-border)]">
+                        <TableCell className="font-medium text-[var(--st-fg)]">{fund.fundName}</TableCell>
+                        <TableCell className="text-right text-[var(--st-muted)]">{fund.donationCount}</TableCell>
+                        <TableCell className="text-right text-[var(--st-fg)]">{formatCents(fund.totalCents)}</TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="font-bold bg-gray-50">
-                      <TableCell>TOTAL</TableCell>
-                      <TableCell className="text-right">{data.totalDonations}</TableCell>
-                      <TableCell className="text-right">{formatCents(data.totalCents)}</TableCell>
+                    <TableRow className="font-bold bg-[var(--st-surfaceMuted)] border-[var(--st-border)]">
+                      <TableCell className="text-[var(--st-fg)]">TOTAL</TableCell>
+                      <TableCell className="text-right text-[var(--st-muted)]">{data.totalDonations}</TableCell>
+                      <TableCell className="text-right text-emerald-500">{formatCents(data.totalCents)}</TableCell>
                     </TableRow>
                   </>
                 )}
@@ -152,5 +155,3 @@ export default function GivingReportPage() {
     </div>
   )
 }
-
-

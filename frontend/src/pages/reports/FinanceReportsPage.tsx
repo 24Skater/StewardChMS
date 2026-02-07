@@ -62,25 +62,27 @@ export default function FinanceReportsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Finance Reports</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-[var(--st-fg)]">Finance Reports</h1>
 
       {/* Date Range Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div className="flex items-end gap-2">
@@ -91,6 +93,7 @@ export default function FinanceReportsPage() {
               setDateFrom(d.dateFrom)
               setDateTo(d.dateTo)
             }}
+            className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
           >
             Year to Date
           </Button>
@@ -98,36 +101,36 @@ export default function FinanceReportsPage() {
       </div>
 
       <Tabs defaultValue="funds" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="funds">Fund Summary</TabsTrigger>
-          <TabsTrigger value="giving">Giving Summary</TabsTrigger>
-          <TabsTrigger value="statement">Donor Statement</TabsTrigger>
+        <TabsList className="bg-[var(--st-surface)] border border-[var(--st-border)]">
+          <TabsTrigger value="funds" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Fund Summary</TabsTrigger>
+          <TabsTrigger value="giving" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Giving Summary</TabsTrigger>
+          <TabsTrigger value="statement" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Donor Statement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="funds">
           {loadingFunds ? (
-            <div className="text-center py-8">Loading...</div>
+            <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
           ) : fundSummary ? (
             <div className="space-y-6">
               {/* Summary Cards */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Total Income</div>
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                  <div className="text-sm text-[var(--st-muted)]">Total Income</div>
+                  <div className="text-2xl font-bold text-emerald-500">
                     {formatCents(fundSummary.totals.incomeCents)}
                   </div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Total Expenses</div>
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                  <div className="text-sm text-[var(--st-muted)]">Total Expenses</div>
+                  <div className="text-2xl font-bold text-red-500">
                     {formatCents(fundSummary.totals.expensesCents)}
                   </div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Net</div>
+                <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                  <div className="text-sm text-[var(--st-muted)]">Net</div>
                   <div
                     className={`text-2xl font-bold ${
-                      fundSummary.totals.netCents >= 0 ? 'text-green-600' : 'text-red-600'
+                      fundSummary.totals.netCents >= 0 ? 'text-emerald-500' : 'text-red-500'
                     }`}
                   >
                     {formatCents(fundSummary.totals.netCents)}
@@ -136,31 +139,31 @@ export default function FinanceReportsPage() {
               </div>
 
               {/* Fund Details Table */}
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Fund</TableHead>
-                      <TableHead className="text-right">Income</TableHead>
-                      <TableHead className="text-right">Expenses</TableHead>
-                      <TableHead className="text-right">Net</TableHead>
+                    <TableRow className="border-[var(--st-border)]">
+                      <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
+                      <TableHead className="text-right text-[var(--st-muted)]">Income</TableHead>
+                      <TableHead className="text-right text-[var(--st-muted)]">Expenses</TableHead>
+                      <TableHead className="text-right text-[var(--st-muted)]">Net</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {fundSummary.funds.map((fund) => (
-                      <TableRow key={fund.fundId || 'undesignated'}>
-                        <TableCell className="font-medium">
+                      <TableRow key={fund.fundId || 'undesignated'} className="border-[var(--st-border)]">
+                        <TableCell className="font-medium text-[var(--st-fg)]">
                           {fund.fundName || 'Undesignated'}
                         </TableCell>
-                        <TableCell className="text-right text-green-600">
+                        <TableCell className="text-right text-emerald-500">
                           {formatCents(fund.incomeCents)}
                         </TableCell>
-                        <TableCell className="text-right text-red-600">
+                        <TableCell className="text-right text-red-500">
                           {formatCents(fund.expensesCents)}
                         </TableCell>
                         <TableCell
                           className={`text-right font-semibold ${
-                            fund.netCents >= 0 ? 'text-green-600' : 'text-red-600'
+                            fund.netCents >= 0 ? 'text-emerald-500' : 'text-red-500'
                           }`}
                         >
                           {formatCents(fund.netCents)}
@@ -168,8 +171,8 @@ export default function FinanceReportsPage() {
                       </TableRow>
                     ))}
                     {fundSummary.funds.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                      <TableRow className="border-[var(--st-border)]">
+                        <TableCell colSpan={4} className="text-center py-8 text-[var(--st-muted)]">
                           No transactions in this period
                         </TableCell>
                       </TableRow>
@@ -183,52 +186,52 @@ export default function FinanceReportsPage() {
 
         <TabsContent value="giving">
           {loadingGiving ? (
-            <div className="text-center py-8">Loading...</div>
+            <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
           ) : givingSummary ? (
             <div className="space-y-6">
               {/* Summary Cards */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Total Donations</div>
-                  <div className="text-2xl font-bold">
+                <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                  <div className="text-sm text-[var(--st-muted)]">Total Donations</div>
+                  <div className="text-2xl font-bold text-[var(--st-fg)]">
                     {givingSummary.totalDonations}
                   </div>
                 </div>
-                <div className="border rounded-lg p-4">
-                  <div className="text-sm text-gray-500">Total Amount</div>
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                  <div className="text-sm text-[var(--st-muted)]">Total Amount</div>
+                  <div className="text-2xl font-bold text-emerald-500">
                     {formatCents(givingSummary.totalCents)}
                   </div>
                 </div>
               </div>
 
               {/* Donors Table */}
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Donor</TableHead>
-                      <TableHead className="text-right">Donations</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
+                    <TableRow className="border-[var(--st-border)]">
+                      <TableHead className="text-[var(--st-muted)]">Donor</TableHead>
+                      <TableHead className="text-right text-[var(--st-muted)]">Donations</TableHead>
+                      <TableHead className="text-right text-[var(--st-muted)]">Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {givingSummary.donors.map((donor, index) => (
-                      <TableRow key={donor.memberId || `guest-${index}`}>
-                        <TableCell className="font-medium">
+                      <TableRow key={donor.memberId || `guest-${index}`} className="border-[var(--st-border)]">
+                        <TableCell className="font-medium text-[var(--st-fg)]">
                           {donor.memberName || donor.guestName || 'Anonymous'}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-[var(--st-muted)]">
                           {donor.donationCount}
                         </TableCell>
-                        <TableCell className="text-right font-semibold text-green-600">
+                        <TableCell className="text-right font-semibold text-emerald-500">
                           {formatCents(donor.totalCents)}
                         </TableCell>
                       </TableRow>
                     ))}
                     {givingSummary.donors.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                      <TableRow className="border-[var(--st-border)]">
+                        <TableCell colSpan={3} className="text-center py-8 text-[var(--st-muted)]">
                           No donations in this period
                         </TableCell>
                       </TableRow>
@@ -243,11 +246,11 @@ export default function FinanceReportsPage() {
         <TabsContent value="statement">
           <div className="space-y-6">
             {/* Member and Year Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
               <div>
-                <Label>Select Member</Label>
+                <Label className="text-[var(--st-mutedFg)]">Select Member</Label>
                 <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                     <SelectValue placeholder="Choose a member..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -260,12 +263,12 @@ export default function FinanceReportsPage() {
                 </Select>
               </div>
               <div>
-                <Label>Year</Label>
+                <Label className="text-[var(--st-mutedFg)]">Year</Label>
                 <Select
                   value={statementYear.toString()}
                   onValueChange={(v) => setStatementYear(parseInt(v, 10))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -284,6 +287,7 @@ export default function FinanceReportsPage() {
                 <Button
                   onClick={handleDownloadStatement}
                   disabled={!selectedMemberId || loadingStatement || !donorStatement}
+                  className="bg-[var(--st-primary)] text-white"
                 >
                   Download PDF Statement
                 </Button>
@@ -293,43 +297,43 @@ export default function FinanceReportsPage() {
             {/* Statement Preview */}
             {selectedMemberId && (
               loadingStatement ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
               ) : donorStatement ? (
                 <div className="space-y-6">
-                  <div className="border rounded-lg p-4">
-                    <h2 className="font-semibold mb-4">
+                  <div className="border border-[var(--st-border)] bg-[var(--st-surface)] rounded-lg p-4">
+                    <h2 className="font-semibold text-[var(--st-fg)] mb-4">
                       Contribution Statement for {donorStatement.member.firstName}{' '}
                       {donorStatement.member.lastName}
                     </h2>
-                    <div className="text-sm text-gray-500 mb-4">
+                    <div className="text-sm text-[var(--st-muted)] mb-4">
                       Year: {donorStatement.year}
                     </div>
 
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Date</TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
-                          <TableHead>Method</TableHead>
-                          <TableHead>Fund</TableHead>
+                        <TableRow className="border-[var(--st-border)]">
+                          <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                          <TableHead className="text-right text-[var(--st-muted)]">Amount</TableHead>
+                          <TableHead className="text-[var(--st-muted)]">Method</TableHead>
+                          <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {donorStatement.donations.map((donation, idx) => (
-                          <TableRow key={idx}>
-                            <TableCell>
+                          <TableRow key={idx} className="border-[var(--st-border)]">
+                            <TableCell className="text-[var(--st-fg)]">
                               {new Date(donation.receivedAt).toLocaleDateString()}
                             </TableCell>
-                            <TableCell className="text-right text-green-600">
+                            <TableCell className="text-right text-emerald-500">
                               {formatCents(donation.amountCents)}
                             </TableCell>
-                            <TableCell className="capitalize">{donation.method}</TableCell>
-                            <TableCell>{donation.fundName || 'General'}</TableCell>
+                            <TableCell className="capitalize text-[var(--st-muted)]">{donation.method}</TableCell>
+                            <TableCell className="text-[var(--st-muted)]">{donation.fundName || 'General'}</TableCell>
                           </TableRow>
                         ))}
                         {donorStatement.donations.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                          <TableRow className="border-[var(--st-border)]">
+                            <TableCell colSpan={4} className="text-center py-8 text-[var(--st-muted)]">
                               No donations in this year
                             </TableCell>
                           </TableRow>
@@ -337,9 +341,9 @@ export default function FinanceReportsPage() {
                       </TableBody>
                     </Table>
 
-                    <div className="mt-4 pt-4 border-t flex justify-between">
-                      <span className="font-semibold">Total Contributions:</span>
-                      <span className="font-bold text-green-600 text-lg">
+                    <div className="mt-4 pt-4 border-t border-[var(--st-border)] flex justify-between">
+                      <span className="font-semibold text-[var(--st-fg)]">Total Contributions:</span>
+                      <span className="font-bold text-emerald-500 text-lg">
                         {formatCents(donorStatement.totalCents)}
                       </span>
                     </div>
@@ -349,7 +353,7 @@ export default function FinanceReportsPage() {
             )}
 
             {!selectedMemberId && (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-[var(--st-muted)]">
                 Select a member to view their contribution statement
               </div>
             )}
@@ -359,4 +363,3 @@ export default function FinanceReportsPage() {
     </div>
   )
 }
-

@@ -57,452 +57,98 @@ import KioskModePage from './pages/kids-checkin/KioskModePage'
 import GivingPortalPage from './pages/giving/GivingPortalPage'
 import ThankYouPage from './pages/giving/ThankYouPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AppLayout } from './components/layout/AppLayout'
 
 function App() {
   return (
     <Routes>
+      {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/setup" element={<SetupWizardPage />} />
-      <Route
-        path="/admin/settings"
-        element={
-          <ProtectedRoute requiredPermission="admin.access">
-            <AdminSettingsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/groups"
-        element={
-          <ProtectedRoute requiredPermission="groups.view">
-            <GroupsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute requiredPermission="admin.access">
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Member Routes */}
-      <Route
-        path="/members"
-        element={
-          <ProtectedRoute requiredPermission="members.read">
-            <MembersPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/members/new"
-        element={
-          <ProtectedRoute requiredPermission="members.write">
-            <MemberFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/members/import"
-        element={
-          <ProtectedRoute requiredPermission="members.write">
-            <MemberImportPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/members/:id"
-        element={
-          <ProtectedRoute requiredPermission="members.read">
-            <MemberDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/members/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="members.write">
-            <MemberFormPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Household Routes */}
-      <Route
-        path="/households/:id"
-        element={
-          <ProtectedRoute requiredPermission="members.read">
-            <HouseholdDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Event Routes (Phase 3) */}
-      <Route
-        path="/events"
-        element={
-          <ProtectedRoute requiredPermission="events.read">
-            <EventsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/new"
-        element={
-          <ProtectedRoute requiredPermission="events.write">
-            <EventFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/:id"
-        element={
-          <ProtectedRoute requiredPermission="events.read">
-            <EventDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="events.write">
-            <EventFormPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Occurrence Routes */}
-      <Route
-        path="/occurrences/:id"
-        element={
-          <ProtectedRoute requiredPermission="events.read">
-            <OccurrenceDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Song Routes */}
-      <Route
-        path="/songs"
-        element={
-          <ProtectedRoute requiredPermission="worship.read">
-            <SongsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/songs/new"
-        element={
-          <ProtectedRoute requiredPermission="worship.write">
-            <SongFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/songs/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="worship.write">
-            <SongFormPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Communication Routes (Phase 4) */}
-      <Route
-        path="/communications"
-        element={
-          <ProtectedRoute requiredPermission="communications.view">
-            <MessagesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/communications/new"
-        element={
-          <ProtectedRoute requiredPermission="communications.send">
-            <ComposeMessagePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/communications/:id"
-        element={
-          <ProtectedRoute requiredPermission="communications.view">
-            <MessageDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/communications/templates"
-        element={
-          <ProtectedRoute requiredPermission="communications.view">
-            <TemplatesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/communications/templates/new"
-        element={
-          <ProtectedRoute requiredPermission="communications.send">
-            <TemplateFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/communications/templates/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="communications.send">
-            <TemplateFormPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Giving Routes (Phase 5) */}
-      <Route
-        path="/giving"
-        element={
-          <ProtectedRoute requiredPermission="giving.view">
-            <DonationsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/giving/new"
-        element={
-          <ProtectedRoute requiredPermission="giving.edit">
-            <DonationFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/giving/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="giving.edit">
-            <DonationFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/pledges"
-        element={
-          <ProtectedRoute requiredPermission="giving.view">
-            <PledgesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/pledges/new"
-        element={
-          <ProtectedRoute requiredPermission="giving.edit">
-            <PledgeFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/pledges/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="giving.edit">
-            <PledgeFormPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Accounting Routes (Phase 5) */}
-      <Route
-        path="/funds"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <FundsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/vendors"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <VendorsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/expenses"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <ExpensesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/expenses/new"
-        element={
-          <ProtectedRoute requiredPermission="accounting.edit">
-            <ExpenseFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/expenses/:id/edit"
-        element={
-          <ProtectedRoute requiredPermission="accounting.edit">
-            <ExpenseFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/invoices"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <InvoicesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/invoices/new"
-        element={
-          <ProtectedRoute requiredPermission="accounting.edit">
-            <InvoiceFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/invoices/:id"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <InvoiceDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/purchase-orders"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <PurchaseOrdersPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/purchase-orders/new"
-        element={
-          <ProtectedRoute requiredPermission="accounting.edit">
-            <PurchaseOrderFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/purchase-orders/:id"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <PurchaseOrderDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports/finance"
-        element={
-          <ProtectedRoute requiredPermission="accounting.view">
-            <FinanceReportsPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Phase 6: Reports Hub */}
-      <Route
-        path="/reports"
-        element={
-          <ProtectedRoute requiredPermission="reports.view">
-            <ReportsHubPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports/membership"
-        element={
-          <ProtectedRoute requiredPermission="reports.view">
-            <MembershipReportPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports/attendance"
-        element={
-          <ProtectedRoute requiredPermission="reports.view">
-            <AttendanceReportPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports/giving"
-        element={
-          <ProtectedRoute requiredPermission="reports.view">
-            <GivingReportPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reports/sales"
-        element={
-          <ProtectedRoute requiredPermission="reports.view">
-            <SalesReportPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Phase 6: Products */}
-      <Route
-        path="/products"
-        element={
-          <ProtectedRoute requiredPermission="inventory.view">
-            <ProductsPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Phase 6: Inventory */}
-      <Route
-        path="/inventory"
-        element={
-          <ProtectedRoute requiredPermission="inventory.view">
-            <InventoryPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Phase 6: Sales */}
-      <Route
-        path="/sales"
-        element={
-          <ProtectedRoute requiredPermission="sales.view">
-            <SalesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/sales/new"
-        element={
-          <ProtectedRoute requiredPermission="sales.edit">
-            <SaleFormPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/sales/:id"
-        element={
-          <ProtectedRoute requiredPermission="sales.view">
-            <SaleDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Kids Check-in Routes */}
-      <Route
-        path="/kids-checkin"
-        element={
-          <ProtectedRoute requiredPermission="checkin.view">
-            <KidsCheckinPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/kids-checkin/kiosk"
-        element={<KioskModePage />}
-      />
-      {/* Online Giving Routes (Public) */}
+      <Route path="/kids-checkin/kiosk" element={<KioskModePage />} />
       <Route path="/give" element={<GivingPortalPage />} />
       <Route path="/give/thank-you" element={<ThankYouPage />} />
+
+      {/* Protected Routes with App Layout */}
+      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/settings" element={<AdminSettingsPage />} />
+        
+        {/* Groups */}
+        <Route path="/groups" element={<GroupsPage />} />
+        
+        {/* Members */}
+        <Route path="/members" element={<MembersPage />} />
+        <Route path="/members/new" element={<MemberFormPage />} />
+        <Route path="/members/import" element={<MemberImportPage />} />
+        <Route path="/members/:id" element={<MemberDetailPage />} />
+        <Route path="/members/:id/edit" element={<MemberFormPage />} />
+        
+        {/* Households */}
+        <Route path="/households/:id" element={<HouseholdDetailPage />} />
+        
+        {/* Events */}
+        <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/new" element={<EventFormPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
+        <Route path="/events/:id/edit" element={<EventFormPage />} />
+        <Route path="/occurrences/:id" element={<OccurrenceDetailPage />} />
+        
+        {/* Songs */}
+        <Route path="/songs" element={<SongsPage />} />
+        <Route path="/songs/new" element={<SongFormPage />} />
+        <Route path="/songs/:id/edit" element={<SongFormPage />} />
+        
+        {/* Communications */}
+        <Route path="/communications" element={<MessagesPage />} />
+        <Route path="/communications/new" element={<ComposeMessagePage />} />
+        <Route path="/communications/:id" element={<MessageDetailPage />} />
+        <Route path="/communications/templates" element={<TemplatesPage />} />
+        <Route path="/communications/templates/new" element={<TemplateFormPage />} />
+        <Route path="/communications/templates/:id/edit" element={<TemplateFormPage />} />
+        
+        {/* Giving */}
+        <Route path="/giving" element={<DonationsPage />} />
+        <Route path="/giving/new" element={<DonationFormPage />} />
+        <Route path="/giving/:id/edit" element={<DonationFormPage />} />
+        <Route path="/pledges" element={<PledgesPage />} />
+        <Route path="/pledges/new" element={<PledgeFormPage />} />
+        <Route path="/pledges/:id/edit" element={<PledgeFormPage />} />
+        
+        {/* Accounting */}
+        <Route path="/funds" element={<FundsPage />} />
+        <Route path="/vendors" element={<VendorsPage />} />
+        <Route path="/expenses" element={<ExpensesPage />} />
+        <Route path="/expenses/new" element={<ExpenseFormPage />} />
+        <Route path="/expenses/:id/edit" element={<ExpenseFormPage />} />
+        <Route path="/invoices" element={<InvoicesPage />} />
+        <Route path="/invoices/new" element={<InvoiceFormPage />} />
+        <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+        <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+        <Route path="/purchase-orders/new" element={<PurchaseOrderFormPage />} />
+        <Route path="/purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
+        
+        {/* Reports */}
+        <Route path="/reports" element={<ReportsHubPage />} />
+        <Route path="/reports/finance" element={<FinanceReportsPage />} />
+        <Route path="/reports/membership" element={<MembershipReportPage />} />
+        <Route path="/reports/attendance" element={<AttendanceReportPage />} />
+        <Route path="/reports/giving" element={<GivingReportPage />} />
+        <Route path="/reports/sales" element={<SalesReportPage />} />
+        
+        {/* Products & Sales */}
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/sales" element={<SalesPage />} />
+        <Route path="/sales/new" element={<SaleFormPage />} />
+        <Route path="/sales/:id" element={<SaleDetailPage />} />
+        
+        {/* Kids Check-in */}
+        <Route path="/kids-checkin" element={<KidsCheckinPage />} />
+      </Route>
     </Routes>
   )
 }
 
 export default App
-

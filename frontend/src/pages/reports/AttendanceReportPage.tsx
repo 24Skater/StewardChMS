@@ -45,29 +45,31 @@ export default function AttendanceReportPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <Link to="/reports" className="inline-flex items-center text-blue-600 hover:underline mb-4">
+    <div className="space-y-6">
+      <Link to="/reports" className="inline-flex items-center text-[var(--st-link)] hover:underline">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Reports
       </Link>
 
-      <h1 className="text-2xl font-bold mb-6">Attendance Summary</h1>
+      <h1 className="text-2xl font-bold text-[var(--st-fg)]">Attendance Summary</h1>
 
       {/* Date Range Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-mutedFg)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div className="flex items-end">
@@ -78,46 +80,47 @@ export default function AttendanceReportPage() {
               setDateFrom(d.dateFrom)
               setDateTo(d.dateTo)
             }}
+            className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
           >
             This Month
           </Button>
         </div>
         <div className="flex items-end">
-          <Button onClick={handleExportCSV} disabled={!data}>
+          <Button onClick={handleExportCSV} disabled={!data} className="bg-[var(--st-primary)] text-white">
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
         </div>
       </div>
 
-      {isLoading && <div className="text-center py-8">Loading...</div>}
-      {error && <div className="text-center py-8 text-red-600">Error loading report</div>}
+      {isLoading && <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>}
+      {error && <div className="text-center py-8 text-[var(--st-danger)]">Error loading report</div>}
 
       {data && (
         <div className="space-y-6">
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-white border rounded-lg">
-              <div className="text-sm text-gray-500">Total Check-ins</div>
-              <div className="text-3xl font-bold text-blue-600">{data.totalCheckIns}</div>
+            <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+              <div className="text-sm text-[var(--st-muted)]">Total Check-ins</div>
+              <div className="text-3xl font-bold text-blue-500">{data.totalCheckIns}</div>
             </div>
-            <div className="p-4 bg-white border rounded-lg">
-              <div className="text-sm text-gray-500">Event Occurrences</div>
-              <div className="text-3xl font-bold">{data.occurrenceCount}</div>
+            <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+              <div className="text-sm text-[var(--st-muted)]">Event Occurrences</div>
+              <div className="text-3xl font-bold text-[var(--st-fg)]">{data.occurrenceCount}</div>
             </div>
           </div>
 
           {/* Top Events */}
           {data.topEvents.length > 0 && (
-            <div className="p-4 bg-white border rounded-lg">
-              <h3 className="font-semibold mb-4">Top Events by Attendance</h3>
+            <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+              <h3 className="font-semibold text-[var(--st-fg)] mb-4">Top Events by Attendance</h3>
               <div className="space-y-2">
                 {data.topEvents.slice(0, 5).map((event, idx) => (
                   <div key={event.eventId} className="flex justify-between items-center">
                     <span className="flex items-center gap-2">
-                      <span className="text-gray-400">{idx + 1}.</span>
-                      <span>{event.title}</span>
+                      <span className="text-[var(--st-muted)]">{idx + 1}.</span>
+                      <span className="text-[var(--st-fg)]">{event.title}</span>
                     </span>
-                    <span className="font-semibold">{event.checkIns} check-ins</span>
+                    <span className="font-semibold text-[var(--st-fg)]">{event.checkIns} check-ins</span>
                   </div>
                 ))}
               </div>
@@ -125,28 +128,28 @@ export default function AttendanceReportPage() {
           )}
 
           {/* Occurrences Table */}
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Check-ins</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Event</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Check-ins</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.occurrences.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={3} className="text-center py-8 text-[var(--st-muted)]">
                       No events found in this date range
                     </TableCell>
                   </TableRow>
                 ) : (
                   data.occurrences.map((occ) => (
-                    <TableRow key={occ.occurrenceId}>
-                      <TableCell className="font-medium">{occ.eventTitle}</TableCell>
-                      <TableCell>{formatDate(occ.startsAt)}</TableCell>
-                      <TableCell className="text-right">{occ.checkIns}</TableCell>
+                    <TableRow key={occ.occurrenceId} className="border-[var(--st-border)]">
+                      <TableCell className="font-medium text-[var(--st-fg)]">{occ.eventTitle}</TableCell>
+                      <TableCell className="text-[var(--st-muted)]">{formatDate(occ.startsAt)}</TableCell>
+                      <TableCell className="text-right text-[var(--st-fg)]">{occ.checkIns}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -158,5 +161,3 @@ export default function AttendanceReportPage() {
     </div>
   )
 }
-
-

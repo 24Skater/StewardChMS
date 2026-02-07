@@ -42,7 +42,7 @@ const setupStep4Schema = z.object({
   smtpUser: z.string().optional(),
   smtpPassword: z.string().optional(),
   sendgridApiKey: z.string().optional(),
-  fromEmail: z.string().email().optional(),
+  fromEmail: z.string().email().optional().or(z.literal('')),
   fromName: z.string().optional(),
 })
 

@@ -89,63 +89,64 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Products</h1>
-        <div className="flex gap-2">
-          <label className="flex items-center gap-2 text-sm">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Products</h1>
+        <div className="flex gap-4 items-center">
+          <label className="flex items-center gap-2 text-sm text-[var(--st-muted)]">
             <input
               type="checkbox"
               checked={showInactive}
               onChange={(e) => setShowInactive(e.target.checked)}
+              className="accent-[var(--st-primary)]"
             />
             Show inactive
           </label>
-          <Button onClick={() => openDialog()}>
+          <Button onClick={() => openDialog()} className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
             <Plus className="h-4 w-4 mr-2" /> Add Product
           </Button>
         </div>
       </div>
 
-      {isLoading && <div className="text-center py-8">Loading...</div>}
+      {isLoading && <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>}
 
       {data && (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead>Status</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                <TableHead className="text-[var(--st-muted)]">SKU</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Description</TableHead>
+                <TableHead className="text-right text-[var(--st-muted)]">Price</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Status</TableHead>
                 <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.products.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableRow className="border-[var(--st-border)]">
+                  <TableCell colSpan={6} className="text-center py-8 text-[var(--st-muted)]">
                     No products found
                   </TableCell>
                 </TableRow>
               ) : (
                 data.products.map((product) => (
-                  <TableRow key={product.id} className={!product.isActive ? 'opacity-50' : ''}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.sku || '-'}</TableCell>
-                    <TableCell className="max-w-xs truncate">{product.description || '-'}</TableCell>
-                    <TableCell className="text-right">{formatCents(product.priceCents)}</TableCell>
+                  <TableRow key={product.id} className={`border-[var(--st-border)] ${!product.isActive ? 'opacity-50' : ''}`}>
+                    <TableCell className="font-medium text-[var(--st-fg)]">{product.name}</TableCell>
+                    <TableCell className="text-[var(--st-muted)]">{product.sku || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate text-[var(--st-muted)]">{product.description || '-'}</TableCell>
+                    <TableCell className="text-right text-emerald-500 font-medium">{formatCents(product.priceCents)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
-                        product.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        product.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
                       }`}>
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openDialog(product)}>
+                        <Button variant="ghost" size="sm" onClick={() => openDialog(product)} className="text-[var(--st-muted)] hover:text-[var(--st-fg)]">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         {product.isActive && (
@@ -165,39 +166,42 @@ export default function ProductsPage() {
 
       {/* Product Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</DialogTitle>
+            <DialogTitle className="text-[var(--st-fg)]">{editingProduct ? 'Edit Product' : 'Add Product'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="name">Name *</Label>
+                <Label htmlFor="name" className="text-[var(--st-fg)]">Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div>
-                <Label htmlFor="sku">SKU</Label>
+                <Label htmlFor="sku" className="text-[var(--st-fg)]">SKU</Label>
                 <Input
                   id="sku"
                   value={formData.sku || ''}
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value || undefined })}
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description" className="text-[var(--st-fg)]">Description</Label>
                 <Input
                   id="description"
                   value={formData.description || ''}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value || undefined })}
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div>
-                <Label htmlFor="price">Price ($) *</Label>
+                <Label htmlFor="price" className="text-[var(--st-fg)]">Price ($) *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -206,6 +210,7 @@ export default function ProductsPage() {
                   value={(formData.priceCents / 100).toFixed(2)}
                   onChange={(e) => setFormData({ ...formData, priceCents: Math.round(parseFloat(e.target.value || '0') * 100) })}
                   required
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               {editingProduct && (
@@ -215,16 +220,17 @@ export default function ProductsPage() {
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="accent-[var(--st-primary)]"
                   />
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive" className="text-[var(--st-fg)]">Active</Label>
                 </div>
               )}
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-[var(--st-border)] text-[var(--st-fg)]">
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-[var(--st-primary)] text-white">
                 {editingProduct ? 'Update' : 'Create'}
               </Button>
             </DialogFooter>
@@ -234,5 +240,3 @@ export default function ProductsPage() {
     </div>
   )
 }
-
-

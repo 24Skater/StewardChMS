@@ -115,195 +115,192 @@ function MemberFormPage() {
 
   if (isEdit && isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-slate-400">Loading member...</div>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-[var(--st-muted)]">Loading member...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="mx-auto max-w-3xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">
-            {isEdit ? 'Edit Member' : 'Add New Member'}
-          </h1>
-          <p className="mt-1 text-slate-400">
-            {isEdit ? 'Update member information' : 'Enter the details for the new member'}
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">
+          {isEdit ? 'Edit Member' : 'Add New Member'}
+        </h1>
+        <p className="mt-1 text-[var(--st-muted)]">
+          {isEdit ? 'Update member information' : 'Enter the details for the new member'}
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Error Alert */}
-              {(createMutation.isError || updateMutation.isError) && (
-                <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4">
-                  <p className="text-sm text-red-400">
-                    {createMutation.error?.data?.error || updateMutation.error?.data?.error || 'An error occurred'}
-                  </p>
-                </div>
-              )}
-
-              {/* Name Row */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="firstName" className="text-slate-300">First Name *</Label>
-                  <Input
-                    id="firstName"
-                    {...register('firstName')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                  {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-400">{errors.firstName.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="lastName" className="text-slate-300">Last Name *</Label>
-                  <Input
-                    id="lastName"
-                    {...register('lastName')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                  {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-400">{errors.lastName.message}</p>
-                  )}
-                </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
+          <CardHeader>
+            <CardTitle className="text-[var(--st-fg)]">Personal Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Error Alert */}
+            {(createMutation.isError || updateMutation.isError) && (
+              <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4">
+                <p className="text-sm text-red-500">
+                  {createMutation.error?.data?.error || updateMutation.error?.data?.error || 'An error occurred'}
+                </p>
               </div>
+            )}
 
-              {/* Contact Row */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="email" className="text-slate-300">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...register('email')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="phone" className="text-slate-300">Phone</Label>
-                  <Input
-                    id="phone"
-                    {...register('phone')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                </div>
-              </div>
-
-              {/* Address */}
+            {/* Name Row */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="street" className="text-slate-300">Street Address</Label>
+                <Label htmlFor="firstName" className="text-[var(--st-fg)]">First Name *</Label>
                 <Input
-                  id="street"
-                  {...register('street')}
-                  className="mt-1 border-slate-600 bg-slate-700/50 text-white"
+                  id="firstName"
+                  {...register('firstName')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
+                {errors.firstName && (
+                  <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="lastName" className="text-[var(--st-fg)]">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  {...register('lastName')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
+                {errors.lastName && (
+                  <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Contact Row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="email" className="text-[var(--st-fg)]">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register('email')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-[var(--st-fg)]">Phone</Label>
+                <Input
+                  id="phone"
+                  {...register('phone')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
                 />
               </div>
+            </div>
 
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div>
-                  <Label htmlFor="city" className="text-slate-300">City</Label>
-                  <Input
-                    id="city"
-                    {...register('city')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="state" className="text-slate-300">State</Label>
-                  <Input
-                    id="state"
-                    {...register('state')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="zip" className="text-slate-300">ZIP Code</Label>
-                  <Input
-                    id="zip"
-                    {...register('zip')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                </div>
+            {/* Address */}
+            <div>
+              <Label htmlFor="street" className="text-[var(--st-fg)]">Street Address</Label>
+              <Input
+                id="street"
+                {...register('street')}
+                className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="city" className="text-[var(--st-fg)]">City</Label>
+                <Input
+                  id="city"
+                  {...register('city')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
               </div>
-
-              {/* Date of Birth & Status */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="dateOfBirth" className="text-slate-300">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    {...register('dateOfBirth')}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="status" className="text-slate-300">Status</Label>
-                  <Select value={watch('status')} onValueChange={(v) => setValue('status', v as 'active' | 'inactive' | 'visitor')}>
-                    <SelectTrigger className="mt-1 border-slate-600 bg-slate-700/50 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-slate-600 bg-slate-800 text-white">
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="visitor">Visitor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label htmlFor="state" className="text-[var(--st-fg)]">State</Label>
+                <Input
+                  id="state"
+                  {...register('state')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
               </div>
-
-              {/* Notes */}
-              {canEditNotes && (
-                <div>
-                  <Label htmlFor="notes" className="text-slate-300">Notes (Private)</Label>
-                  <Textarea
-                    id="notes"
-                    {...register('notes')}
-                    rows={4}
-                    className="mt-1 border-slate-600 bg-slate-700/50 text-white"
-                    placeholder="Internal notes about this member..."
-                  />
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
-                  className="bg-amber-500 text-slate-900 hover:bg-amber-400"
-                >
-                  {isSubmitting || createMutation.isPending || updateMutation.isPending
-                    ? 'Saving...'
-                    : isEdit
-                    ? 'Update Member'
-                    : 'Create Member'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/members')}
-                  className="border-slate-600 bg-transparent text-slate-300 hover:bg-slate-700"
-                >
-                  Cancel
-                </Button>
+              <div>
+                <Label htmlFor="zip" className="text-[var(--st-fg)]">ZIP Code</Label>
+                <Input
+                  id="zip"
+                  {...register('zip')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </form>
-      </div>
+            </div>
+
+            {/* Date of Birth & Status */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="dateOfBirth" className="text-[var(--st-fg)]">Date of Birth</Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  {...register('dateOfBirth')}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                />
+              </div>
+              <div>
+                <Label htmlFor="status" className="text-[var(--st-fg)]">Status</Label>
+                <Select value={watch('status')} onValueChange={(v) => setValue('status', v as 'active' | 'inactive' | 'visitor')}>
+                  <SelectTrigger className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="visitor">Visitor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {canEditNotes && (
+              <div>
+                <Label htmlFor="notes" className="text-[var(--st-fg)]">Notes (Private)</Label>
+                <Textarea
+                  id="notes"
+                  {...register('notes')}
+                  rows={4}
+                  className="mt-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
+                  placeholder="Internal notes about this member..."
+                />
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-4 pt-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
+                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              >
+                {isSubmitting || createMutation.isPending || updateMutation.isPending
+                  ? 'Saving...'
+                  : isEdit
+                  ? 'Update Member'
+                  : 'Create Member'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/members')}
+                className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </form>
     </div>
   )
 }
 
 export default MemberFormPage
-

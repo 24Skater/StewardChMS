@@ -52,40 +52,52 @@ export default function DonationsPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading donations</div>
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Donations</h1>
+        <div className="p-6 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400">
+          <p className="font-medium">Error loading donations</p>
+          <p className="text-sm mt-1 opacity-80">Please try refreshing the page or logging out and back in.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Donations</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Donations</h1>
         <Link to="/giving/new">
-          <Button>Add Donation</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Add Donation
+          </Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>From Date</Label>
+          <Label className="text-[var(--st-muted)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>To Date</Label>
+          <Label className="text-[var(--st-muted)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
         </div>
         <div>
-          <Label>Fund</Label>
+          <Label className="text-[var(--st-muted)]">Fund</Label>
           <Select value={fundId} onValueChange={setFundId}>
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Funds" />
             </SelectTrigger>
             <SelectContent>
@@ -106,6 +118,7 @@ export default function DonationsPage() {
               setDateTo('')
               setFundId('')
             }}
+            className="border-[var(--st-border)] text-[var(--st-muted)]"
           >
             Clear Filters
           </Button>
@@ -113,39 +126,39 @@ export default function DonationsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Donor</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Fund</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Donor</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Amount</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Method</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.donations.map((donation) => (
-                  <TableRow key={donation.id}>
-                    <TableCell>{formatDate(donation.receivedAt)}</TableCell>
-                    <TableCell>
+                  <TableRow key={donation.id} className="border-[var(--st-border)]">
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(donation.receivedAt)}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {donation.member
                         ? `${donation.member.firstName} ${donation.member.lastName}`
                         : donation.guestName || 'Anonymous'}
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold text-emerald-500">
                       {formatCents(donation.amountCents)}
                     </TableCell>
-                    <TableCell className="capitalize">{donation.method}</TableCell>
-                    <TableCell>{donation.fund?.name || 'Undesignated'}</TableCell>
+                    <TableCell className="capitalize text-[var(--st-muted)]">{donation.method}</TableCell>
+                    <TableCell className="text-[var(--st-muted)]">{donation.fund?.name || 'Undesignated'}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/giving/${donation.id}/edit`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)]">
                             Edit
                           </Button>
                         </Link>
@@ -161,8 +174,8 @@ export default function DonationsPage() {
                   </TableRow>
                 ))}
                 {data?.donations.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={6} className="text-center py-8 text-[var(--st-muted)]">
                       No donations found
                     </TableCell>
                   </TableRow>
@@ -178,16 +191,18 @@ export default function DonationsPage() {
                 variant="outline"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={page === data.totalPages}
                 onClick={() => setPage(page + 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -198,4 +213,3 @@ export default function DonationsPage() {
     </div>
   )
 }
-

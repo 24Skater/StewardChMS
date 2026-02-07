@@ -115,26 +115,26 @@ export default function SaleFormPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Link to="/sales" className="inline-flex items-center text-blue-600 hover:underline mb-4">
+    <div className="space-y-6">
+      <Link to="/sales" className="inline-flex items-center text-[var(--st-link)] hover:underline">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to Sales
       </Link>
 
-      <h1 className="text-2xl font-bold mb-6">New Sale</h1>
+      <h1 className="text-2xl font-bold text-[var(--st-fg)]">New Sale</h1>
 
       <form onSubmit={handleSubmit}>
         {/* Customer Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
           <div>
-            <Label>Member (optional)</Label>
+            <Label className="text-[var(--st-fg)]">Member (optional)</Label>
             <Select
               value={memberId || 'none'}
               onValueChange={(value) => setMemberId(value === 'none' ? '' : value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                 <SelectValue placeholder="Select member" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                 <SelectItem value="none">-- None (Guest) --</SelectItem>
                 {membersData?.members.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
@@ -146,30 +146,31 @@ export default function SaleFormPage() {
           </div>
           {!memberId && (
             <div>
-              <Label htmlFor="guestName">Guest Name</Label>
+              <Label htmlFor="guestName" className="text-[var(--st-fg)]">Guest Name</Label>
               <Input
                 id="guestName"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
                 placeholder="Optional"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
           )}
         </div>
 
         {/* Add Items */}
-        <div className="mb-6 p-4 border rounded-lg">
-          <h3 className="font-semibold mb-4">Add Items</h3>
+        <div className="mb-6 p-4 border border-[var(--st-border)] bg-[var(--st-surface)]/50 rounded-lg">
+          <h3 className="font-semibold mb-4 text-[var(--st-fg)]">Add Items</h3>
           <div className="grid grid-cols-12 gap-2">
             <div className="col-span-6">
               <Select
                 value={selectedProductId || 'none'}
                 onValueChange={(value) => setSelectedProductId(value === 'none' ? '' : value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                   <SelectValue placeholder="Select product" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                   <SelectItem value="none">-- Select Product --</SelectItem>
                   {productsData?.products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
@@ -186,6 +187,7 @@ export default function SaleFormPage() {
                 value={quantity}
                 onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                 placeholder="Qty"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
             <div className="col-span-3">
@@ -193,7 +195,7 @@ export default function SaleFormPage() {
                 type="button"
                 onClick={addItem}
                 disabled={!selectedProductId}
-                className="w-full"
+                className="w-full bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
@@ -202,39 +204,39 @@ export default function SaleFormPage() {
         </div>
 
         {/* Items Table */}
-        <div className="border rounded-lg overflow-hidden mb-6">
+        <div className="border border-[var(--st-border)] rounded-lg overflow-hidden mb-6">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-right w-24">Price</TableHead>
-                <TableHead className="text-center w-24">Qty</TableHead>
-                <TableHead className="text-right w-32">Line Total</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Product</TableHead>
+                <TableHead className="text-right w-24 text-[var(--st-muted)]">Price</TableHead>
+                <TableHead className="text-center w-24 text-[var(--st-muted)]">Qty</TableHead>
+                <TableHead className="text-right w-32 text-[var(--st-muted)]">Line Total</TableHead>
                 <TableHead className="w-16"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableRow className="border-[var(--st-border)]">
+                  <TableCell colSpan={5} className="text-center py-8 text-[var(--st-muted)]">
                     No items added yet
                   </TableCell>
                 </TableRow>
               ) : (
                 items.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{item.product.name}</TableCell>
-                    <TableCell className="text-right">{formatCents(item.product.priceCents)}</TableCell>
+                  <TableRow key={index} className="border-[var(--st-border)]">
+                    <TableCell className="font-medium text-[var(--st-fg)]">{item.product.name}</TableCell>
+                    <TableCell className="text-right text-[var(--st-fg)]">{formatCents(item.product.priceCents)}</TableCell>
                     <TableCell>
                       <Input
                         type="number"
                         min="1"
                         value={item.quantity}
                         onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 1)}
-                        className="w-16 text-center mx-auto"
+                        className="w-16 text-center mx-auto border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
                       />
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-right font-medium text-[var(--st-fg)]">
                       {formatCents(item.lineTotalCents)}
                     </TableCell>
                     <TableCell>
@@ -257,12 +259,12 @@ export default function SaleFormPage() {
         {/* Totals */}
         <div className="flex justify-end mb-6">
           <div className="w-64 space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-[var(--st-fg)]">
               <span>Subtotal:</span>
               <span className="font-medium">{formatCents(subtotalCents)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <Label htmlFor="tax">Tax:</Label>
+              <Label htmlFor="tax" className="text-[var(--st-fg)]">Tax:</Label>
               <div className="w-24">
                 <Input
                   id="tax"
@@ -271,11 +273,11 @@ export default function SaleFormPage() {
                   min="0"
                   value={(taxCents / 100).toFixed(2)}
                   onChange={(e) => setTaxCents(Math.round(parseFloat(e.target.value || '0') * 100))}
-                  className="text-right"
+                  className="text-right border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
                 />
               </div>
             </div>
-            <div className="flex justify-between text-lg font-bold border-t pt-2">
+            <div className="flex justify-between text-lg font-bold border-t border-[var(--st-border)] pt-2 text-[var(--st-fg)]">
               <span>Total:</span>
               <span>{formatCents(totalCents)}</span>
             </div>
@@ -284,10 +286,19 @@ export default function SaleFormPage() {
 
         {/* Actions */}
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/sales')}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/sales')}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={createMutation.isPending || items.length === 0}>
+          <Button
+            type="submit"
+            disabled={createMutation.isPending || items.length === 0}
+            className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+          >
             {createMutation.isPending ? 'Processing...' : 'Complete Sale'}
           </Button>
         </div>
@@ -295,5 +306,3 @@ export default function SaleFormPage() {
     </div>
   )
 }
-
-

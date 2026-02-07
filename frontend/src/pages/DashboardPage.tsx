@@ -1,127 +1,171 @@
+import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
-import { useLogout } from '@/hooks/useAuth'
-import { Button } from '@/components/ui/button'
+import { apiRequest } from '@/lib/api'
+
+interface DashboardStats {
+  members: { total: number; active: number; newThisMonth: number }
+  events: { upcoming: number; thisWeek: number }
+  giving: { monthTotal: number; yearTotal: number }
+  groups: { total: number; ministries: number }
+}
 
 function DashboardPage() {
   const { user } = useAuth()
-  const logoutMutation = useLogout()
 
-  const handleLogout = () => {
-    logoutMutation.mutate()
+  // Fetch dashboard stats
+  const { data: stats } = useQuery({
+    queryKey: ['dashboard', 'stats'],
+    queryFn: async () => {
+      try {
+        // Fetch various stats in parallel
+        const [members, events, donations, groups, ministries] = await Promise.all([
+          apiRequest<{ id: string }[]>('/members?limit=1000').catch(() => []),
+          apiRequest<{ id: string }[]>('/events?limit=100').catch(() => []),
+          apiRequest<{ id: string; amountCents: number; receivedAt: string }[]>('/donations?limit=1000').catch(() => []),
+          apiRequest<{ id: string }[]>('/groups').catch(() => []),
+          apiRequest<{ id: string }[]>('/ministries').catch(() => []),
+        ])
+
+        const now = new Date()
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const startOfYear = new Date(now.getFullYear(), 0, 1)
+
+        const monthDonations = Array.isArray(donations) 
+          ? donations.filter(d => new Date(d.receivedAt) >= startOfMonth)
+          : []
+        const yearDonations = Array.isArray(donations)
+          ? donations.filter(d => new Date(d.receivedAt) >= startOfYear)
+          : []
+
+        return {
+          members: {
+            total: Array.isArray(members) ? members.length : 0,
+            active: Array.isArray(members) ? members.length : 0,
+            newThisMonth: 0,
+          },
+          events: {
+            upcoming: Array.isArray(events) ? events.length : 0,
+            thisWeek: 0,
+          },
+          giving: {
+            monthTotal: monthDonations.reduce((sum, d) => sum + (d.amountCents || 0), 0),
+            yearTotal: yearDonations.reduce((sum, d) => sum + (d.amountCents || 0), 0),
+          },
+          groups: {
+            total: Array.isArray(groups) ? groups.length : 0,
+            ministries: Array.isArray(ministries) ? ministries.length : 0,
+          },
+        } as DashboardStats
+      } catch {
+        return null
+      }
+    },
+  })
+
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(cents / 100)
   }
 
+  const quickActions = [
+    { label: 'Add Member', href: '/members/new', icon: '👤', color: 'bg-blue-500/20 text-blue-400' },
+    { label: 'Create Event', href: '/events/new', icon: '📅', color: 'bg-emerald-500/20 text-emerald-400' },
+    { label: 'Record Donation', href: '/giving/new', icon: '💝', color: 'bg-amber-500/20 text-amber-400' },
+    { label: 'Send Message', href: '/communications/new', icon: '✉️', color: 'bg-purple-500/20 text-purple-400' },
+  ]
+
   return (
-    <div className="min-h-screen bg-[#0F172A]">
-      {/* Decorative background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[#2563EB]/10 blur-3xl" />
-        <div className="absolute bottom-0 -left-40 h-96 w-96 rounded-full bg-[#16A34A]/10 blur-3xl" />
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div>
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">Welcome back, {user?.name?.split(' ')[0] || 'Admin'}!</h1>
+        <p className="mt-1 text-[var(--st-muted)]">Here's what's happening at your church.</p>
       </div>
 
-      {/* Header */}
-      <header className="relative border-b border-[#334155] bg-[#1E293B]/50 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/steward-mark-light.svg" 
-              alt="Steward" 
-              className="h-10 w-10"
-            />
-            <span className="text-lg font-semibold text-white">
-              Steward <span className="text-[#64748B]">·</span> ChMS
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[#94A3B8]">
-              {user?.name || user?.email}
-            </span>
-            <Button
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-              variant="outline"
-              className="border-[#334155] bg-transparent text-[#CBD5E1] hover:bg-[#334155] hover:text-white"
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-sm font-medium text-[var(--st-muted)] mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quickActions.map((action) => (
+            <Link
+              key={action.href}
+              to={action.href}
+              className="flex items-center gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-4 backdrop-blur-sm hover:bg-[var(--st-surfaceMuted)] transition-colors"
             >
-              {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
-            </Button>
-          </div>
+              <span className={`text-2xl p-2 rounded-lg ${action.color}`}>{action.icon}</span>
+              <span className="font-medium text-[var(--st-fg)]">{action.label}</span>
+            </Link>
+          ))}
         </div>
-      </header>
+      </div>
 
-      {/* Main Content */}
-      <main className="relative mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <p className="mt-1 text-[#94A3B8]">Welcome back, {user?.name || 'Admin'}!</p>
-        </div>
-
-        {/* User Info Card */}
-        <div className="rounded-xl border border-[#334155] bg-[#1E293B]/50 p-6 backdrop-blur-sm">
-          <h2 className="mb-4 text-lg font-semibold text-white">User Information</h2>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-[#94A3B8]">Email</p>
-                <p className="font-medium text-white">{user?.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-[#94A3B8]">Name</p>
-                <p className="font-medium text-white">{user?.name || 'Not set'}</p>
-              </div>
-            </div>
-
-            {/* Roles */}
-            <div>
-              <p className="mb-2 text-sm text-[#94A3B8]">Roles</p>
-              <div className="flex flex-wrap gap-2">
-                {user?.roles.map((role) => (
-                  <span
-                    key={role}
-                    className="rounded-full bg-[#2563EB]/20 px-3 py-1 text-sm font-medium text-[#60A5FA]"
-                  >
-                    {role}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Permissions */}
-            <div>
-              <p className="mb-2 text-sm text-[#94A3B8]">Permissions</p>
-              <div className="flex flex-wrap gap-2">
-                {user?.permissions.map((permission) => (
-                  <span
-                    key={permission}
-                    className="rounded-full bg-[#334155]/50 px-3 py-1 text-sm text-[#CBD5E1]"
-                  >
-                    {permission}
-                  </span>
-                ))}
-              </div>
-            </div>
+      {/* Stats Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[var(--st-muted)]">Total Members</p>
+            <span className="text-2xl">👥</span>
           </div>
+          <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">{stats?.members.total ?? '—'}</p>
+          <Link to="/members" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">View all →</Link>
         </div>
 
-        {/* Quick Stats Placeholder */}
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <div className="rounded-xl border border-[#334155] bg-[#1E293B]/50 p-6 backdrop-blur-sm">
-            <p className="text-sm text-[#94A3B8]">Members</p>
-            <p className="mt-2 text-3xl font-bold text-white">—</p>
-            <p className="mt-1 text-xs text-[#64748B]">Coming in Phase 2</p>
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[var(--st-muted)]">Events</p>
+            <span className="text-2xl">📅</span>
           </div>
-          <div className="rounded-xl border border-[#334155] bg-[#1E293B]/50 p-6 backdrop-blur-sm">
-            <p className="text-sm text-[#94A3B8]">Events</p>
-            <p className="mt-2 text-3xl font-bold text-white">—</p>
-            <p className="mt-1 text-xs text-[#64748B]">Coming in Phase 3</p>
-          </div>
-          <div className="rounded-xl border border-[#334155] bg-[#1E293B]/50 p-6 backdrop-blur-sm">
-            <p className="text-sm text-[#94A3B8]">Donations</p>
-            <p className="mt-2 text-3xl font-bold text-white">—</p>
-            <p className="mt-1 text-xs text-[#64748B]">Coming in Phase 5</p>
-          </div>
+          <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">{stats?.events.upcoming ?? '—'}</p>
+          <Link to="/events" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">View calendar →</Link>
         </div>
-      </main>
+
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[var(--st-muted)]">Giving (This Month)</p>
+            <span className="text-2xl">💝</span>
+          </div>
+          <p className="mt-2 text-3xl font-bold text-[var(--st-success)]">
+            {stats ? formatCurrency(stats.giving.monthTotal) : '—'}
+          </p>
+          <Link to="/giving" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">View donations →</Link>
+        </div>
+
+        <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[var(--st-muted)]">Groups & Ministries</p>
+            <span className="text-2xl">🏛️</span>
+          </div>
+          <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">
+            {stats ? `${stats.groups.ministries} / ${stats.groups.total}` : '—'}
+          </p>
+          <Link to="/groups" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">Manage groups →</Link>
+        </div>
+      </div>
+
+      {/* Online Giving Card */}
+      <div className="rounded-xl border border-[var(--st-border)] bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-6 backdrop-blur-sm">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--st-fg)]">Online Giving Portal</h3>
+            <p className="mt-1 text-sm text-[var(--st-muted)]">
+              Share this link with your congregation to accept online donations.
+            </p>
+            <code className="mt-2 inline-block rounded bg-[var(--st-surfaceMuted)] px-3 py-1 text-sm text-[var(--st-success)]">
+              {window.location.origin}/give
+            </code>
+          </div>
+          <Link
+            to="/give"
+            target="_blank"
+            className="rounded-lg bg-[var(--st-success)] px-4 py-2 font-medium text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            Preview Portal
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

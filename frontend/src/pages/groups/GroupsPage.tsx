@@ -174,393 +174,387 @@ function GroupsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
-      {/* Header */}
-      <header className="border-b border-[#334155] bg-[#1E293B]/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <h1 className="text-2xl font-bold text-white">Groups & Ministries</h1>
-          <p className="text-sm text-[#94A3B8]">Manage your church's ministries and small groups</p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Groups & Ministries</h1>
+        <p className="text-sm text-[var(--st-muted)]">Manage your church's ministries and small groups</p>
+      </div>
 
-      {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        {/* Tab Buttons */}
-        <div className="flex gap-2 mb-6">
-          <Button
-            variant={activeTab === 'ministries' ? 'primary' : 'outline'}
-            onClick={() => setActiveTab('ministries')}
-            className={activeTab === 'ministries' ? 'bg-[#2563EB]' : 'border-[#334155] text-[#CBD5E1]'}
-          >
-            Ministries
-          </Button>
-          <Button
-            variant={activeTab === 'groups' ? 'primary' : 'outline'}
-            onClick={() => setActiveTab('groups')}
-            className={activeTab === 'groups' ? 'bg-[#2563EB]' : 'border-[#334155] text-[#CBD5E1]'}
-          >
-            Groups
-          </Button>
-        </div>
+      {/* Tab Buttons */}
+      <div className="flex gap-2">
+        <Button
+          variant={activeTab === 'ministries' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('ministries')}
+          className={activeTab === 'ministries' ? 'bg-[var(--st-primary)] text-white' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
+        >
+          Ministries
+        </Button>
+        <Button
+          variant={activeTab === 'groups' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('groups')}
+          className={activeTab === 'groups' ? 'bg-[var(--st-primary)] text-white' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
+        >
+          Groups
+        </Button>
+      </div>
 
-        {/* Ministries Tab */}
-        {activeTab === 'ministries' && (
-          <Card className="border-[#334155] bg-[#1E293B]/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-white">Ministries</CardTitle>
-                <CardDescription className="text-[#94A3B8]">
-                  Organize your church's ministry areas
-                </CardDescription>
-              </div>
-              <Dialog open={ministryDialogOpen} onOpenChange={(open) => {
-                setMinistryDialogOpen(open)
+      {/* Ministries Tab */}
+      {activeTab === 'ministries' && (
+        <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-[var(--st-fg)]">Ministries</CardTitle>
+              <CardDescription className="text-[var(--st-muted)]">
+                Organize your church's ministry areas
+              </CardDescription>
+            </div>
+            <Dialog open={ministryDialogOpen} onOpenChange={(open) => {
+              setMinistryDialogOpen(open)
+              if (!open) {
+                setEditingMinistry(null)
+                ministryForm.reset()
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button className="bg-[var(--st-primary)] hover:opacity-90 text-white">
+                  + Add Ministry
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
+                <DialogHeader>
+                  <DialogTitle className="text-[var(--st-fg)]">
+                    {editingMinistry ? 'Edit Ministry' : 'New Ministry'}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={ministryForm.handleSubmit(handleMinistrySubmit)} className="space-y-4">
+                  <div>
+                    <Label htmlFor="ministry-name" className="text-[var(--st-mutedFg)]">Name *</Label>
+                    <Input
+                      {...ministryForm.register('name')}
+                      id="ministry-name"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                    />
+                    {ministryForm.formState.errors.name && (
+                      <p className="mt-1 text-sm text-[var(--st-danger)]">{ministryForm.formState.errors.name.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="ministry-description" className="text-[var(--st-mutedFg)]">Description</Label>
+                    <Textarea
+                      {...ministryForm.register('description')}
+                      id="ministry-description"
+                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ministry-parent" className="text-[var(--st-mutedFg)]">Parent Ministry</Label>
+                    <Select
+                      value={ministryForm.watch('parentId') || 'none'}
+                      onValueChange={(v) => ministryForm.setValue('parentId', v === 'none' ? undefined : v)}
+                    >
+                      <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
+                        <SelectValue placeholder="None (Top-level)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (Top-level)</SelectItem>
+                        {ministries?.filter(m => m.id !== editingMinistry).map((m) => (
+                          <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setMinistryDialogOpen(false)}
+                      className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={createMinistryMutation.isPending || updateMinistryMutation.isPending}
+                      className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                    >
+                      {editingMinistry ? 'Update' : 'Create'}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {ministriesLoading ? (
+              <p className="text-[var(--st-muted)]">Loading...</p>
+            ) : ministries?.length === 0 ? (
+              <p className="text-[var(--st-muted)]">No ministries yet. Create one to get started.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Parent</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Groups</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ministries?.map((ministry) => (
+                    <TableRow key={ministry.id} className="border-[var(--st-border)]">
+                      <TableCell className="text-[var(--st-fg)] font-medium">{ministry.name}</TableCell>
+                      <TableCell className="text-[var(--st-muted)]">{ministry.parent?.name || '—'}</TableCell>
+                      <TableCell className="text-[var(--st-muted)]">{ministry._count?.groups || 0}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded text-xs ${ministry.isActive ? 'bg-[var(--st-success)]/20 text-[var(--st-success)]' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'}`}>
+                          {ministry.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditMinistry(ministry)}
+                            className="border-[var(--st-border)] text-[var(--st-mutedFg)] text-xs"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteMinistry(ministry.id)}
+                            disabled={deleteMinistryMutation.isPending}
+                            className="text-xs"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Groups Tab */}
+      {activeTab === 'groups' && (
+        <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-[var(--st-fg)]">Groups</CardTitle>
+              <CardDescription className="text-[var(--st-muted)]">
+                Small groups and teams within ministries
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Select value={selectedMinistry} onValueChange={setSelectedMinistry}>
+                <SelectTrigger className="w-48 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
+                  <SelectValue placeholder="Filter by ministry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ministries</SelectItem>
+                  {ministries?.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Dialog open={groupDialogOpen} onOpenChange={(open) => {
+                setGroupDialogOpen(open)
                 if (!open) {
-                  setEditingMinistry(null)
-                  ministryForm.reset()
+                  setEditingGroup(null)
+                  groupForm.reset()
                 }
               }}>
                 <DialogTrigger asChild>
-                  <Button className="bg-[#2563EB] hover:bg-[#3B82F6] text-white">
-                    + Add Ministry
+                  <Button className="bg-[var(--st-primary)] hover:opacity-90 text-white">
+                    + Add Group
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-[#1E293B] border-[#334155]">
+                <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)] max-w-lg">
                   <DialogHeader>
-                    <DialogTitle className="text-white">
-                      {editingMinistry ? 'Edit Ministry' : 'New Ministry'}
+                    <DialogTitle className="text-[var(--st-fg)]">
+                      {editingGroup ? 'Edit Group' : 'New Group'}
                     </DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={ministryForm.handleSubmit(handleMinistrySubmit)} className="space-y-4">
+                  <form onSubmit={groupForm.handleSubmit(handleGroupSubmit)} className="space-y-4">
                     <div>
-                      <Label htmlFor="ministry-name" className="text-[#CBD5E1]">Name *</Label>
+                      <Label htmlFor="group-name" className="text-[var(--st-mutedFg)]">Name *</Label>
                       <Input
-                        {...ministryForm.register('name')}
-                        id="ministry-name"
-                        className="mt-1 bg-[#1E293B] border-[#334155] text-white"
+                        {...groupForm.register('name')}
+                        id="group-name"
+                        className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       />
-                      {ministryForm.formState.errors.name && (
-                        <p className="mt-1 text-sm text-[#DC2626]">{ministryForm.formState.errors.name.message}</p>
+                      {groupForm.formState.errors.name && (
+                        <p className="mt-1 text-sm text-[var(--st-danger)]">{groupForm.formState.errors.name.message}</p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="ministry-description" className="text-[#CBD5E1]">Description</Label>
-                      <Textarea
-                        {...ministryForm.register('description')}
-                        id="ministry-description"
-                        className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="ministry-parent" className="text-[#CBD5E1]">Parent Ministry</Label>
+                      <Label htmlFor="group-ministry" className="text-[var(--st-mutedFg)]">Ministry *</Label>
                       <Select
-                        value={ministryForm.watch('parentId') || 'none'}
-                        onValueChange={(v) => ministryForm.setValue('parentId', v === 'none' ? undefined : v)}
+                        value={groupForm.watch('ministryId')}
+                        onValueChange={(v) => groupForm.setValue('ministryId', v)}
                       >
-                        <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
-                          <SelectValue placeholder="None (Top-level)" />
+                        <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
+                          <SelectValue placeholder="Select ministry" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">None (Top-level)</SelectItem>
-                          {ministries?.filter(m => m.id !== editingMinistry).map((m) => (
+                          {ministries?.map((m) => (
                             <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      {groupForm.formState.errors.ministryId && (
+                        <p className="mt-1 text-sm text-[var(--st-danger)]">{groupForm.formState.errors.ministryId.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="group-description" className="text-[var(--st-mutedFg)]">Description</Label>
+                      <Textarea
+                        {...groupForm.register('description')}
+                        id="group-description"
+                        className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="group-day" className="text-[var(--st-mutedFg)]">Meeting Day</Label>
+                        <Select
+                          value={groupForm.watch('meetingDay') || 'none'}
+                          onValueChange={(v) => groupForm.setValue('meetingDay', v === 'none' ? '' : v)}
+                        >
+                          <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
+                            <SelectValue placeholder="Select day" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Not specified</SelectItem>
+                            {DAYS_OF_WEEK.map((day) => (
+                              <SelectItem key={day} value={day}>{day}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="group-time" className="text-[var(--st-mutedFg)]">Meeting Time</Label>
+                        <Input
+                          {...groupForm.register('meetingTime')}
+                          id="group-time"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                          placeholder="7:00 PM"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="group-location" className="text-[var(--st-mutedFg)]">Location</Label>
+                        <Input
+                          {...groupForm.register('location')}
+                          id="group-location"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                          placeholder="Room 101"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="group-capacity" className="text-[var(--st-mutedFg)]">Capacity</Label>
+                        <Input
+                          {...groupForm.register('capacity')}
+                          id="group-capacity"
+                          type="number"
+                          className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setMinistryDialogOpen(false)}
-                        className="border-[#334155] text-[#CBD5E1]"
+                        onClick={() => setGroupDialogOpen(false)}
+                        className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
-                        disabled={createMinistryMutation.isPending || updateMinistryMutation.isPending}
-                        className="bg-[#2563EB] hover:bg-[#3B82F6] text-white"
+                        disabled={createGroupMutation.isPending || updateGroupMutation.isPending}
+                        className="bg-[var(--st-primary)] hover:opacity-90 text-white"
                       >
-                        {editingMinistry ? 'Update' : 'Create'}
+                        {editingGroup ? 'Update' : 'Create'}
                       </Button>
                     </div>
                   </form>
                 </DialogContent>
               </Dialog>
-            </CardHeader>
-            <CardContent>
-              {ministriesLoading ? (
-                <p className="text-[#94A3B8]">Loading...</p>
-              ) : ministries?.length === 0 ? (
-                <p className="text-[#94A3B8]">No ministries yet. Create one to get started.</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-[#334155]">
-                      <TableHead className="text-[#94A3B8]">Name</TableHead>
-                      <TableHead className="text-[#94A3B8]">Parent</TableHead>
-                      <TableHead className="text-[#94A3B8]">Groups</TableHead>
-                      <TableHead className="text-[#94A3B8]">Status</TableHead>
-                      <TableHead className="text-[#94A3B8]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {ministries?.map((ministry) => (
-                      <TableRow key={ministry.id} className="border-[#334155]">
-                        <TableCell className="text-white font-medium">{ministry.name}</TableCell>
-                        <TableCell className="text-[#94A3B8]">{ministry.parent?.name || '—'}</TableCell>
-                        <TableCell className="text-[#94A3B8]">{ministry._count?.groups || 0}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs ${ministry.isActive ? 'bg-[#16A34A]/20 text-[#16A34A]' : 'bg-[#64748B]/20 text-[#64748B]'}`}>
-                            {ministry.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditMinistry(ministry)}
-                              className="border-[#334155] text-[#CBD5E1] text-xs"
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteMinistry(ministry.id)}
-                              disabled={deleteMinistryMutation.isPending}
-                              className="text-xs"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Groups Tab */}
-        {activeTab === 'groups' && (
-          <Card className="border-[#334155] bg-[#1E293B]/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-white">Groups</CardTitle>
-                <CardDescription className="text-[#94A3B8]">
-                  Small groups and teams within ministries
-                </CardDescription>
-              </div>
-              <div className="flex gap-2">
-                <Select value={selectedMinistry} onValueChange={setSelectedMinistry}>
-                  <SelectTrigger className="w-48 bg-[#1E293B] border-[#334155] text-white">
-                    <SelectValue placeholder="Filter by ministry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Ministries</SelectItem>
-                    {ministries?.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Dialog open={groupDialogOpen} onOpenChange={(open) => {
-                  setGroupDialogOpen(open)
-                  if (!open) {
-                    setEditingGroup(null)
-                    groupForm.reset()
-                  }
-                }}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#2563EB] hover:bg-[#3B82F6] text-white">
-                      + Add Group
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-[#1E293B] border-[#334155] max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">
-                        {editingGroup ? 'Edit Group' : 'New Group'}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={groupForm.handleSubmit(handleGroupSubmit)} className="space-y-4">
-                      <div>
-                        <Label htmlFor="group-name" className="text-[#CBD5E1]">Name *</Label>
-                        <Input
-                          {...groupForm.register('name')}
-                          id="group-name"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                        />
-                        {groupForm.formState.errors.name && (
-                          <p className="mt-1 text-sm text-[#DC2626]">{groupForm.formState.errors.name.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="group-ministry" className="text-[#CBD5E1]">Ministry *</Label>
-                        <Select
-                          value={groupForm.watch('ministryId')}
-                          onValueChange={(v) => groupForm.setValue('ministryId', v)}
-                        >
-                          <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
-                            <SelectValue placeholder="Select ministry" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ministries?.map((m) => (
-                              <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {groupForm.formState.errors.ministryId && (
-                          <p className="mt-1 text-sm text-[#DC2626]">{groupForm.formState.errors.ministryId.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="group-description" className="text-[#CBD5E1]">Description</Label>
-                        <Textarea
-                          {...groupForm.register('description')}
-                          id="group-description"
-                          className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                          rows={2}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="group-day" className="text-[#CBD5E1]">Meeting Day</Label>
-                          <Select
-                            value={groupForm.watch('meetingDay') || 'none'}
-                            onValueChange={(v) => groupForm.setValue('meetingDay', v === 'none' ? '' : v)}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {groupsLoading ? (
+              <p className="text-[var(--st-muted)]">Loading...</p>
+            ) : groups?.length === 0 ? (
+              <p className="text-[var(--st-muted)]">No groups yet. Create one to get started.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Ministry</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Schedule</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Members</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                    <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {groups?.map((group) => (
+                    <TableRow key={group.id} className="border-[var(--st-border)]">
+                      <TableCell className="text-[var(--st-fg)] font-medium">{group.name}</TableCell>
+                      <TableCell className="text-[var(--st-muted)]">{group.ministry?.name || '—'}</TableCell>
+                      <TableCell className="text-[var(--st-muted)]">
+                        {group.meetingDay ? `${group.meetingDay}${group.meetingTime ? ` @ ${group.meetingTime}` : ''}` : '—'}
+                      </TableCell>
+                      <TableCell className="text-[var(--st-muted)]">{group._count?.members || 0}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded text-xs ${group.isActive ? 'bg-[var(--st-success)]/20 text-[var(--st-success)]' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'}`}>
+                          {group.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditGroup(group)}
+                            className="border-[var(--st-border)] text-[var(--st-mutedFg)] text-xs"
                           >
-                            <SelectTrigger className="mt-1 bg-[#1E293B] border-[#334155] text-white">
-                              <SelectValue placeholder="Select day" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">Not specified</SelectItem>
-                              {DAYS_OF_WEEK.map((day) => (
-                                <SelectItem key={day} value={day}>{day}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteGroup(group.id)}
+                            disabled={deleteGroupMutation.isPending}
+                            className="text-xs"
+                          >
+                            Delete
+                          </Button>
                         </div>
-                        <div>
-                          <Label htmlFor="group-time" className="text-[#CBD5E1]">Meeting Time</Label>
-                          <Input
-                            {...groupForm.register('meetingTime')}
-                            id="group-time"
-                            className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                            placeholder="7:00 PM"
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="group-location" className="text-[#CBD5E1]">Location</Label>
-                          <Input
-                            {...groupForm.register('location')}
-                            id="group-location"
-                            className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                            placeholder="Room 101"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="group-capacity" className="text-[#CBD5E1]">Capacity</Label>
-                          <Input
-                            {...groupForm.register('capacity')}
-                            id="group-capacity"
-                            type="number"
-                            className="mt-1 bg-[#1E293B] border-[#334155] text-white"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setGroupDialogOpen(false)}
-                          className="border-[#334155] text-[#CBD5E1]"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          type="submit"
-                          disabled={createGroupMutation.isPending || updateGroupMutation.isPending}
-                          className="bg-[#2563EB] hover:bg-[#3B82F6] text-white"
-                        >
-                          {editingGroup ? 'Update' : 'Create'}
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {groupsLoading ? (
-                <p className="text-[#94A3B8]">Loading...</p>
-              ) : groups?.length === 0 ? (
-                <p className="text-[#94A3B8]">No groups yet. Create one to get started.</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-[#334155]">
-                      <TableHead className="text-[#94A3B8]">Name</TableHead>
-                      <TableHead className="text-[#94A3B8]">Ministry</TableHead>
-                      <TableHead className="text-[#94A3B8]">Schedule</TableHead>
-                      <TableHead className="text-[#94A3B8]">Members</TableHead>
-                      <TableHead className="text-[#94A3B8]">Status</TableHead>
-                      <TableHead className="text-[#94A3B8]">Actions</TableHead>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {groups?.map((group) => (
-                      <TableRow key={group.id} className="border-[#334155]">
-                        <TableCell className="text-white font-medium">{group.name}</TableCell>
-                        <TableCell className="text-[#94A3B8]">{group.ministry?.name || '—'}</TableCell>
-                        <TableCell className="text-[#94A3B8]">
-                          {group.meetingDay ? `${group.meetingDay}${group.meetingTime ? ` @ ${group.meetingTime}` : ''}` : '—'}
-                        </TableCell>
-                        <TableCell className="text-[#94A3B8]">{group._count?.members || 0}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs ${group.isActive ? 'bg-[#16A34A]/20 text-[#16A34A]' : 'bg-[#64748B]/20 text-[#64748B]'}`}>
-                            {group.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditGroup(group)}
-                              className="border-[#334155] text-[#CBD5E1] text-xs"
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteGroup(group.id)}
-                              disabled={deleteGroupMutation.isPending}
-                              className="text-xs"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        )}
-      </main>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
 
 export default GroupsPage
-
