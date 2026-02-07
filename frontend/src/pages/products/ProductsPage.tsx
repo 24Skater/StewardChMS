@@ -102,7 +102,7 @@ export default function ProductsPage() {
             />
             Show inactive
           </label>
-          <Button onClick={() => openDialog()} className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button onClick={() => openDialog()} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             <Plus className="h-4 w-4 mr-2" /> Add Product
           </Button>
         </div>
@@ -136,10 +136,10 @@ export default function ProductsPage() {
                     <TableCell className="font-medium text-[var(--st-fg)]">{product.name}</TableCell>
                     <TableCell className="text-[var(--st-muted)]">{product.sku || '-'}</TableCell>
                     <TableCell className="max-w-xs truncate text-[var(--st-muted)]">{product.description || '-'}</TableCell>
-                    <TableCell className="text-right text-emerald-500 font-medium">{formatCents(product.priceCents)}</TableCell>
+                    <TableCell className="text-right text-[var(--st-color-success)] font-medium">{formatCents(product.priceCents)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
-                        product.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
+                        product.isActive ? 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
                       }`}>
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -151,7 +151,7 @@ export default function ProductsPage() {
                         </Button>
                         {product.isActive && (
                           <Button variant="ghost" size="sm" onClick={() => handleDelete(product.id)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4 text-[var(--st-color-danger)]" />
                           </Button>
                         )}
                       </div>
@@ -230,7 +230,7 @@ export default function ProductsPage() {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-[var(--st-border)] text-[var(--st-fg)]">
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-[var(--st-primary)] text-white">
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]">
                 {editingProduct ? 'Update' : 'Create'}
               </Button>
             </DialogFooter>

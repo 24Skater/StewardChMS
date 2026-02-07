@@ -174,65 +174,68 @@ export default function EventFormPage() {
 
   if (isEditing && isLoadingEvent) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center py-8 text-gray-500">Loading event...</div>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-[var(--st-muted)]">Loading event...</div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-2xl">
-      <Card>
+    <div className="max-w-2xl mx-auto">
+      <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
         <CardHeader>
-          <CardTitle>{isEditing ? 'Edit Event' : 'Create Event'}</CardTitle>
+          <CardTitle className="text-[var(--st-fg)]">{isEditing ? 'Edit Event' : 'Create Event'}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title" className="text-[var(--st-fg)]">Title *</Label>
               <Input
                 id="title"
                 {...register('title')}
                 placeholder="Event title"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
               {errors.title && (
-                <p className="text-sm text-red-600">{errors.title.message}</p>
+                <p className="text-sm text-red-500">{errors.title.message}</p>
               )}
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-[var(--st-fg)]">Description</Label>
               <Textarea
                 id="description"
                 {...register('description')}
                 placeholder="Event description"
                 rows={3}
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
 
             {/* Location */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location" className="text-[var(--st-fg)]">Location</Label>
               <Input
                 id="location"
                 {...register('location')}
                 placeholder="e.g., Main Sanctuary"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category" className="text-[var(--st-fg)]">Category</Label>
               <Select
                 value={watch('category') || ''}
                 onValueChange={(value) => setValue('category', value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)]">
                   {CATEGORIES.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
@@ -245,7 +248,7 @@ export default function EventFormPage() {
             {/* Date/Time */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Start Date/Time</Label>
+                <Label className="text-[var(--st-fg)]">Start Date/Time</Label>
                 <DateTimePicker
                   value={watch('startDatetime') || ''}
                   onChange={(value) => setValue('startDatetime', value)}
@@ -253,7 +256,7 @@ export default function EventFormPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>End Date/Time</Label>
+                <Label className="text-[var(--st-fg)]">End Date/Time</Label>
                 <DateTimePicker
                   value={watch('endDatetime') || ''}
                   onChange={(value) => setValue('endDatetime', value)}
@@ -271,23 +274,23 @@ export default function EventFormPage() {
                   {...register('isRecurring')}
                   className="h-4 w-4"
                 />
-                <Label htmlFor="isRecurring">This is a recurring event</Label>
+                <Label htmlFor="isRecurring" className="text-[var(--st-fg)]">This is a recurring event</Label>
               </div>
 
               {isRecurring && (
-                <div className="pl-6 space-y-4 border-l-2 border-gray-200">
+                <div className="pl-6 space-y-4 border-l-2 border-[var(--st-border)]">
                   <div className="space-y-2">
-                    <Label>Recurrence Pattern</Label>
+                    <Label className="text-[var(--st-fg)]">Recurrence Pattern</Label>
                     <Select
                       value={recurrenceFrequency}
                       onValueChange={(value) =>
                         setValue('recurrenceFrequency', value as 'weekly' | 'monthly' | 'none')
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)]">
                         <SelectItem value="weekly">Weekly</SelectItem>
                         <SelectItem value="monthly">Monthly</SelectItem>
                       </SelectContent>
@@ -295,15 +298,15 @@ export default function EventFormPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Day of Week</Label>
+                    <Label className="text-[var(--st-fg)]">Day of Week</Label>
                     <Select
                       value={watch('recurrenceDayOfWeek')}
                       onValueChange={(value) => setValue('recurrenceDayOfWeek', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)]">
                         {DAYS_OF_WEEK.map((day) => (
                           <SelectItem key={day.value} value={day.value}>
                             {day.label}
@@ -315,15 +318,15 @@ export default function EventFormPage() {
 
                   {recurrenceFrequency === 'monthly' && (
                     <div className="space-y-2">
-                      <Label>Week of Month</Label>
+                      <Label className="text-[var(--st-fg)]">Week of Month</Label>
                       <Select
                         value={watch('recurrenceWeekOfMonth')}
                         onValueChange={(value) => setValue('recurrenceWeekOfMonth', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)]">
                           {WEEKS_OF_MONTH.map((week) => (
                             <SelectItem key={week.value} value={week.value}>
                               {week.label}
@@ -339,13 +342,18 @@ export default function EventFormPage() {
 
             {/* Actions */}
             <div className="flex gap-4">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              >
                 {isSubmitting ? 'Saving...' : isEditing ? 'Update Event' : 'Create Event'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/events')}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Cancel
               </Button>
@@ -356,4 +364,3 @@ export default function EventFormPage() {
     </div>
   )
 }
-

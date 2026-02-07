@@ -29,10 +29,10 @@ function formatDate(dateStr: string): string {
 }
 
 const statusColors: Record<InvoiceStatus, string> = {
-  draft: 'bg-gray-500/20 text-gray-400',
-  sent: 'bg-blue-500/20 text-blue-400',
-  paid: 'bg-green-500/20 text-green-400',
-  void: 'bg-red-500/20 text-red-400',
+  draft: 'bg-[var(--st-border)] text-[var(--st-muted)]',
+  sent: 'bg-[var(--st-primary)]/20 text-[var(--st-primary)]',
+  paid: 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]',
+  void: 'bg-[var(--st-color-danger)]/20 text-[var(--st-color-danger)]',
 }
 
 export default function InvoicesPage() {
@@ -57,7 +57,7 @@ export default function InvoicesPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading invoices</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading invoices</div>
   }
 
   return (
@@ -65,7 +65,7 @@ export default function InvoicesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Invoices</h1>
         <Link to="/invoices/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             Create Invoice
           </Button>
         </Link>

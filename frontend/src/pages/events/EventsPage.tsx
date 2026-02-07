@@ -41,23 +41,25 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Events</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">Events</h1>
         <Link to="/events/new">
-          <Button>Create Event</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Create Event
+          </Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <Card className="mb-6">
+      <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
         <CardHeader>
-          <CardTitle className="text-lg">Filters</CardTitle>
+          <CardTitle className="text-lg text-[var(--st-fg)]">Filters</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">From Date</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--st-fg)]">From Date</label>
               <DatePicker
                 value={dateFrom}
                 onChange={setDateFrom}
@@ -65,7 +67,7 @@ export default function EventsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">To Date</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--st-fg)]">To Date</label>
               <DatePicker
                 value={dateTo}
                 onChange={setDateTo}
@@ -73,11 +75,12 @@ export default function EventsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--st-fg)]">Category</label>
               <Input
                 placeholder="Filter by category..."
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
             <div className="flex items-end">
@@ -89,6 +92,7 @@ export default function EventsPage() {
                   setCategory('')
                   setPage(1)
                 }}
+                className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
               >
                 Clear Filters
               </Button>
@@ -99,56 +103,56 @@ export default function EventsPage() {
 
       {/* Error state */}
       {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded mb-4">
+        <div className="bg-red-500/10 text-red-500 p-4 rounded-lg border border-red-500/50">
           Error loading events: {error.message}
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="text-center py-8 text-gray-500">Loading events...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading events...</div>
       )}
 
       {/* Events table */}
       {data && (
         <>
-          <Card>
+          <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Title</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Category</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Location</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Start Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Type</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.events.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={6} className="text-center py-8 text-[var(--st-muted)]">
                       No events found
                     </TableCell>
                   </TableRow>
                 ) : (
                   data.events.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={event.id} className="border-[var(--st-border)]">
+                      <TableCell className="font-medium text-[var(--st-fg)]">
                         <Link
                           to={`/events/${event.id}`}
-                          className="text-blue-600 hover:underline"
+                          className="text-[var(--st-link)] hover:underline"
                         >
                           {event.title}
                         </Link>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-[var(--st-fg)]">
                         {event.category && (
                           <Badge variant="secondary">{event.category}</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{event.location || '-'}</TableCell>
-                      <TableCell>{formatDate(event.startDatetime)}</TableCell>
+                      <TableCell className="text-[var(--st-fg)]">{event.location || '-'}</TableCell>
+                      <TableCell className="text-[var(--st-fg)]">{formatDate(event.startDatetime)}</TableCell>
                       <TableCell>
                         {event.isRecurring ? (
                           <Badge variant="outline">Recurring</Badge>
@@ -158,7 +162,7 @@ export default function EventsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <Link to={`/events/${event.id}`}>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="text-[var(--st-muted)] hover:text-[var(--st-fg)]">
                             View
                           </Button>
                         </Link>
@@ -177,16 +181,18 @@ export default function EventsPage() {
                 variant="outline"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="flex items-center px-4">
+              <span className="flex items-center px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -197,4 +203,3 @@ export default function EventsPage() {
     </div>
   )
 }
-

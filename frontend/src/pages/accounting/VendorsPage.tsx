@@ -95,82 +95,89 @@ export default function VendorsPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading vendors</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading vendors</div>
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Vendors</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Vendors</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleOpenCreate}>Add Vendor</Button>
+            <Button onClick={handleOpenCreate} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Add Vendor</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg bg-[var(--st-surface)] border-[var(--st-border)]">
             <DialogHeader>
-              <DialogTitle>{editingVendor ? 'Edit Vendor' : 'Add Vendor'}</DialogTitle>
+              <DialogTitle className="text-[var(--st-fg)]">{editingVendor ? 'Edit Vendor' : 'Add Vendor'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label>Vendor Name *</Label>
+                <Label className="text-[var(--st-fg)]">Vendor Name *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Email</Label>
+                  <Label className="text-[var(--st-fg)]">Email</Label>
                   <Input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
                 <div>
-                  <Label>Phone</Label>
+                  <Label className="text-[var(--st-fg)]">Phone</Label>
                   <Input
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
               </div>
               <div>
-                <Label>Street</Label>
+                <Label className="text-[var(--st-fg)]">Street</Label>
                 <Input
                   value={formData.street}
                   onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label>City</Label>
+                  <Label className="text-[var(--st-fg)]">City</Label>
                   <Input
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
                 <div>
-                  <Label>State</Label>
+                  <Label className="text-[var(--st-fg)]">State</Label>
                   <Input
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
                 <div>
-                  <Label>ZIP</Label>
+                  <Label className="text-[var(--st-fg)]">ZIP</Label>
                   <Input
                     value={formData.zip}
                     onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                    className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-[var(--st-border)] text-[var(--st-fg)]">
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
                   {editingVendor ? 'Update' : 'Create'}
                 </Button>
               </div>
@@ -180,26 +187,26 @@ export default function VendorsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Email</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Phone</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Location</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.vendors.map((vendor) => (
-                <TableRow key={vendor.id}>
-                  <TableCell className="font-medium">{vendor.name}</TableCell>
-                  <TableCell>{vendor.email || '-'}</TableCell>
-                  <TableCell>{vendor.phone || '-'}</TableCell>
-                  <TableCell>
+                <TableRow key={vendor.id} className="border-[var(--st-border)]">
+                  <TableCell className="font-medium text-[var(--st-fg)]">{vendor.name}</TableCell>
+                  <TableCell className="text-[var(--st-muted)]">{vendor.email || '-'}</TableCell>
+                  <TableCell className="text-[var(--st-muted)]">{vendor.phone || '-'}</TableCell>
+                  <TableCell className="text-[var(--st-muted)]">
                     {vendor.city && vendor.state
                       ? `${vendor.city}, ${vendor.state}`
                       : '-'}
@@ -210,6 +217,7 @@ export default function VendorsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenEdit(vendor)}
+                        className="border-[var(--st-border)] text-[var(--st-fg)]"
                       >
                         Edit
                       </Button>
@@ -225,8 +233,8 @@ export default function VendorsPage() {
                 </TableRow>
               ))}
               {data?.vendors.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableRow className="border-[var(--st-border)]">
+                  <TableCell colSpan={5} className="text-center py-8 text-[var(--st-muted)]">
                     No vendors found. Add your first vendor to get started.
                   </TableCell>
                 </TableRow>

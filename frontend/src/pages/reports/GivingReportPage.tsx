@@ -58,9 +58,9 @@ export default function GivingReportPage() {
       <h1 className="text-2xl font-bold text-[var(--st-fg)]">Giving Summary</h1>
 
       {/* Date Range Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surfaceMuted)] rounded-lg border border-[var(--st-border)]">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-[var(--st-surface-muted)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label className="text-[var(--st-mutedFg)]">From Date</Label>
+          <Label className="text-[var(--st-muted)]">From Date</Label>
           <Input
             type="date"
             value={dateFrom}
@@ -69,7 +69,7 @@ export default function GivingReportPage() {
           />
         </div>
         <div>
-          <Label className="text-[var(--st-mutedFg)]">To Date</Label>
+          <Label className="text-[var(--st-muted)]">To Date</Label>
           <Input
             type="date"
             value={dateTo}
@@ -85,20 +85,20 @@ export default function GivingReportPage() {
               setDateFrom(d.dateFrom)
               setDateTo(d.dateTo)
             }}
-            className="border-[var(--st-border)] text-[var(--st-mutedFg)]"
+            className="border-[var(--st-border)] text-[var(--st-muted)] hover:bg-[var(--st-surface-hover)]"
           >
             Year to Date
           </Button>
         </div>
         <div className="flex items-end">
-          <Button onClick={handleExportCSV} disabled={!data} className="bg-[var(--st-primary)] text-white">
+          <Button onClick={handleExportCSV} disabled={!data} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
         </div>
       </div>
 
       {isLoading && <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>}
-      {error && <div className="text-center py-8 text-[var(--st-danger)]">Error loading report</div>}
+      {error && <div className="text-center py-8 text-[var(--st-color-danger)]">Error loading report</div>}
 
       {data && (
         <div className="space-y-6">
@@ -106,7 +106,7 @@ export default function GivingReportPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
               <div className="text-sm text-[var(--st-muted)]">Total Giving</div>
-              <div className="text-3xl font-bold text-emerald-500">{formatCents(data.totalCents)}</div>
+              <div className="text-3xl font-bold text-[var(--st-color-success)]">{formatCents(data.totalCents)}</div>
             </div>
             <div className="p-4 bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
               <div className="text-sm text-[var(--st-muted)]">Total Donations</div>
@@ -140,10 +140,10 @@ export default function GivingReportPage() {
                         <TableCell className="text-right text-[var(--st-fg)]">{formatCents(fund.totalCents)}</TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="font-bold bg-[var(--st-surfaceMuted)] border-[var(--st-border)]">
+                    <TableRow className="font-bold bg-[var(--st-surface-muted)] border-[var(--st-border)]">
                       <TableCell className="text-[var(--st-fg)]">TOTAL</TableCell>
                       <TableCell className="text-right text-[var(--st-muted)]">{data.totalDonations}</TableCell>
-                      <TableCell className="text-right text-emerald-500">{formatCents(data.totalCents)}</TableCell>
+                      <TableCell className="text-right text-[var(--st-color-success)]">{formatCents(data.totalCents)}</TableCell>
                     </TableRow>
                   </>
                 )}

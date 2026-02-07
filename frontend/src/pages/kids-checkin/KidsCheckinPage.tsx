@@ -146,85 +146,85 @@ export default function KidsCheckinPage() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Kids Check-In</h1>
-          <p className="text-muted-foreground">Manage children's check-in and check-out</p>
+          <h1 className="text-3xl font-bold text-[var(--st-fg)]">Kids Check-In</h1>
+          <p className="text-[var(--st-muted)]">Manage children's check-in and check-out</p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader className="pb-2">
-            <CardDescription>Total Children</CardDescription>
-            <CardTitle className="text-3xl">{stats?.totalChildren ?? 0}</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Total Children</CardDescription>
+            <CardTitle className="text-3xl text-[var(--st-fg)]">{stats?.totalChildren ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader className="pb-2">
-            <CardDescription>Checked In Today</CardDescription>
-            <CardTitle className="text-3xl">{stats?.checkedInToday ?? 0}</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Checked In Today</CardDescription>
+            <CardTitle className="text-3xl text-[var(--st-fg)]">{stats?.checkedInToday ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader className="pb-2">
-            <CardDescription>Currently Here</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{stats?.currentlyCheckedIn ?? 0}</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Currently Here</CardDescription>
+            <CardTitle className="text-3xl text-[var(--st-color-success)]">{stats?.currentlyCheckedIn ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader className="pb-2">
-            <CardDescription>Checked Out</CardDescription>
-            <CardTitle className="text-3xl">{stats?.checkedOutToday ?? 0}</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Checked Out</CardDescription>
+            <CardTitle className="text-3xl text-[var(--st-fg)]">{stats?.checkedOutToday ?? 0}</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Check-In Section */}
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader>
-            <CardTitle>Check In</CardTitle>
-            <CardDescription>Select an event and child to check in</CardDescription>
+            <CardTitle className="text-[var(--st-fg)]">Check In</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Select an event and child to check in</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Event</Label>
+              <Label className="text-[var(--st-fg)]">Event</Label>
               <Select
                 value={selectedOccurrence}
                 onValueChange={setSelectedOccurrence}
                 disabled={loadingOccurrences}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                   <SelectValue placeholder="Select an event..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
                   {occurrences.map((occ) => (
-                    <SelectItem key={occ.id} value={occ.id}>
+                    <SelectItem key={occ.id} value={occ.id} className="text-[var(--st-fg)]">
                       {occ.event.title} - {new Date(occ.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {occurrences.length === 0 && !loadingOccurrences && (
-                <p className="text-sm text-muted-foreground">No events scheduled for today</p>
+                <p className="text-sm text-[var(--st-muted)]">No events scheduled for today</p>
               )}
             </div>
 
             {selectedOccurrence && (
               <>
                 <div className="space-y-2">
-                  <Label>Child</Label>
+                  <Label className="text-[var(--st-fg)]">Child</Label>
                   <Select
                     value={selectedChild?.id ?? ''}
                     onValueChange={(id) => setSelectedChild(children.find((c) => c.id === id) ?? null)}
                     disabled={loadingChildren}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                       <SelectValue placeholder="Select a child..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
                       {filteredChildren.map((child) => (
-                        <SelectItem key={child.id} value={child.id}>
+                        <SelectItem key={child.id} value={child.id} className="text-[var(--st-fg)]">
                           {child.firstName} {child.lastName}
                           {child.allergies && ' ⚠️'}
                         </SelectItem>
@@ -236,27 +236,27 @@ export default function KidsCheckinPage() {
                 {selectedChild && (
                   <div className="space-y-4">
                     {/* Child Info Card */}
-                    <div className="p-4 bg-muted rounded-lg space-y-2">
-                      <div className="font-medium">
+                    <div className="p-4 bg-[var(--st-surface-muted)] border border-[var(--st-border)] rounded-lg space-y-2">
+                      <div className="font-medium text-[var(--st-fg)]">
                         {selectedChild.firstName} {selectedChild.lastName}
                       </div>
                       {selectedChild.dateOfBirth && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-[var(--st-muted)]">
                           DOB: {new Date(selectedChild.dateOfBirth).toLocaleDateString()}
                         </div>
                       )}
                       {selectedChild.allergies && (
-                        <div className="text-sm text-red-600">
+                        <div className="text-sm text-[var(--st-color-danger)]">
                           ⚠️ Allergies: {selectedChild.allergies}
                         </div>
                       )}
                       {selectedChild.medicalNotes && (
-                        <div className="text-sm text-yellow-600">
+                        <div className="text-sm text-[var(--st-color-warning)]">
                           📋 Medical: {selectedChild.medicalNotes}
                         </div>
                       )}
                       {selectedChild.parents.length > 0 && (
-                        <div className="text-sm">
+                        <div className="text-sm text-[var(--st-fg)]">
                           <strong>Parents:</strong>{' '}
                           {selectedChild.parents.map((p) => `${p.firstName} ${p.lastName}`).join(', ')}
                         </div>
@@ -264,25 +264,26 @@ export default function KidsCheckinPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="parentGuardianName">Picking Up (optional)</Label>
+                      <Label htmlFor="parentGuardianName" className="text-[var(--st-fg)]">Picking Up (optional)</Label>
                       <Input
                         id="parentGuardianName"
                         value={parentGuardianName}
                         onChange={(e) => setParentGuardianName(e.target.value)}
                         placeholder="Name of person picking up"
+                        className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                       />
                     </div>
 
                     <Button
                       onClick={handleCheckIn}
                       disabled={checkInMutation.isPending}
-                      className="w-full"
+                      className="w-full bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                     >
                       {checkInMutation.isPending ? 'Checking In...' : 'Check In & Print Label'}
                     </Button>
 
                     {checkInMutation.isError && (
-                      <p className="text-sm text-red-600">
+                      <p className="text-sm text-[var(--st-color-danger)]">
                         {(checkInMutation.error as Error).message || 'Check-in failed'}
                       </p>
                     )}
@@ -294,10 +295,10 @@ export default function KidsCheckinPage() {
         </Card>
 
         {/* Check-Out Section */}
-        <Card>
+        <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <CardHeader>
-            <CardTitle>Check Out</CardTitle>
-            <CardDescription>Enter security code to check out</CardDescription>
+            <CardTitle className="text-[var(--st-fg)]">Check Out</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">Enter security code to check out</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -306,34 +307,35 @@ export default function KidsCheckinPage() {
                 onChange={(e) => setCheckoutCode(e.target.value.toUpperCase())}
                 placeholder="Enter security code..."
                 maxLength={4}
-                className="text-2xl text-center tracking-widest font-mono"
+                className="text-2xl text-center tracking-widest font-mono bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
               />
               <Button
                 onClick={handleCheckOutByCode}
                 disabled={!checkoutCode || checkOutByCodeMutation.isPending}
+                className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
               >
                 {checkOutByCodeMutation.isPending ? 'Processing...' : 'Check Out'}
               </Button>
             </div>
 
             {checkOutByCodeMutation.isError && (
-              <p className="text-sm text-red-600">
+              <p className="text-sm text-[var(--st-color-danger)]">
                 {(checkOutByCodeMutation.error as Error).message || 'Invalid security code'}
               </p>
             )}
 
             {checkOutByCodeMutation.isSuccess && (
-              <p className="text-sm text-green-600">✓ Check-out successful!</p>
+              <p className="text-sm text-[var(--st-color-success)]">✓ Check-out successful!</p>
             )}
           </CardContent>
         </Card>
       </div>
 
       {/* Currently Checked In */}
-      <Card>
+      <Card className="bg-[var(--st-surface)] border-[var(--st-border)]">
         <CardHeader>
-          <CardTitle>Currently Checked In</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-[var(--st-fg)]">Currently Checked In</CardTitle>
+          <CardDescription className="text-[var(--st-muted)]">
             {selectedOccurrence
               ? `Showing children checked in to selected event`
               : 'Showing all children checked in today'}
@@ -341,34 +343,34 @@ export default function KidsCheckinPage() {
         </CardHeader>
         <CardContent>
           {loadingCheckedIn ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-[var(--st-muted)]">Loading...</p>
           ) : checkedIn.length === 0 ? (
-            <p className="text-muted-foreground">No children currently checked in</p>
+            <p className="text-[var(--st-muted)]">No children currently checked in</p>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Security Code</TableHead>
-                  <TableHead>Checked In</TableHead>
-                  <TableHead>Alerts</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Event</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Security Code</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Checked In</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Alerts</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {checkedIn.map((ci) => (
-                  <TableRow key={ci.id}>
-                    <TableCell className="font-medium">
+                  <TableRow key={ci.id} className="border-[var(--st-border)]">
+                    <TableCell className="font-medium text-[var(--st-fg)]">
                       {ci.member.firstName} {ci.member.lastName}
                     </TableCell>
-                    <TableCell>{ci.occurrence.event.title}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{ci.occurrence.event.title}</TableCell>
                     <TableCell>
-                      <code className="bg-muted px-2 py-1 rounded font-mono">
+                      <code className="bg-[var(--st-surface-muted)] px-2 py-1 rounded font-mono text-[var(--st-fg)]">
                         {ci.member.securityCode}
                       </code>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {new Date(ci.checkedInAt).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -376,12 +378,12 @@ export default function KidsCheckinPage() {
                     </TableCell>
                     <TableCell>
                       {ci.member.allergies && (
-                        <Badge variant="destructive" className="mr-1">
+                        <Badge variant="destructive" className="mr-1 bg-[var(--st-color-danger)] text-white">
                           Allergies
                         </Badge>
                       )}
                       {ci.member.medicalNotes && (
-                        <Badge variant="secondary">Medical</Badge>
+                        <Badge variant="secondary" className="bg-[var(--st-color-warning)] text-black">Medical</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -390,6 +392,7 @@ export default function KidsCheckinPage() {
                         size="sm"
                         onClick={() => handleCheckOutById(ci.id)}
                         disabled={checkOutByIdMutation.isPending}
+                        className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                       >
                         Check Out
                       </Button>
@@ -404,10 +407,10 @@ export default function KidsCheckinPage() {
 
       {/* Print Label Dialog */}
       <Dialog open={showLabelDialog} onOpenChange={setShowLabelDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-[var(--st-surface)] border-[var(--st-border)]">
           <DialogHeader>
-            <DialogTitle>Check-In Complete</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[var(--st-fg)]">Check-In Complete</DialogTitle>
+            <DialogDescription className="text-[var(--st-muted)]">
               Print the label and give it to the parent/guardian
             </DialogDescription>
           </DialogHeader>
@@ -415,10 +418,10 @@ export default function KidsCheckinPage() {
             {labelData && <CheckinLabel data={labelData} />}
           </div>
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={() => setShowLabelDialog(false)}>
+            <Button variant="outline" onClick={() => setShowLabelDialog(false)} className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">
               Close
             </Button>
-            <Button onClick={() => handlePrint()}>Print Label</Button>
+            <Button onClick={() => handlePrint()} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Print Label</Button>
           </div>
         </DialogContent>
       </Dialog>

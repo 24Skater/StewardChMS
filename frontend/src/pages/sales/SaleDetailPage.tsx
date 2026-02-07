@@ -44,7 +44,7 @@ export default function SaleDetailPage() {
   }
 
   if (error || !sale) {
-    return <div className="text-center py-8 text-red-500">Error loading sale</div>
+    return <div className="text-center py-8 text-[var(--st-color-danger)]">Error loading sale</div>
   }
 
   return (
@@ -63,8 +63,8 @@ export default function SaleDetailPage() {
         <div className="flex items-center gap-4">
           <span className={`px-3 py-1 rounded text-sm font-medium ${
             sale.status === 'completed'
-              ? 'bg-emerald-500/20 text-emerald-400'
-              : 'bg-red-500/20 text-red-400'
+              ? 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]'
+              : 'bg-[var(--st-color-danger)]/20 text-[var(--st-color-danger)]'
           }`}>
             {sale.status.toUpperCase()}
           </span>
@@ -116,7 +116,7 @@ export default function SaleDetailPage() {
                 <TableCell className="text-[var(--st-muted)]">{item.product?.sku || '-'}</TableCell>
                 <TableCell className="text-right text-[var(--st-muted)]">{formatCents(item.unitPriceCents)}</TableCell>
                 <TableCell className="text-center text-[var(--st-fg)]">{item.quantity}</TableCell>
-                <TableCell className="text-right font-medium text-emerald-500">{formatCents(item.lineTotalCents)}</TableCell>
+                <TableCell className="text-right font-medium text-[var(--st-color-success)]">{formatCents(item.lineTotalCents)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -136,14 +136,14 @@ export default function SaleDetailPage() {
           </div>
           <div className="flex justify-between text-lg font-bold border-t border-[var(--st-border)] pt-2">
             <span>Total:</span>
-            <span className="text-emerald-500">{formatCents(sale.totalCents)}</span>
+            <span className="text-[var(--st-color-success)]">{formatCents(sale.totalCents)}</span>
           </div>
         </div>
       </div>
 
       {sale.status === 'void' && (
-        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="text-red-400">
+        <div className="p-4 bg-[var(--st-color-danger)]/10 border border-[var(--st-color-danger)]/30 rounded-lg">
+          <p className="text-[var(--st-color-danger)]">
             This sale has been voided. Inventory has been restored.
           </p>
         </div>

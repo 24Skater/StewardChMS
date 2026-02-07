@@ -95,23 +95,23 @@ export default function PledgeFormPage() {
   }
 
   if (isEditing && loadingPledge) {
-    return <div className="p-6">Loading...</div>
+    return <div className="p-6 text-[var(--st-muted)]">Loading...</div>
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-[var(--st-fg)]">
         {isEditing ? 'Edit Pledge' : 'Add Pledge'}
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6">
         <div>
-          <Label>Member *</Label>
+          <Label className="text-[var(--st-fg)]">Member *</Label>
           <Select
             value={watch('memberId') || ''}
             onValueChange={(value) => setValue('memberId', value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="Select a member" />
             </SelectTrigger>
             <SelectContent>
@@ -123,30 +123,31 @@ export default function PledgeFormPage() {
             </SelectContent>
           </Select>
           {errors.memberId && (
-            <p className="text-red-500 text-sm mt-1">{errors.memberId.message}</p>
+            <p className="text-[var(--st-color-danger)] text-sm mt-1">{errors.memberId.message}</p>
           )}
         </div>
 
         <div>
-          <Label>Pledge Amount *</Label>
+          <Label className="text-[var(--st-fg)]">Pledge Amount *</Label>
           <Input
             type="number"
             step="0.01"
             min="0.01"
             {...register('amount', { valueAsNumber: true })}
+            className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
           {errors.amount && (
-            <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
+            <p className="text-[var(--st-color-danger)] text-sm mt-1">{errors.amount.message}</p>
           )}
         </div>
 
         <div>
-          <Label>Fund</Label>
+          <Label className="text-[var(--st-fg)]">Fund</Label>
           <Select
             value={watch('fundId') || 'none'}
             onValueChange={(value) => setValue('fundId', value === 'none' ? undefined : value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="Select a fund" />
             </SelectTrigger>
             <SelectContent>
@@ -162,24 +163,24 @@ export default function PledgeFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Start Date</Label>
-            <Input type="date" {...register('startDate')} />
+            <Label className="text-[var(--st-fg)]">Start Date</Label>
+            <Input type="date" {...register('startDate')} className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]" />
           </div>
           <div>
-            <Label>End Date</Label>
-            <Input type="date" {...register('endDate')} />
+            <Label className="text-[var(--st-fg)]">End Date</Label>
+            <Input type="date" {...register('endDate')} className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]" />
           </div>
         </div>
 
         <div>
-          <Label>Status *</Label>
+          <Label className="text-[var(--st-fg)]">Status *</Label>
           <Select
             value={watch('status')}
             onValueChange={(value: 'active' | 'completed' | 'canceled') =>
               setValue('status', value)
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -191,10 +192,10 @@ export default function PledgeFormPage() {
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             {isSubmitting ? 'Saving...' : isEditing ? 'Update Pledge' : 'Add Pledge'}
           </Button>
-          <Button type="button" variant="outline" onClick={() => navigate('/pledges')}>
+          <Button type="button" variant="outline" onClick={() => navigate('/pledges')} className="border-[var(--st-border)] text-[var(--st-fg)]">
             Cancel
           </Button>
         </div>

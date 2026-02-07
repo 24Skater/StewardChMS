@@ -47,7 +47,7 @@ export default function SalesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Sales</h1>
         <Link to="/sales/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             <Plus className="h-4 w-4 mr-2" /> New Sale
           </Button>
         </Link>
@@ -141,14 +141,14 @@ export default function SalesPage() {
                         : sale.guestName || 'Guest'}
                     </TableCell>
                     <TableCell className="text-[var(--st-muted)]">{sale._count?.items || '-'}</TableCell>
-                    <TableCell className="text-right font-medium text-emerald-500">
+                    <TableCell className="text-right font-medium text-[var(--st-color-success)]">
                       {formatCents(sale.totalCents)}
                     </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
                         sale.status === 'completed'
-                          ? 'bg-emerald-500/20 text-emerald-400'
-                          : 'bg-red-500/20 text-red-400'
+                          ? 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]'
+                          : 'bg-[var(--st-color-danger)]/20 text-[var(--st-color-danger)]'
                       }`}>
                         {sale.status}
                       </span>

@@ -1,32 +1,77 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { useTheme } from '@/context/ThemeContext'
+import { useTheme } from '@/hooks/useTheme'
 import { useLogout } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useState } from 'react'
 
-const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: '🏠' },
-  { label: 'Members', href: '/members', icon: '👥' },
-  { label: 'Events', href: '/events', icon: '📅' },
-  { label: 'Giving', href: '/giving', icon: '💝' },
-  { label: 'Groups', href: '/groups', icon: '🏛️' },
-  { label: 'Communications', href: '/communications', icon: '✉️' },
-  { label: 'Kids Check-In', href: '/kids-checkin', icon: '🧒' },
-  // Accounting
-  { label: 'Funds', href: '/funds', icon: '🏦' },
-  { label: 'Expenses', href: '/expenses', icon: '📤' },
-  { label: 'Invoices', href: '/invoices', icon: '📄' },
-  { label: 'Purchase Orders', href: '/purchase-orders', icon: '📋' },
-  { label: 'Vendors', href: '/vendors', icon: '🏢' },
-  // Inventory & Sales
-  { label: 'Products', href: '/products', icon: '🛒' },
-  { label: 'Inventory', href: '/inventory', icon: '📦' },
-  { label: 'Sales', href: '/sales', icon: '💳' },
-  // Reports & Settings
-  { label: 'Reports', href: '/reports', icon: '📊' },
-  { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
+interface NavItem {
+  label: string
+  href: string
+  icon: string
+}
+
+interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
+const navSections: NavSection[] = [
+  {
+    title: 'Main',
+    items: [
+      { label: 'Dashboard', href: '/dashboard', icon: '🏠' },
+    ],
+  },
+  {
+    title: 'People & Groups',
+    items: [
+      { label: 'Members', href: '/members', icon: '👥' },
+      { label: 'Groups', href: '/groups', icon: '🏛️' },
+    ],
+  },
+  {
+    title: 'Events & Worship',
+    items: [
+      { label: 'Events', href: '/events', icon: '📅' },
+      { label: 'Kids Check-In', href: '/kids-checkin', icon: '🧒' },
+      { label: 'Songs', href: '/songs', icon: '🎵' },
+    ],
+  },
+  {
+    title: 'Communication',
+    items: [
+      { label: 'Messages', href: '/communications', icon: '✉️' },
+    ],
+  },
+  {
+    title: 'Giving & Finance',
+    items: [
+      { label: 'Donations', href: '/giving', icon: '💝' },
+      { label: 'Pledges', href: '/pledges', icon: '🤝' },
+      { label: 'Funds', href: '/funds', icon: '🏦' },
+      { label: 'Expenses', href: '/expenses', icon: '📤' },
+      { label: 'Invoices', href: '/invoices', icon: '📄' },
+      { label: 'Purchase Orders', href: '/purchase-orders', icon: '📋' },
+      { label: 'Vendors', href: '/vendors', icon: '🏢' },
+    ],
+  },
+  {
+    title: 'Sales & Inventory',
+    items: [
+      { label: 'Products', href: '/products', icon: '🛒' },
+      { label: 'Inventory', href: '/inventory', icon: '📦' },
+      { label: 'Sales', href: '/sales', icon: '💳' },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { label: 'Reports', href: '/reports', icon: '📊' },
+      { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
+    ],
+  },
 ]
 
 export function AppLayout() {
@@ -66,27 +111,38 @@ export function AppLayout() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.href || 
-              (item.href !== '/dashboard' && location.pathname.startsWith(item.href))
-            
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'bg-[var(--st-primary)] text-white' 
-                    : 'text-[var(--st-muted)] hover:bg-[var(--st-surfaceMuted)] hover:text-[var(--st-fg)]'
-                }`}
-                title={!sidebarOpen ? item.label : undefined}
-              >
-                <span className="text-xl flex-shrink-0">{item.icon}</span>
-                {sidebarOpen && <span className="font-medium">{item.label}</span>}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+          {navSections.map((section) => (
+            <div key={section.title}>
+              {sidebarOpen && (
+                <h3 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--st-muted)]">
+                  {section.title}
+                </h3>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive = location.pathname === item.href || 
+                    (item.href !== '/dashboard' && location.pathname.startsWith(item.href))
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                        isActive 
+                          ? 'bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]' 
+                          : 'text-[var(--st-muted)] hover:bg-[var(--st-surface-hover)] hover:text-[var(--st-fg)]'
+                      }`}
+                      title={!sidebarOpen ? item.label : undefined}
+                    >
+                      <span className="text-lg flex-shrink-0">{item.icon}</span>
+                      {sidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Collapse Toggle */}
@@ -117,7 +173,7 @@ export function AppLayout() {
                 disabled={logoutMutation.isPending}
                 variant="outline"
                 size="sm"
-                className="border-[var(--st-border)] bg-transparent text-[var(--st-mutedFg)] hover:bg-[var(--st-surfaceMuted)] hover:text-[var(--st-fg)]"
+                className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)] hover:text-[var(--st-fg)]"
               >
                 {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
               </Button>

@@ -1,15 +1,16 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark' | 'system'
+export type Theme = 'light' | 'dark' | 'system'
 
-interface ThemeContextType {
+export interface ThemeContextType {
   theme: Theme
   resolvedTheme: 'light' | 'dark'
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+// eslint-disable-next-line react-refresh/only-export-components
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'steward-theme'
 
@@ -57,6 +58,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Listen for system theme changes
   useEffect(() => {
     if (theme !== 'system') return
+    if (typeof window === 'undefined' || !window.matchMedia) return
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     
@@ -84,12 +86,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     </ThemeContext.Provider>
   )
 }
-
-export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
-  return context
-}
-

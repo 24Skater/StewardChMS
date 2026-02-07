@@ -33,7 +33,7 @@ export default function MessagesPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="animate-pulse">Loading messages...</div>
+        <div className="animate-pulse text-[var(--st-muted)]">Loading messages...</div>
       </div>
     )
   }
@@ -41,7 +41,7 @@ export default function MessagesPage() {
   if (error) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-red-500">Error loading messages</div>
+        <div className="text-[var(--st-color-danger)]">Error loading messages</div>
       </div>
     )
   }
@@ -49,13 +49,13 @@ export default function MessagesPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Communications</h1>
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">Communications</h1>
         <div className="flex gap-2">
           <Link to="/communications/templates">
-            <Button variant="outline">Manage Templates</Button>
+            <Button variant="outline" className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">Manage Templates</Button>
           </Link>
           <Link to="/communications/new">
-            <Button>Compose Message</Button>
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Compose Message</Button>
           </Link>
         </div>
       </div>
@@ -68,40 +68,40 @@ export default function MessagesPage() {
             setPage(1)
           }}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
             <SelectValue placeholder="All channels" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All channels</SelectItem>
-            <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="sms">SMS</SelectItem>
+          <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
+            <SelectItem value="all" className="text-[var(--st-fg)]">All channels</SelectItem>
+            <SelectItem value="email" className="text-[var(--st-fg)]">Email</SelectItem>
+            <SelectItem value="sms" className="text-[var(--st-fg)]">SMS</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {data?.messages.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-8 text-[var(--st-muted)]">
           No messages sent yet. Compose your first message to get started.
         </div>
       ) : (
         <>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Channel</TableHead>
-                <TableHead>Subject / Preview</TableHead>
-                <TableHead>Recipients</TableHead>
-                <TableHead>Sent By</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Date</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Channel</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Subject / Preview</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Recipients</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Sent By</TableHead>
+                <TableHead className="text-right text-[var(--st-muted)]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.messages.map((message) => (
-                <TableRow key={message.id}>
-                  <TableCell>
+                <TableRow key={message.id} className="border-[var(--st-border)]">
+                  <TableCell className="text-[var(--st-fg)]">
                     {new Date(message.createdAt).toLocaleDateString()}{' '}
-                    <span className="text-muted-foreground">
+                    <span className="text-[var(--st-muted)]">
                       {new Date(message.createdAt).toLocaleTimeString([], { 
                         hour: '2-digit', 
                         minute: '2-digit' 
@@ -109,15 +109,15 @@ export default function MessagesPage() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={message.channel === 'email' ? 'default' : 'secondary'}>
+                    <Badge variant={message.channel === 'email' ? 'default' : 'secondary'} className={message.channel === 'email' ? 'bg-[var(--st-primary)]' : ''}>
                       {message.channel === 'email' ? '📧 Email' : '📱 SMS'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-[300px]">
+                  <TableCell className="max-w-[300px] text-[var(--st-fg)]">
                     {message.subject ? (
                       <div>
                         <div className="font-medium">{message.subject}</div>
-                        <div className="text-sm text-muted-foreground truncate">
+                        <div className="text-sm text-[var(--st-muted)] truncate">
                           {message.body.substring(0, 50)}...
                         </div>
                       </div>
@@ -128,16 +128,16 @@ export default function MessagesPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="border-[var(--st-border)] text-[var(--st-fg)]">
                       {message._count?.recipients || 0} recipients
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-[var(--st-muted)]">
                     {message.createdByUser?.name || message.createdByUser?.email || 'Unknown'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Link to={`/communications/${message.id}`}>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">
                         View
                       </Button>
                     </Link>
@@ -154,16 +154,18 @@ export default function MessagesPage() {
                 variant="outline"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
+                className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
+                className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
               >
                 Next
               </Button>

@@ -29,9 +29,9 @@ function formatDate(dateStr: string | null): string {
 }
 
 const statusColors: Record<PledgeStatus, string> = {
-  active: 'bg-green-100 text-green-800',
-  completed: 'bg-blue-100 text-blue-800',
-  canceled: 'bg-gray-100 text-gray-800',
+  active: 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]',
+  completed: 'bg-[var(--st-primary)]/20 text-[var(--st-primary)]',
+  canceled: 'bg-[var(--st-border)] text-[var(--st-muted)]',
 }
 
 export default function PledgesPage() {
@@ -56,24 +56,24 @@ export default function PledgesPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading pledges</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading pledges</div>
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Pledges</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Pledges</h1>
         <Link to="/pledges/new">
-          <Button>Add Pledge</Button>
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Add Pledge</Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-[var(--st-surface)] rounded-lg border border-[var(--st-border)]">
         <div>
-          <Label>Status</Label>
+          <Label className="text-[var(--st-muted)]">Status</Label>
           <Select value={status} onValueChange={(v) => setStatus(v as PledgeStatus | '')}>
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -85,9 +85,9 @@ export default function PledgesPage() {
           </Select>
         </div>
         <div>
-          <Label>Fund</Label>
+          <Label className="text-[var(--st-muted)]">Fund</Label>
           <Select value={fundId} onValueChange={setFundId}>
-            <SelectTrigger>
+            <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="All Funds" />
             </SelectTrigger>
             <SelectContent>
@@ -107,6 +107,7 @@ export default function PledgesPage() {
               setStatus('')
               setFundId('')
             }}
+            className="border-[var(--st-border)] text-[var(--st-muted)]"
           >
             Clear Filters
           </Button>
@@ -114,36 +115,36 @@ export default function PledgesPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Fund</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Member</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Amount</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Fund</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Start Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">End Date</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data?.pledges.map((pledge) => (
-                  <TableRow key={pledge.id}>
-                    <TableCell>
+                  <TableRow key={pledge.id} className="border-[var(--st-border)]">
+                    <TableCell className="text-[var(--st-fg)]">
                       {pledge.member
                         ? `${pledge.member.firstName} ${pledge.member.lastName}`
                         : '-'}
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold text-[var(--st-color-success)]">
                       {formatCents(pledge.amountCents)}
                     </TableCell>
-                    <TableCell>{pledge.fund?.name || 'Undesignated'}</TableCell>
-                    <TableCell>{formatDate(pledge.startDate)}</TableCell>
-                    <TableCell>{formatDate(pledge.endDate)}</TableCell>
+                    <TableCell className="text-[var(--st-muted)]">{pledge.fund?.name || 'Undesignated'}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(pledge.startDate)}</TableCell>
+                    <TableCell className="text-[var(--st-fg)]">{formatDate(pledge.endDate)}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
@@ -156,7 +157,7 @@ export default function PledgesPage() {
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/pledges/${pledge.id}/edit`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="border-[var(--st-border)] text-[var(--st-fg)]">
                             Edit
                           </Button>
                         </Link>
@@ -172,8 +173,8 @@ export default function PledgesPage() {
                   </TableRow>
                 ))}
                 {data?.pledges.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={7} className="text-center py-8 text-[var(--st-muted)]">
                       No pledges found
                     </TableCell>
                   </TableRow>
@@ -189,16 +190,18 @@ export default function PledgesPage() {
                 variant="outline"
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="py-2 px-4">
+              <span className="py-2 px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 disabled={page === data.totalPages}
                 onClick={() => setPage(page + 1)}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>

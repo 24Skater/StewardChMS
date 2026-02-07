@@ -36,18 +36,20 @@ export default function SongsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Song Library</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">Song Library</h1>
         <Link to="/songs/new">
-          <Button>Add Song</Button>
+          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            Add Song
+          </Button>
         </Link>
       </div>
 
       {/* Search */}
-      <Card className="mb-6">
+      <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
         <CardHeader>
-          <CardTitle className="text-lg">Search</CardTitle>
+          <CardTitle className="text-lg text-[var(--st-fg)]">Search</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -58,10 +60,14 @@ export default function SongsPage() {
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              className="max-w-md"
+              className="max-w-md border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
             />
             {search && (
-              <Button variant="outline" onClick={() => setSearch('')}>
+              <Button 
+                variant="outline" 
+                onClick={() => setSearch('')}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
+              >
                 Clear
               </Button>
             )}
@@ -71,55 +77,55 @@ export default function SongsPage() {
 
       {/* Error state */}
       {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded mb-4">
+        <div className="bg-red-500/10 text-red-500 p-4 rounded-lg border border-red-500/50">
           Error loading songs: {error.message}
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="text-center py-8 text-gray-500">Loading songs...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading songs...</div>
       )}
 
       {/* Songs table */}
       {data && (
         <>
-          <Card>
+          <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Artist</TableHead>
-                  <TableHead>Key</TableHead>
-                  <TableHead>BPM</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Title</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Artist</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Key</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">BPM</TableHead>
+                  <TableHead className="text-right text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.songs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  <TableRow className="border-[var(--st-border)]">
+                    <TableCell colSpan={5} className="text-center py-8 text-[var(--st-muted)]">
                       No songs found
                     </TableCell>
                   </TableRow>
                 ) : (
                   data.songs.map((song) => (
-                    <TableRow key={song.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={song.id} className="border-[var(--st-border)]">
+                      <TableCell className="font-medium text-[var(--st-fg)]">
                         <Link
                           to={`/songs/${song.id}/edit`}
-                          className="text-blue-600 hover:underline"
+                          className="text-[var(--st-link)] hover:underline"
                         >
                           {song.title}
                         </Link>
                       </TableCell>
-                      <TableCell>{song.artist || '-'}</TableCell>
-                      <TableCell>{song.defaultKey || '-'}</TableCell>
-                      <TableCell>{song.bpm || '-'}</TableCell>
+                      <TableCell className="text-[var(--st-fg)]">{song.artist || '-'}</TableCell>
+                      <TableCell className="text-[var(--st-fg)]">{song.defaultKey || '-'}</TableCell>
+                      <TableCell className="text-[var(--st-fg)]">{song.bpm || '-'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Link to={`/songs/${song.id}/edit`}>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="text-[var(--st-muted)] hover:text-[var(--st-fg)]">
                               Edit
                             </Button>
                           </Link>
@@ -127,6 +133,7 @@ export default function SongsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(song.id, song.title)}
+                            className="text-red-500 hover:text-red-400"
                           >
                             Delete
                           </Button>
@@ -146,16 +153,18 @@ export default function SongsPage() {
                 variant="outline"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Previous
               </Button>
-              <span className="flex items-center px-4">
+              <span className="flex items-center px-4 text-[var(--st-fg)]">
                 Page {page} of {data.totalPages}
               </span>
               <Button
                 variant="outline"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Next
               </Button>
@@ -166,4 +175,3 @@ export default function SongsPage() {
     </div>
   )
 }
-

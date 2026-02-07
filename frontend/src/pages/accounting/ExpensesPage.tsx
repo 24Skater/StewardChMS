@@ -55,7 +55,7 @@ export default function ExpensesPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading expenses</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading expenses</div>
   }
 
   return (
@@ -63,7 +63,7 @@ export default function ExpensesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Expenses</h1>
         <Link to="/expenses/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             Add Expense
           </Button>
         </Link>

@@ -86,51 +86,53 @@ export default function SongFormPage() {
 
   if (isEditing && isLoadingSong) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center py-8 text-gray-500">Loading song...</div>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-[var(--st-muted)]">Loading song...</div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-2xl">
-      <Card>
+    <div className="max-w-2xl mx-auto">
+      <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
         <CardHeader>
-          <CardTitle>{isEditing ? 'Edit Song' : 'Add Song'}</CardTitle>
+          <CardTitle className="text-[var(--st-fg)]">{isEditing ? 'Edit Song' : 'Add Song'}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title" className="text-[var(--st-fg)]">Title *</Label>
               <Input
                 id="title"
                 {...register('title')}
                 placeholder="Song title"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
               {errors.title && (
-                <p className="text-sm text-red-600">{errors.title.message}</p>
+                <p className="text-sm text-red-500">{errors.title.message}</p>
               )}
             </div>
 
             {/* Artist */}
             <div className="space-y-2">
-              <Label htmlFor="artist">Artist</Label>
+              <Label htmlFor="artist" className="text-[var(--st-fg)]">Artist</Label>
               <Input
                 id="artist"
                 {...register('artist')}
                 placeholder="Artist or composer"
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
 
             {/* Key and BPM */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="defaultKey">Default Key</Label>
+                <Label htmlFor="defaultKey" className="text-[var(--st-fg)]">Default Key</Label>
                 <select
                   id="defaultKey"
                   {...register('defaultKey')}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-surface)] px-3 py-2 text-sm text-[var(--st-fg)] ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-primary)]"
                 >
                   <option value="">Select key</option>
                   {MUSICAL_KEYS.map((key) => (
@@ -141,7 +143,7 @@ export default function SongFormPage() {
                 </select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bpm">BPM</Label>
+                <Label htmlFor="bpm" className="text-[var(--st-fg)]">BPM</Label>
                 <Input
                   id="bpm"
                   type="number"
@@ -149,30 +151,37 @@ export default function SongFormPage() {
                   max={300}
                   {...register('bpm')}
                   placeholder="Beats per minute"
+                  className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
                 />
               </div>
             </div>
 
             {/* Lyrics */}
             <div className="space-y-2">
-              <Label htmlFor="lyrics">Lyrics</Label>
+              <Label htmlFor="lyrics" className="text-[var(--st-fg)]">Lyrics</Label>
               <Textarea
                 id="lyrics"
                 {...register('lyrics')}
                 placeholder="Song lyrics..."
                 rows={10}
+                className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]"
               />
             </div>
 
             {/* Actions */}
             <div className="flex gap-4">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              >
                 {isSubmitting ? 'Saving...' : isEditing ? 'Update Song' : 'Add Song'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/songs')}
+                className="border-[var(--st-border)] text-[var(--st-fg)]"
               >
                 Cancel
               </Button>
@@ -183,4 +192,3 @@ export default function SongFormPage() {
     </div>
   )
 }
-

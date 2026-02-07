@@ -83,9 +83,9 @@ export default function InventoryPage() {
   }
 
   const getStockStatusColor = (onHand: number) => {
-    if (onHand <= 0) return 'text-red-400 bg-red-500/20'
-    if (onHand <= 5) return 'text-amber-400 bg-amber-500/20'
-    return 'text-emerald-400 bg-emerald-500/20'
+    if (onHand <= 0) return 'text-[var(--st-color-danger)] bg-[var(--st-color-danger)]/20'
+    if (onHand <= 5) return 'text-[var(--st-color-warning)] bg-[var(--st-color-warning)]/20'
+    return 'text-[var(--st-color-success)] bg-[var(--st-color-success)]/20'
   }
 
   return (
@@ -102,7 +102,7 @@ export default function InventoryPage() {
             />
             Show inactive products
           </label>
-          <Button onClick={() => openAdjustDialog()} className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button onClick={() => openAdjustDialog()} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             <Plus className="h-4 w-4 mr-2" /> Adjust Inventory
           </Button>
         </div>
@@ -135,7 +135,7 @@ export default function InventoryPage() {
                   <TableRow key={item.productId} className={`border-[var(--st-border)] ${!item.isActive ? 'opacity-50' : ''}`}>
                     <TableCell className="font-medium text-[var(--st-fg)]">{item.productName}</TableCell>
                     <TableCell className="text-[var(--st-muted)]">{item.sku || '-'}</TableCell>
-                    <TableCell className="text-right text-emerald-500 font-medium">{formatCents(item.priceCents)}</TableCell>
+                    <TableCell className="text-right text-[var(--st-color-success)] font-medium">{formatCents(item.priceCents)}</TableCell>
                     <TableCell className="text-right">
                       <span className={`px-2 py-1 rounded font-medium ${getStockStatusColor(item.onHand)}`}>
                         {item.onHand}
@@ -143,7 +143,7 @@ export default function InventoryPage() {
                     </TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs ${
-                        item.isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
+                        item.isActive ? 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]' : 'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
                       }`}>
                         {item.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -236,7 +236,7 @@ export default function InventoryPage() {
               <Button
                 type="submit"
                 disabled={adjustMutation.isPending || !adjustForm.productId || adjustForm.quantityDelta === 0}
-                className="bg-[var(--st-primary)] text-white"
+                className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]"
               >
                 Adjust
               </Button>
@@ -274,16 +274,16 @@ export default function InventoryPage() {
                       <TableCell className="text-sm text-[var(--st-fg)]">{formatDate(tx.createdAt)}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded text-xs ${
-                          tx.type === 'sale' ? 'bg-blue-500/20 text-blue-400' :
-                          tx.type === 'return' ? 'bg-emerald-500/20 text-emerald-400' :
-                          tx.type === 'purchase' ? 'bg-purple-500/20 text-purple-400' :
+                          tx.type === 'sale' ? 'bg-[var(--st-primary)]/20 text-[var(--st-primary)]' :
+                          tx.type === 'return' ? 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]' :
+                          tx.type === 'purchase' ? 'bg-[var(--st-color-warning)]/20 text-[var(--st-color-warning)]' :
                           'bg-[var(--st-muted)]/20 text-[var(--st-muted)]'
                         }`}>
                           {tx.type}
                         </span>
                       </TableCell>
                       <TableCell className={`text-right font-medium ${
-                        tx.quantityDelta > 0 ? 'text-emerald-500' : 'text-red-500'
+                        tx.quantityDelta > 0 ? 'text-[var(--st-color-success)]' : 'text-[var(--st-color-danger)]'
                       }`}>
                         {tx.quantityDelta > 0 ? '+' : ''}{tx.quantityDelta}
                       </TableCell>

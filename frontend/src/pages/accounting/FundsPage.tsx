@@ -84,35 +84,37 @@ export default function FundsPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error loading funds</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading funds</div>
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Funds</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[var(--st-fg)]">Funds</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleOpenCreate}>Add Fund</Button>
+            <Button onClick={handleOpenCreate} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Add Fund</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
             <DialogHeader>
-              <DialogTitle>{editingFund ? 'Edit Fund' : 'Add Fund'}</DialogTitle>
+              <DialogTitle className="text-[var(--st-fg)]">{editingFund ? 'Edit Fund' : 'Add Fund'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label>Fund Name *</Label>
+                <Label className="text-[var(--st-fg)]">Fund Name *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div>
-                <Label>Description</Label>
+                <Label className="text-[var(--st-fg)]">Description</Label>
                 <Input
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -123,13 +125,13 @@ export default function FundsPage() {
                     setFormData({ ...formData, isRestricted: !!checked })
                   }
                 />
-                <Label htmlFor="isRestricted">Restricted Fund</Label>
+                <Label htmlFor="isRestricted" className="text-[var(--st-fg)]">Restricted Fund</Label>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="border-[var(--st-border)] text-[var(--st-fg)]">
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
                   {editingFund ? 'Update' : 'Create'}
                 </Button>
               </div>
@@ -139,30 +141,31 @@ export default function FundsPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="text-center py-8 text-[var(--st-muted)]">Loading...</div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border border-[var(--st-border)] rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Restricted</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="border-[var(--st-border)]">
+                <TableHead className="text-[var(--st-muted)]">Name</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Description</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Restricted</TableHead>
+                <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.funds.map((fund) => (
-                <TableRow key={fund.id}>
-                  <TableCell className="font-medium">{fund.name}</TableCell>
-                  <TableCell>{fund.description || '-'}</TableCell>
-                  <TableCell>{fund.isRestricted ? 'Yes' : 'No'}</TableCell>
+                <TableRow key={fund.id} className="border-[var(--st-border)]">
+                  <TableCell className="font-medium text-[var(--st-fg)]">{fund.name}</TableCell>
+                  <TableCell className="text-[var(--st-muted)]">{fund.description || '-'}</TableCell>
+                  <TableCell className="text-[var(--st-fg)]">{fund.isRestricted ? 'Yes' : 'No'}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenEdit(fund)}
+                        className="border-[var(--st-border)] text-[var(--st-fg)]"
                       >
                         Edit
                       </Button>
@@ -178,8 +181,8 @@ export default function FundsPage() {
                 </TableRow>
               ))}
               {data?.funds.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                <TableRow className="border-[var(--st-border)]">
+                  <TableCell colSpan={4} className="text-center py-8 text-[var(--st-muted)]">
                     No funds found. Create your first fund to get started.
                   </TableCell>
                 </TableRow>

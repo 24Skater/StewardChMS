@@ -72,7 +72,7 @@ function PaymentForm({
       <PaymentElement />
       <Button
         type="submit"
-        className="w-full h-12 text-lg"
+        className="w-full h-12 text-lg bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
         disabled={!stripe || isProcessing}
       >
         {isProcessing ? 'Processing...' : 'Complete Donation'}
@@ -179,10 +179,10 @@ export default function GivingPortalPage() {
 
   if (loadingConfig) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-[var(--st-color-success)] via-[var(--st-primary)] to-[var(--st-primary-hover)] flex items-center justify-center">
+        <Card className="w-full max-w-md border-[var(--st-border)] bg-[var(--st-surface)]">
           <CardContent className="py-12 text-center">
-            <div className="animate-pulse text-xl">Loading...</div>
+            <div className="animate-pulse text-xl text-[var(--st-fg)]">Loading...</div>
           </CardContent>
         </Card>
       </div>
@@ -191,11 +191,11 @@ export default function GivingPortalPage() {
 
   if (!config?.givingEnabled || !config.stripePublicKey) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-[var(--st-color-success)] via-[var(--st-primary)] to-[var(--st-primary-hover)] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-[var(--st-border)] bg-[var(--st-surface)]">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Online Giving</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-[var(--st-fg)]">Online Giving</CardTitle>
+            <CardDescription className="text-[var(--st-muted)]">
               Online giving is currently not available. Please contact the church office for other giving options.
             </CardDescription>
           </CardHeader>
@@ -205,16 +205,16 @@ export default function GivingPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-2xl">
-        <CardHeader className="text-center border-b pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--st-color-success)] via-[var(--st-primary)] to-[var(--st-primary-hover)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg shadow-2xl border-[var(--st-border)] bg-[var(--st-surface)]">
+        <CardHeader className="text-center border-b border-[var(--st-border)] pb-6">
           <div className="text-4xl mb-2">💝</div>
-          <CardTitle className="text-2xl">{config.churchName}</CardTitle>
-          <CardDescription className="text-lg">Online Giving Portal</CardDescription>
+          <CardTitle className="text-2xl text-[var(--st-fg)]">{config.churchName}</CardTitle>
+          <CardDescription className="text-lg text-[var(--st-muted)]">Online Giving Portal</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg">
+            <div className="mb-6 p-4 bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)] rounded-lg border border-[var(--st-color-danger)]/30">
               {error}
             </div>
           )}
@@ -223,13 +223,13 @@ export default function GivingPortalPage() {
           {step === 'amount' && (
             <div className="space-y-6">
               <div>
-                <Label className="text-base">Select Amount</Label>
+                <Label className="text-base text-[var(--st-fg)]">Select Amount</Label>
                 <div className="grid grid-cols-3 gap-3 mt-3">
                   {SUGGESTED_AMOUNTS.map((cents) => (
                     <Button
                       key={cents}
                       variant={amount === cents * 100 ? 'default' : 'outline'}
-                      className="h-14 text-lg"
+                      className={`h-14 text-lg ${amount === cents * 100 ? 'bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]' : 'border-[var(--st-border)] text-[var(--st-fg)]'}`}
                       onClick={() => handleAmountSelect(cents * 100)}
                     >
                       ${cents}
@@ -239,9 +239,9 @@ export default function GivingPortalPage() {
               </div>
 
               <div>
-                <Label htmlFor="customAmount">Or enter custom amount</Label>
+                <Label htmlFor="customAmount" className="text-[var(--st-fg)]">Or enter custom amount</Label>
                 <div className="relative mt-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-[var(--st-muted)]">$</span>
                   <Input
                     id="customAmount"
                     type="number"
@@ -250,16 +250,16 @@ export default function GivingPortalPage() {
                     value={customAmount}
                     onChange={(e) => handleCustomAmountChange(e.target.value)}
                     placeholder="0.00"
-                    className="pl-8 h-14 text-xl"
+                    className="pl-8 h-14 text-xl bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   />
                 </div>
               </div>
 
               {config.funds.length > 0 && (
                 <div>
-                  <Label htmlFor="fund">Designate to Fund (optional)</Label>
+                  <Label htmlFor="fund" className="text-[var(--st-fg)]">Designate to Fund (optional)</Label>
                   <Select value={selectedFund} onValueChange={setSelectedFund}>
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className="mt-2 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
                       <SelectValue placeholder="Select a fund..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -267,7 +267,7 @@ export default function GivingPortalPage() {
                         <SelectItem key={fund.id} value={fund.id}>
                           {fund.name}
                           {fund.description && (
-                            <span className="text-muted-foreground ml-2">
+                            <span className="text-[var(--st-muted)] ml-2">
                               - {fund.description}
                             </span>
                           )}
@@ -279,14 +279,14 @@ export default function GivingPortalPage() {
               )}
 
               {amount > 0 && (
-                <div className="text-center py-4 bg-muted rounded-lg">
-                  <div className="text-sm text-muted-foreground">Donation Amount</div>
-                  <div className="text-3xl font-bold">{formatCurrency(amount)}</div>
+                <div className="text-center py-4 bg-[var(--st-border)]/30 rounded-lg">
+                  <div className="text-sm text-[var(--st-muted)]">Donation Amount</div>
+                  <div className="text-3xl font-bold text-[var(--st-fg)]">{formatCurrency(amount)}</div>
                 </div>
               )}
 
               <Button
-                className="w-full h-12 text-lg"
+                className="w-full h-12 text-lg bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                 onClick={handleContinueToDetails}
                 disabled={amount < 100}
               >
@@ -298,46 +298,46 @@ export default function GivingPortalPage() {
           {/* Step 2: Donor Details */}
           {step === 'details' && (
             <div className="space-y-6">
-              <div className="text-center py-4 bg-muted rounded-lg mb-6">
-                <div className="text-sm text-muted-foreground">Donation Amount</div>
-                <div className="text-2xl font-bold">{formatCurrency(amount)}</div>
-                <Button variant="link" onClick={() => setStep('amount')}>
+              <div className="text-center py-4 bg-[var(--st-border)]/30 rounded-lg mb-6">
+                <div className="text-sm text-[var(--st-muted)]">Donation Amount</div>
+                <div className="text-2xl font-bold text-[var(--st-fg)]">{formatCurrency(amount)}</div>
+                <Button variant="link" onClick={() => setStep('amount')} className="text-[var(--st-primary)]">
                   Change amount
                 </Button>
               </div>
 
               <div>
-                <Label htmlFor="name">Name (optional)</Label>
+                <Label htmlFor="name" className="text-[var(--st-fg)]">Name (optional)</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="mt-2"
+                  className="mt-2 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 />
               </div>
 
               <div>
-                <Label htmlFor="email">Email (for receipt) *</Label>
+                <Label htmlFor="email" className="text-[var(--st-fg)]">Email (for receipt) *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="mt-2"
+                  className="mt-2 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="note">Note (optional)</Label>
+                <Label htmlFor="note" className="text-[var(--st-fg)]">Note (optional)</Label>
                 <Textarea
                   id="note"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Add a note to your donation..."
-                  className="mt-2"
+                  className="mt-2 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                   rows={3}
                 />
               </div>
@@ -345,13 +345,13 @@ export default function GivingPortalPage() {
               <div className="flex gap-4">
                 <Button
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-[var(--st-border)] text-[var(--st-fg)]"
                   onClick={() => setStep('amount')}
                 >
                   Back
                 </Button>
                 <Button
-                  className="flex-1"
+                  className="flex-1 bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                   onClick={handleContinueToPayment}
                   disabled={createPaymentIntent.isPending}
                 >
@@ -364,9 +364,9 @@ export default function GivingPortalPage() {
           {/* Step 3: Payment */}
           {step === 'payment' && clientSecret && stripePromise && (
             <div className="space-y-6">
-              <div className="text-center py-4 bg-muted rounded-lg mb-6">
-                <div className="text-sm text-muted-foreground">Donation Amount</div>
-                <div className="text-2xl font-bold">{formatCurrency(amount)}</div>
+              <div className="text-center py-4 bg-[var(--st-border)]/30 rounded-lg mb-6">
+                <div className="text-sm text-[var(--st-muted)]">Donation Amount</div>
+                <div className="text-2xl font-bold text-[var(--st-fg)]">{formatCurrency(amount)}</div>
               </div>
 
               <Elements
@@ -375,9 +375,6 @@ export default function GivingPortalPage() {
                   clientSecret,
                   appearance: {
                     theme: 'stripe',
-                    variables: {
-                      colorPrimary: '#059669',
-                    },
                   },
                 }}
               >
@@ -389,7 +386,7 @@ export default function GivingPortalPage() {
 
               <Button
                 variant="ghost"
-                className="w-full"
+                className="w-full text-[var(--st-muted)] hover:text-[var(--st-fg)]"
                 onClick={() => setStep('details')}
               >
                 ← Back to Details
@@ -402,15 +399,15 @@ export default function GivingPortalPage() {
             <div className="text-center space-y-6 py-8">
               <div className="text-6xl">🙏</div>
               <div>
-                <h2 className="text-2xl font-bold text-green-600">Thank You!</h2>
-                <p className="text-muted-foreground mt-2">
+                <h2 className="text-2xl font-bold text-[var(--st-color-success)]">Thank You!</h2>
+                <p className="text-[var(--st-muted)] mt-2">
                   Your donation of {formatCurrency(amount)} has been received.
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-[var(--st-muted)] mt-1">
                   A receipt has been sent to {email}
                 </p>
               </div>
-              <Button onClick={handleStartOver} variant="outline">
+              <Button onClick={handleStartOver} variant="outline" className="border-[var(--st-border)] text-[var(--st-fg)]">
                 Make Another Donation
               </Button>
             </div>

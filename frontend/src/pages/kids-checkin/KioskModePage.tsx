@@ -225,11 +225,11 @@ export default function KioskModePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
-      <Card className="w-full max-w-xl shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--st-primary)] via-purple-600 to-[var(--st-color-success)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-xl shadow-2xl bg-[var(--st-surface)] border-[var(--st-border)]">
         <CardHeader className="text-center pb-2">
-          <CardTitle className="text-3xl font-bold">Kids Check-In</CardTitle>
-          <CardDescription className="text-lg">
+          <CardTitle className="text-3xl font-bold text-[var(--st-fg)]">Kids Check-In</CardTitle>
+          <CardDescription className="text-lg text-[var(--st-muted)]">
             {step === 'phone' && 'Enter your phone number to get started'}
             {step === 'select-child' && 'Select your child'}
             {step === 'select-event' && 'Select the event'}
@@ -240,7 +240,7 @@ export default function KioskModePage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {error && (
-            <div className="bg-red-100 text-red-800 p-4 rounded-lg text-center text-lg">
+            <div className="bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)] p-4 rounded-lg text-center text-lg border border-[var(--st-color-danger)]/30">
               {error}
             </div>
           )}
@@ -253,7 +253,7 @@ export default function KioskModePage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                 placeholder="(555) 123-4567"
-                className="text-3xl text-center h-20 tracking-wider"
+                className="text-3xl text-center h-20 tracking-wider bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 maxLength={10}
                 autoFocus
               />
@@ -262,7 +262,7 @@ export default function KioskModePage() {
                   <Button
                     key={i}
                     variant={num === '' ? 'ghost' : 'outline'}
-                    className="h-16 text-2xl font-bold"
+                    className="h-16 text-2xl font-bold border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                     disabled={num === ''}
                     onClick={() => {
                       if (num === '⌫') {
@@ -278,7 +278,7 @@ export default function KioskModePage() {
               </div>
               <div className="flex gap-4">
                 <Button
-                  className="flex-1 h-16 text-xl"
+                  className="flex-1 h-16 text-xl bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                   onClick={handlePhoneSubmit}
                   disabled={phoneNumber.length < 10 || loading}
                 >
@@ -286,7 +286,7 @@ export default function KioskModePage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-16 text-xl px-8"
+                  className="h-16 text-xl px-8 border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                   onClick={() => setStep('checkout')}
                 >
                   Check Out
@@ -302,23 +302,23 @@ export default function KioskModePage() {
                 <Button
                   key={child.id}
                   variant="outline"
-                  className="w-full h-20 text-xl justify-start px-6"
+                  className="w-full h-20 text-xl justify-start px-6 border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                   onClick={() => handleChildSelect(child)}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+                    <div className="w-12 h-12 rounded-full bg-[var(--st-primary)]/10 flex items-center justify-center text-2xl text-[var(--st-primary)]">
                       {child.firstName[0]}
                     </div>
                     <div className="text-left">
                       <div className="font-bold">{child.firstName} {child.lastName}</div>
                       {child.allergies && (
-                        <div className="text-sm text-red-600">⚠️ Allergies</div>
+                        <div className="text-sm text-[var(--st-color-danger)]">⚠️ Allergies</div>
                       )}
                     </div>
                   </div>
                 </Button>
               ))}
-              <Button variant="ghost" className="w-full" onClick={resetToStart}>
+              <Button variant="ghost" className="w-full text-[var(--st-muted)] hover:text-[var(--st-fg)]" onClick={resetToStart}>
                 ← Back
               </Button>
             </div>
@@ -331,13 +331,13 @@ export default function KioskModePage() {
                 <Button
                   key={occ.id}
                   variant="outline"
-                  className="w-full h-16 text-lg"
+                  className="w-full h-16 text-lg border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                   onClick={() => handleEventSelect(occ)}
                 >
                   {occ.event.title} - {new Date(occ.startsAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                 </Button>
               ))}
-              <Button variant="ghost" className="w-full" onClick={() => setStep('select-child')}>
+              <Button variant="ghost" className="w-full text-[var(--st-muted)] hover:text-[var(--st-fg)]" onClick={() => setStep('select-child')}>
                 ← Back
               </Button>
             </div>
@@ -346,27 +346,27 @@ export default function KioskModePage() {
           {/* Confirmation */}
           {step === 'confirm' && selectedChild && selectedOccurrence && (
             <div className="space-y-6">
-              <div className="bg-muted p-6 rounded-lg space-y-2">
-                <div className="text-2xl font-bold text-center">
+              <div className="bg-[var(--st-surface-muted)] border border-[var(--st-border)] p-6 rounded-lg space-y-2">
+                <div className="text-2xl font-bold text-center text-[var(--st-fg)]">
                   {selectedChild.firstName} {selectedChild.lastName}
                 </div>
-                <div className="text-lg text-center text-muted-foreground">
+                <div className="text-lg text-center text-[var(--st-muted)]">
                   {selectedOccurrence.event.title}
                 </div>
                 {selectedChild.allergies && (
-                  <div className="bg-red-100 text-red-800 p-3 rounded-lg text-center">
+                  <div className="bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)] p-3 rounded-lg text-center border border-[var(--st-color-danger)]/30">
                     ⚠️ Allergies: {selectedChild.allergies}
                   </div>
                 )}
               </div>
               <Button
-                className="w-full h-16 text-xl"
+                className="w-full h-16 text-xl bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                 onClick={handleCheckIn}
                 disabled={loading}
               >
                 {loading ? 'Checking in...' : 'Confirm Check-In'}
               </Button>
-              <Button variant="ghost" className="w-full" onClick={() => setStep('select-child')}>
+              <Button variant="ghost" className="w-full text-[var(--st-muted)] hover:text-[var(--st-fg)]" onClick={() => setStep('select-child')}>
                 ← Back
               </Button>
             </div>
@@ -375,17 +375,17 @@ export default function KioskModePage() {
           {/* Complete - Show Label */}
           {step === 'complete' && labelData && (
             <div className="space-y-6">
-              <div className="text-center text-green-600 text-xl font-bold">
+              <div className="text-center text-[var(--st-color-success)] text-xl font-bold">
                 ✓ Check-in successful!
               </div>
               <div ref={labelRef}>
                 <Label data={labelData} />
               </div>
               <div className="flex gap-4">
-                <Button className="flex-1 h-16 text-lg" onClick={() => handlePrint()}>
+                <Button className="flex-1 h-16 text-lg bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]" onClick={() => handlePrint()}>
                   Print Label
                 </Button>
-                <Button variant="outline" className="flex-1 h-16 text-lg" onClick={resetToStart}>
+                <Button variant="outline" className="flex-1 h-16 text-lg border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]" onClick={resetToStart}>
                   Done
                 </Button>
               </div>
@@ -399,18 +399,18 @@ export default function KioskModePage() {
                 value={checkoutCode}
                 onChange={(e) => setCheckoutCode(e.target.value.toUpperCase().slice(0, 4))}
                 placeholder="XXXX"
-                className="text-4xl text-center h-20 tracking-[0.5em] font-mono"
+                className="text-4xl text-center h-20 tracking-[0.5em] font-mono bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
                 maxLength={4}
                 autoFocus
               />
               <Button
-                className="w-full h-16 text-xl"
+                className="w-full h-16 text-xl bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
                 onClick={handleCheckout}
                 disabled={checkoutCode.length !== 4 || loading}
               >
                 {loading ? 'Checking out...' : 'Check Out'}
               </Button>
-              <Button variant="ghost" className="w-full" onClick={resetToStart}>
+              <Button variant="ghost" className="w-full text-[var(--st-muted)] hover:text-[var(--st-fg)]" onClick={resetToStart}>
                 ← Back to Check-In
               </Button>
             </div>
@@ -420,10 +420,10 @@ export default function KioskModePage() {
 
       {/* Print Dialog (hidden) */}
       <Dialog open={false}>
-        <DialogContent>
+        <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
           <DialogHeader>
-            <DialogTitle>Print Label</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[var(--st-fg)]">Print Label</DialogTitle>
+            <DialogDescription className="text-[var(--st-muted)]">
               Click print to print the check-in label
             </DialogDescription>
           </DialogHeader>

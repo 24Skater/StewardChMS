@@ -55,7 +55,7 @@ export default function DonationsPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Donations</h1>
-        <div className="p-6 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400">
+        <div className="p-6 rounded-lg border border-[var(--st-color-danger)]/30 bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)]">
           <p className="font-medium">Error loading donations</p>
           <p className="text-sm mt-1 opacity-80">Please try refreshing the page or logging out and back in.</p>
         </div>
@@ -68,7 +68,7 @@ export default function DonationsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Donations</h1>
         <Link to="/giving/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             Add Donation
           </Button>
         </Link>
@@ -150,7 +150,7 @@ export default function DonationsPage() {
                         ? `${donation.member.firstName} ${donation.member.lastName}`
                         : donation.guestName || 'Anonymous'}
                     </TableCell>
-                    <TableCell className="font-semibold text-emerald-500">
+                    <TableCell className="font-semibold text-[var(--st-color-success)]">
                       {formatCents(donation.amountCents)}
                     </TableCell>
                     <TableCell className="capitalize text-[var(--st-muted)]">{donation.method}</TableCell>

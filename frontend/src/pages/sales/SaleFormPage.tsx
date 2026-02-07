@@ -195,7 +195,7 @@ export default function SaleFormPage() {
                 type="button"
                 onClick={addItem}
                 disabled={!selectedProductId}
-                className="w-full bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="w-full bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
@@ -246,7 +246,7 @@ export default function SaleFormPage() {
                         size="sm"
                         onClick={() => removeItem(index)}
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4 text-[var(--st-color-danger)]" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -297,7 +297,7 @@ export default function SaleFormPage() {
           <Button
             type="submit"
             disabled={createMutation.isPending || items.length === 0}
-            className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+            className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
           >
             {createMutation.isPending ? 'Processing...' : 'Complete Sale'}
           </Button>

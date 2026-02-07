@@ -84,87 +84,91 @@ export default function TemplateFormPage() {
   if (isEditing && isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="animate-pulse">Loading template...</div>
+        <div className="animate-pulse text-[var(--st-muted)]">Loading template...</div>
       </div>
     )
   }
 
   return (
     <div className="container mx-auto py-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-3xl font-bold mb-6 text-[var(--st-fg)]">
         {isEditing ? 'Edit Template' : 'Create Template'}
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Template Name</Label>
+          <Label htmlFor="name" className="text-[var(--st-fg)]">Template Name</Label>
           <Input
             id="name"
             {...register('name')}
             placeholder="e.g., Welcome Email, Event Reminder"
+            className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
           {errors.name && (
-            <p className="text-sm text-red-500">{errors.name.message}</p>
+            <p className="text-sm text-[var(--st-color-danger)]">{errors.name.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="channel">Channel</Label>
+          <Label htmlFor="channel" className="text-[var(--st-fg)]">Channel</Label>
           <Select
             value={channel}
             onValueChange={(value) => setValue('channel', value as 'email' | 'sms')}
           >
-            <SelectTrigger>
+            <SelectTrigger className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="Select channel" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="email">📧 Email</SelectItem>
-              <SelectItem value="sms">📱 SMS</SelectItem>
+            <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
+              <SelectItem value="email" className="text-[var(--st-fg)]">📧 Email</SelectItem>
+              <SelectItem value="sms" className="text-[var(--st-fg)]">📱 SMS</SelectItem>
             </SelectContent>
           </Select>
           {errors.channel && (
-            <p className="text-sm text-red-500">{errors.channel.message}</p>
+            <p className="text-sm text-[var(--st-color-danger)]">{errors.channel.message}</p>
           )}
         </div>
 
         {channel === 'email' && (
           <div className="space-y-2">
-            <Label htmlFor="subject">Subject Line</Label>
+            <Label htmlFor="subject" className="text-[var(--st-fg)]">Subject Line</Label>
             <Input
               id="subject"
               {...register('subject')}
               placeholder="e.g., Welcome to Our Church!"
+              className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
             />
             {errors.subject && (
-              <p className="text-sm text-red-500">{errors.subject.message}</p>
+              <p className="text-sm text-[var(--st-color-danger)]">{errors.subject.message}</p>
             )}
           </div>
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="body">Message Body</Label>
+          <Label htmlFor="body" className="text-[var(--st-fg)]">Message Body</Label>
           <Textarea
             id="body"
             {...register('body')}
             placeholder="Write your message here..."
             rows={8}
+            className="bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
           />
           {errors.body && (
-            <p className="text-sm text-red-500">{errors.body.message}</p>
+            <p className="text-sm text-[var(--st-color-danger)]">{errors.body.message}</p>
           )}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-[var(--st-muted)]">
             Available variables: {'{{firstName}}'}, {'{{lastName}}'}, {'{{email}}'}
           </p>
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             {isSubmitting ? 'Saving...' : isEditing ? 'Update Template' : 'Create Template'}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate('/communications/templates')}
+            className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
           >
             Cancel
           </Button>

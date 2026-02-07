@@ -29,12 +29,12 @@ function formatDate(dateStr: string): string {
 }
 
 const statusColors: Record<PurchaseOrderStatus, string> = {
-  draft: 'bg-gray-500/20 text-gray-400',
-  submitted: 'bg-yellow-500/20 text-yellow-400',
-  approved: 'bg-green-500/20 text-green-400',
-  rejected: 'bg-red-500/20 text-red-400',
-  closed: 'bg-blue-500/20 text-blue-400',
-  void: 'bg-gray-500/20 text-gray-500',
+  draft: 'bg-[var(--st-border)] text-[var(--st-muted)]',
+  submitted: 'bg-[var(--st-color-warning)]/20 text-[var(--st-color-warning)]',
+  approved: 'bg-[var(--st-color-success)]/20 text-[var(--st-color-success)]',
+  rejected: 'bg-[var(--st-color-danger)]/20 text-[var(--st-color-danger)]',
+  closed: 'bg-[var(--st-primary)]/20 text-[var(--st-primary)]',
+  void: 'bg-[var(--st-border)] text-[var(--st-muted)]',
 }
 
 export default function PurchaseOrdersPage() {
@@ -59,7 +59,7 @@ export default function PurchaseOrdersPage() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading purchase orders</div>
+    return <div className="p-4 text-[var(--st-color-danger)]">Error loading purchase orders</div>
   }
 
   return (
@@ -67,7 +67,7 @@ export default function PurchaseOrdersPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Purchase Orders</h1>
         <Link to="/purchase-orders/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
             Create PO
           </Button>
         </Link>

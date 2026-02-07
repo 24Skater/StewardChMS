@@ -35,7 +35,7 @@ export default function MessageDetailPage() {
   if (messageLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="animate-pulse">Loading message...</div>
+        <div className="animate-pulse text-[var(--st-muted)]">Loading message...</div>
       </div>
     )
   }
@@ -43,7 +43,7 @@ export default function MessageDetailPage() {
   if (!message) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-red-500">Message not found</div>
+        <div className="text-[var(--st-color-danger)]">Message not found</div>
       </div>
     )
   }
@@ -51,55 +51,55 @@ export default function MessageDetailPage() {
   const getStatusBadge = (status: DeliveryStatus) => {
     switch (status) {
       case 'sent':
-        return <Badge className="bg-green-500">Sent</Badge>
+        return <Badge className="bg-[var(--st-color-success)] text-white">Sent</Badge>
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>
+        return <Badge variant="secondary" className="bg-[var(--st-color-warning)] text-black">Pending</Badge>
       case 'failed':
-        return <Badge variant="destructive">Failed</Badge>
+        return <Badge variant="destructive" className="bg-[var(--st-color-danger)]">Failed</Badge>
     }
   }
 
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Message Details</h1>
+        <h1 className="text-3xl font-bold text-[var(--st-fg)]">Message Details</h1>
         <Link to="/communications">
-          <Button variant="outline">Back to Messages</Button>
+          <Button variant="outline" className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">Back to Messages</Button>
         </Link>
       </div>
 
       {/* Message Info */}
-      <div className="bg-card border rounded-lg p-6 mb-6">
+      <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg p-6 mb-6">
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <span className="text-muted-foreground">Channel:</span>
+            <span className="text-[var(--st-muted)]">Channel:</span>
             <Badge className="ml-2" variant={message.channel === 'email' ? 'default' : 'secondary'}>
               {message.channel === 'email' ? '📧 Email' : '📱 SMS'}
             </Badge>
           </div>
           <div>
-            <span className="text-muted-foreground">Sent:</span>
-            <span className="ml-2">
+            <span className="text-[var(--st-muted)]">Sent:</span>
+            <span className="ml-2 text-[var(--st-fg)]">
               {new Date(message.createdAt).toLocaleString()}
             </span>
           </div>
           <div>
-            <span className="text-muted-foreground">Sent By:</span>
-            <span className="ml-2">
+            <span className="text-[var(--st-muted)]">Sent By:</span>
+            <span className="ml-2 text-[var(--st-fg)]">
               {message.createdByUser?.name || message.createdByUser?.email || 'Unknown'}
             </span>
           </div>
           {message.subject && (
             <div>
-              <span className="text-muted-foreground">Subject:</span>
-              <span className="ml-2 font-medium">{message.subject}</span>
+              <span className="text-[var(--st-muted)]">Subject:</span>
+              <span className="ml-2 font-medium text-[var(--st-fg)]">{message.subject}</span>
             </div>
           )}
         </div>
         
         <div>
-          <span className="text-muted-foreground block mb-2">Message:</span>
-          <div className="bg-muted p-4 rounded whitespace-pre-wrap">
+          <span className="text-[var(--st-muted)] block mb-2">Message:</span>
+          <div className="bg-[var(--st-surface-muted)] border border-[var(--st-border)] p-4 rounded whitespace-pre-wrap text-[var(--st-fg)]">
             {message.body}
           </div>
         </div>
@@ -108,29 +108,29 @@ export default function MessageDetailPage() {
       {/* Delivery Stats */}
       {stats && (
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-card border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-muted-foreground">Total</div>
+          <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-[var(--st-fg)]">{stats.total}</div>
+            <div className="text-[var(--st-muted)]">Total</div>
           </div>
-          <div className="bg-card border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-500">{stats.sent}</div>
-            <div className="text-muted-foreground">Sent</div>
+          <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-[var(--st-color-success)]">{stats.sent}</div>
+            <div className="text-[var(--st-muted)]">Sent</div>
           </div>
-          <div className="bg-card border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-500">{stats.pending}</div>
-            <div className="text-muted-foreground">Pending</div>
+          <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-[var(--st-color-warning)]">{stats.pending}</div>
+            <div className="text-[var(--st-muted)]">Pending</div>
           </div>
-          <div className="bg-card border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-red-500">{stats.failed}</div>
-            <div className="text-muted-foreground">Failed</div>
+          <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-[var(--st-color-danger)]">{stats.failed}</div>
+            <div className="text-[var(--st-muted)]">Failed</div>
           </div>
         </div>
       )}
 
       {/* Recipients */}
-      <div className="bg-card border rounded-lg">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Recipients</h2>
+      <div className="bg-[var(--st-surface)] border border-[var(--st-border)] rounded-lg">
+        <div className="p-4 border-b border-[var(--st-border)] flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-[var(--st-fg)]">Recipients</h2>
           <Select
             value={statusFilter || 'all'}
             onValueChange={(value) => {
@@ -138,50 +138,50 @@ export default function MessageDetailPage() {
               setPage(1)
             }}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="sent">Sent</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
+            <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
+              <SelectItem value="all" className="text-[var(--st-fg)]">All statuses</SelectItem>
+              <SelectItem value="sent" className="text-[var(--st-fg)]">Sent</SelectItem>
+              <SelectItem value="pending" className="text-[var(--st-fg)]">Pending</SelectItem>
+              <SelectItem value="failed" className="text-[var(--st-fg)]">Failed</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {recipientsLoading ? (
-          <div className="p-4 animate-pulse">Loading recipients...</div>
+          <div className="p-4 animate-pulse text-[var(--st-muted)]">Loading recipients...</div>
         ) : (
           <>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Recipient</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Delivered At</TableHead>
-                  <TableHead>Error</TableHead>
+                <TableRow className="border-[var(--st-border)]">
+                  <TableHead className="text-[var(--st-muted)]">Recipient</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Contact</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Status</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Delivered At</TableHead>
+                  <TableHead className="text-[var(--st-muted)]">Error</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recipients?.recipients.map((recipient) => (
-                  <TableRow key={recipient.id}>
+                  <TableRow key={recipient.id} className="border-[var(--st-border)]">
                     <TableCell>
                       {recipient.member ? (
                         <Link 
                           to={`/members/${recipient.member.id}`}
-                          className="text-primary hover:underline"
+                          className="text-[var(--st-primary)] hover:underline"
                         >
                           {recipient.member.firstName} {recipient.member.lastName}
                         </Link>
                       ) : recipient.guestContact?.name ? (
-                        <span>{recipient.guestContact.name}</span>
+                        <span className="text-[var(--st-fg)]">{recipient.guestContact.name}</span>
                       ) : (
-                        <span className="text-muted-foreground">Guest</span>
+                        <span className="text-[var(--st-muted)]">Guest</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-[var(--st-muted)]">
                       {message.channel === 'email'
                         ? recipient.member?.email || recipient.guestContact?.email
                         : recipient.member?.phone || recipient.guestContact?.phone}
@@ -189,12 +189,12 @@ export default function MessageDetailPage() {
                     <TableCell>
                       {getStatusBadge(recipient.deliveryStatus)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-[var(--st-fg)]">
                       {recipient.deliveredAt
                         ? new Date(recipient.deliveredAt).toLocaleString()
                         : '-'}
                     </TableCell>
-                    <TableCell className="text-red-500 max-w-[200px] truncate">
+                    <TableCell className="text-[var(--st-color-danger)] max-w-[200px] truncate">
                       {recipient.errorMessage || '-'}
                     </TableCell>
                   </TableRow>
@@ -204,21 +204,23 @@ export default function MessageDetailPage() {
 
             {/* Pagination */}
             {recipients && recipients.totalPages > 1 && (
-              <div className="flex justify-center gap-2 p-4 border-t">
+              <div className="flex justify-center gap-2 p-4 border-t border-[var(--st-border)]">
                 <Button
                   variant="outline"
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
+                  className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                 >
                   Previous
                 </Button>
-                <span className="py-2 px-4">
+                <span className="py-2 px-4 text-[var(--st-fg)]">
                   Page {page} of {recipients.totalPages}
                 </span>
                 <Button
                   variant="outline"
                   onClick={() => setPage(p => Math.min(recipients.totalPages, p + 1))}
                   disabled={page === recipients.totalPages}
+                  className="border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
                 >
                   Next
                 </Button>
