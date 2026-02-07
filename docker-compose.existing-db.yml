@@ -1,0 +1,84 @@
+# Docker Compose - Use with your existing stewardchms-db container
+# 
+# Your existing DB has: POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=stewardchms
+#
+# USAGE:
+# 1. First, create a shared network and connect your existing DB to it:
+#    docker network create stewardchms-network
+#    docker network connect stewardchms-network stewardchms-db
+#
+# 2. Run migrations (first time only):
+#    docker-compose -f docker-compose.existing-db.yml --profile migrate up migrate
+#
+# 3. Start the app:
+#    docker-compose -f docker-compose.existing-db.yml up -d --build
+#
+# 4. Access the app at http://localhost
+#    Login: admin@stewardchms.local / admin123
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: stewardchms-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@stewardchms-db:5432/stewardchms
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-please}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    ports:
+      - "3001:3001"
+    networks:
+      - stewardchms-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+  # Frontend (Nginx + React SPA)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: stewardchms-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - stewardchms-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
+  # Database migrations runner (run once with --profile migrate)
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.migrate
+    container_name: stewardchms-migrate
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@stewardchms-db:5432/stewardchms
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@stewardchms.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_NAME: ${ADMIN_NAME:-System Administrator}
+    networks:
+      - stewardchms-network
+    profiles:
+      - migrate
+
+networks:
+  stewardchms-network:
+    external: true

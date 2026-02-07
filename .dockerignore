@@ -1,0 +1,60 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs (we build in Docker)
+dist
+**/dist
+build
+**/build
+
+# Development files
+*.log
+npm-debug.log*
+.npm
+
+# Environment files (use docker-compose env instead)
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests (not needed in production image)
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/test/
+**/tests/
+**/vitest.config.ts
+**/coverage/
+
+# Misc
+.eslintcache
+*.tsbuildinfo
+

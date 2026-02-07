@@ -1,0 +1,31 @@
+# Migration Dockerfile - includes dev dependencies for seeding
+FROM node:20-slim
+
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy workspace package files
+COPY package.json package-lock.json ./
+COPY shared/package.json ./shared/
+COPY backend/package.json ./backend/
+
+# Install all dependencies (including dev for tsx)
+RUN npm ci
+
+# Copy source files
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+
+# Build shared package
+WORKDIR /app/shared
+RUN npm run build
+
+# Generate Prisma client
+WORKDIR /app/backend
+RUN npx prisma generate
+
+# Default command runs migrations and seeds
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run db:seed"]
+

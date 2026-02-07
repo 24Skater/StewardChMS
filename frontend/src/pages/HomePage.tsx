@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 async function fetchHealth() {
   const response = await fetch('/api/health')
@@ -9,6 +11,7 @@ async function fetchHealth() {
 }
 
 function HomePage() {
+  const { user } = useAuth()
   const { data: health, isLoading, error } = useQuery({
     queryKey: ['health'],
     queryFn: fetchHealth,
@@ -62,6 +65,36 @@ function HomePage() {
             — 1 Corinthians 4:2 (KJV)
           </footer>
         </blockquote>
+
+        {/* Login / Dashboard Button */}
+        <div className="mb-8">
+          {user ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-3 font-semibold text-slate-900 shadow-lg shadow-amber-500/25 transition-all hover:from-amber-400 hover:to-amber-500 hover:shadow-amber-500/40"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <rect width="7" height="9" x="3" y="3" rx="1" />
+                <rect width="7" height="5" x="14" y="3" rx="1" />
+                <rect width="7" height="9" x="14" y="12" rx="1" />
+                <rect width="7" height="5" x="3" y="16" rx="1" />
+              </svg>
+              Go to Dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-3 font-semibold text-slate-900 shadow-lg shadow-amber-500/25 transition-all hover:from-amber-400 hover:to-amber-500 hover:shadow-amber-500/40"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" x2="3" y1="12" y2="12" />
+              </svg>
+              Sign In
+            </Link>
+          )}
+        </div>
 
         {/* API Status */}
         <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-6 py-4 backdrop-blur-sm">

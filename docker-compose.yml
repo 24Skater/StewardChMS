@@ -1,0 +1,93 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: stewardchms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-steward}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-steward123}
+      POSTGRES_DB: ${POSTGRES_DB:-stewardchms}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-steward} -d ${POSTGRES_DB:-stewardchms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: stewardchms-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-steward}:${POSTGRES_PASSWORD:-steward123}@db:5432/${POSTGRES_DB:-stewardchms}
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-please}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@stewardchms.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_NAME: ${ADMIN_NAME:-System Administrator}
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+  # Frontend (Nginx + React SPA)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: stewardchms-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+
+  # Database migrations runner (one-time job)
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.migrate
+    container_name: stewardchms-migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-steward}:${POSTGRES_PASSWORD:-steward123}@db:5432/${POSTGRES_DB:-stewardchms}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@stewardchms.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      ADMIN_NAME: ${ADMIN_NAME:-System Administrator}
+    command: >
+      sh -c "npx prisma migrate deploy && npm run db:seed"
+    restart: "no"
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: stewardchms-network
+
