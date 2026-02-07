@@ -40,7 +40,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
     const user = req.user as JwtPayload
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Generate sale number within transaction
       const saleNumber = await (async () => {
         const year = new Date().getFullYear()
@@ -252,7 +252,7 @@ router.post('/:id/void', requireAuth, requirePermission('sales.edit'), async (re
     const user = req.user as JwtPayload
 
     // Use transaction for atomicity
-    const result = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
+    const result = await prisma.$transaction(async (tx) => {
       const sale = await tx.sale.findUnique({
         where: { id },
         include: {
