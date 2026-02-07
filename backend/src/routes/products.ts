@@ -225,3 +225,4 @@ router.delete('/:id', requireAuth, requirePermission('inventory.edit'), async (r
 
 export default router
 
+

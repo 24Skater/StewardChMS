@@ -139,3 +139,4 @@ router.get('/transactions', requireAuth, requirePermission('inventory.view'), as
 
 export default router
 
+
