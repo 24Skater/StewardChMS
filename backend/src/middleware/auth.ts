@@ -1,7 +1,30 @@
 import { Request, Response, NextFunction } from 'express'
-import { verifyToken } from '../lib/auth.js'
+import { verifyToken, COOKIE_NAME } from '../lib/auth.js'
 
 // Type augmentation is in src/types/express.d.ts
+
+/**
+ * Extracts token from request (cookie or Authorization header).
+ * Prefers cookie for security, falls back to header for API clients.
+ */
+function extractToken(req: Request): string | null {
+  // First, try to get from httpOnly cookie
+  const cookieToken = req.cookies?.[COOKIE_NAME]
+  if (cookieToken) {
+    return cookieToken
+  }
+
+  // Fall back to Authorization header for API clients
+  const authHeader = req.headers.authorization
+  if (authHeader) {
+    const parts = authHeader.split(' ')
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      return parts[1]
+    }
+  }
+
+  return null
+}
 
 /**
  * Middleware that requires a valid JWT token.
@@ -12,20 +35,13 @@ export function requireAuth(
   res: Response,
   next: NextFunction
 ): void {
-  const authHeader = req.headers.authorization
+  const token = extractToken(req)
 
-  if (!authHeader) {
-    res.status(401).json({ error: 'No authorization header provided' })
+  if (!token) {
+    res.status(401).json({ error: 'Authentication required' })
     return
   }
 
-  const parts = authHeader.split(' ')
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    res.status(401).json({ error: 'Invalid authorization format. Use: Bearer <token>' })
-    return
-  }
-
-  const token = parts[1]
   const payload = verifyToken(token)
 
   if (!payload) {
@@ -68,19 +84,14 @@ export function optionalAuth(
   _res: Response,
   next: NextFunction
 ): void {
-  const authHeader = req.headers.authorization
+  const token = extractToken(req)
 
-  if (authHeader) {
-    const parts = authHeader.split(' ')
-    if (parts.length === 2 && parts[0] === 'Bearer') {
-      const token = parts[1]
-      const payload = verifyToken(token)
-      if (payload) {
-        req.user = payload
-      }
+  if (token) {
+    const payload = verifyToken(token)
+    if (payload) {
+      req.user = payload
     }
   }
 
   next()
 }
-

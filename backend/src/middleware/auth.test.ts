@@ -7,6 +7,7 @@ import { signToken } from '../lib/auth.js'
 function createMockReq(overrides: Partial<Request> = {}): Request {
   return {
     headers: {},
+    cookies: {},
     ...overrides,
   } as Request
 }
@@ -24,7 +25,7 @@ function createMockNext(): NextFunction {
 }
 
 describe('requireAuth Middleware', () => {
-  it('rejects request without authorization header', () => {
+  it('rejects request without token (no cookie or header)', () => {
     const req = createMockReq()
     const res = createMockRes()
     const next = createMockNext()
@@ -32,27 +33,11 @@ describe('requireAuth Middleware', () => {
     requireAuth(req, res, next)
 
     expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'No authorization header provided' })
+    expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' })
     expect(next).not.toHaveBeenCalled()
   })
 
-  it('rejects request with invalid authorization format', () => {
-    const req = createMockReq({
-      headers: { authorization: 'InvalidFormat token123' },
-    })
-    const res = createMockRes()
-    const next = createMockNext()
-
-    requireAuth(req, res, next)
-
-    expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'Invalid authorization format. Use: Bearer <token>',
-    })
-    expect(next).not.toHaveBeenCalled()
-  })
-
-  it('rejects request with invalid token', () => {
+  it('rejects request with invalid token in header', () => {
     const req = createMockReq({
       headers: { authorization: 'Bearer invalid.token.here' },
     })
@@ -66,16 +51,16 @@ describe('requireAuth Middleware', () => {
     expect(next).not.toHaveBeenCalled()
   })
 
-  it('allows request with valid token', () => {
+  it('allows request with valid token in header', () => {
     const payload = {
       userId: 'user123',
       email: 'test@example.com',
       roles: ['admin'],
       permissions: ['admin.access'],
     }
-    const token = signToken(payload)
+    const { accessToken } = signToken(payload)
     const req = createMockReq({
-      headers: { authorization: `Bearer ${token}` },
+      headers: { authorization: `Bearer ${accessToken}` },
     })
     const res = createMockRes()
     const next = createMockNext()
@@ -86,6 +71,57 @@ describe('requireAuth Middleware', () => {
     expect(req.user).toBeDefined()
     expect(req.user?.userId).toBe(payload.userId)
     expect(req.user?.email).toBe(payload.email)
+  })
+
+  it('allows request with valid token in cookie', () => {
+    const payload = {
+      userId: 'user456',
+      email: 'cookie@example.com',
+      roles: ['user'],
+      permissions: ['users.read'],
+    }
+    const { accessToken } = signToken(payload)
+    const req = createMockReq({
+      cookies: { steward_session: accessToken },
+    })
+    const res = createMockRes()
+    const next = createMockNext()
+
+    requireAuth(req, res, next)
+
+    expect(next).toHaveBeenCalled()
+    expect(req.user).toBeDefined()
+    expect(req.user?.userId).toBe(payload.userId)
+    expect(req.user?.email).toBe(payload.email)
+  })
+
+  it('prefers cookie over header when both present', () => {
+    const cookiePayload = {
+      userId: 'cookie-user',
+      email: 'cookie@example.com',
+      roles: ['user'],
+      permissions: ['users.read'],
+    }
+    const headerPayload = {
+      userId: 'header-user',
+      email: 'header@example.com',
+      roles: ['admin'],
+      permissions: ['admin.access'],
+    }
+    const { accessToken: cookieToken } = signToken(cookiePayload)
+    const { accessToken: headerToken } = signToken(headerPayload)
+    
+    const req = createMockReq({
+      cookies: { steward_session: cookieToken },
+      headers: { authorization: `Bearer ${headerToken}` },
+    })
+    const res = createMockRes()
+    const next = createMockNext()
+
+    requireAuth(req, res, next)
+
+    expect(next).toHaveBeenCalled()
+    expect(req.user?.userId).toBe('cookie-user') // Should use cookie
   })
 })
 
@@ -147,4 +183,3 @@ describe('requirePermission Middleware', () => {
     expect(res.status).not.toHaveBeenCalled()
   })
 })
-

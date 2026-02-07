@@ -39,6 +39,14 @@ const DEFAULT_PERMISSIONS = [
   { key: 'sales.edit', description: 'Create and void sales' },
   { key: 'inventory.view', description: 'View inventory and products' },
   { key: 'inventory.edit', description: 'Create products and adjust inventory' },
+  // Groups & Ministries permissions
+  { key: 'groups.view', description: 'View ministries and groups' },
+  { key: 'groups.edit', description: 'Manage ministries and groups' },
+  // Kids Check-in permissions
+  { key: 'checkin.view', description: 'View check-in dashboard' },
+  { key: 'checkin.operate', description: 'Perform check-ins/check-outs' },
+  // Online giving permissions
+  { key: 'giving.online.configure', description: 'Configure online giving settings' },
 ]
 
 async function main() {

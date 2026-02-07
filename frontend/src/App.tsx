@@ -45,6 +45,17 @@ import InventoryPage from './pages/inventory/InventoryPage'
 import SalesPage from './pages/sales/SalesPage'
 import SaleFormPage from './pages/sales/SaleFormPage'
 import SaleDetailPage from './pages/sales/SaleDetailPage'
+// Setup + Settings
+import SetupWizardPage from './pages/setup/SetupWizardPage'
+import AdminSettingsPage from './pages/admin/AdminSettingsPage'
+// Groups & Ministries
+import GroupsPage from './pages/groups/GroupsPage'
+// Kids Check-in
+import KidsCheckinPage from './pages/kids-checkin/KidsCheckinPage'
+import KioskModePage from './pages/kids-checkin/KioskModePage'
+// Online Giving
+import GivingPortalPage from './pages/giving/GivingPortalPage'
+import ThankYouPage from './pages/giving/ThankYouPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
@@ -52,6 +63,23 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/setup" element={<SetupWizardPage />} />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute requiredPermission="admin.access">
+            <AdminSettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/groups"
+        element={
+          <ProtectedRoute requiredPermission="groups.view">
+            <GroupsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/dashboard"
         element={
@@ -456,6 +484,22 @@ function App() {
           </ProtectedRoute>
         }
       />
+      {/* Kids Check-in Routes */}
+      <Route
+        path="/kids-checkin"
+        element={
+          <ProtectedRoute requiredPermission="checkin.view">
+            <KidsCheckinPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kids-checkin/kiosk"
+        element={<KioskModePage />}
+      />
+      {/* Online Giving Routes (Public) */}
+      <Route path="/give" element={<GivingPortalPage />} />
+      <Route path="/give/thank-you" element={<ThankYouPage />} />
     </Routes>
   )
 }

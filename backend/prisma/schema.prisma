@@ -117,6 +117,12 @@ model Member {
   status          MemberStatus @default(active)
   notes           String?      // Permission restricted (members.notes)
   profilePhotoUrl String?      @map("profile_photo_url")
+  // Kids Check-in fields
+  isChild         Boolean      @default(false) @map("is_child")
+  securityCode    String?      @unique @map("security_code")
+  allergies       String?
+  medicalNotes    String?      @map("medical_notes")
+  parentalNotes   String?      @map("parental_notes")
   createdAt       DateTime     @default(now()) @map("created_at")
   updatedAt       DateTime     @updatedAt @map("updated_at")
 
@@ -130,6 +136,8 @@ model Member {
   donations         Donation[]
   pledges           Pledge[]
   sales             Sale[]
+  groupMemberships  GroupMember[]
+  groupLeaderships  GroupLeader[]
 
   @@index([lastName])
   @@index([email])
@@ -255,12 +263,13 @@ enum RegistrationStatus {
 }
 
 model CheckIn {
-  id                String   @id @default(cuid())
-  eventOccurrenceId String   @map("event_occurrence_id")
-  memberId          String?  @map("member_id")
-  guestName         String?  @map("guest_name")
-  checkedInAt       DateTime @default(now()) @map("checked_in_at")
-  method            String   @default("manual")
+  id                String    @id @default(cuid())
+  eventOccurrenceId String    @map("event_occurrence_id")
+  memberId          String?   @map("member_id")
+  guestName         String?   @map("guest_name")
+  checkedInAt       DateTime  @default(now()) @map("checked_in_at")
+  checkedOutAt      DateTime? @map("checked_out_at")
+  method            String    @default("manual")
 
   // Relations
   occurrence EventOccurrence @relation(fields: [eventOccurrenceId], references: [id], onDelete: Cascade)
@@ -442,6 +451,7 @@ model Fund {
   name         String   @unique
   description  String?
   isRestricted Boolean  @default(false) @map("is_restricted")
+  isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -454,16 +464,22 @@ model Fund {
 }
 
 model Donation {
-  id         String        @id @default(cuid())
-  memberId   String?       @map("member_id")
-  guestName  String?       @map("guest_name")
-  amountCents Int          @map("amount_cents")
-  currency   String        @default("USD")
-  fundId     String?       @map("fund_id")
-  method     PaymentMethod
-  receivedAt DateTime      @map("received_at")
-  note       String?
-  createdAt  DateTime      @default(now()) @map("created_at")
+  id            String        @id @default(cuid())
+  memberId      String?       @map("member_id")
+  guestName     String?       @map("guest_name")
+  guestEmail    String?       @map("guest_email")
+  amountCents   Int           @map("amount_cents")
+  currency      String        @default("USD")
+  fundId        String?       @map("fund_id")
+  method        PaymentMethod
+  receivedAt    DateTime      @map("received_at")
+  note          String?
+  // Stripe integration fields
+  stripePaymentIntentId String?  @unique @map("stripe_payment_intent_id")
+  stripeChargeId        String?  @unique @map("stripe_charge_id")
+  stripeStatus          String?  @map("stripe_status")
+  isOnline              Boolean  @default(false) @map("is_online")
+  createdAt     DateTime      @default(now()) @map("created_at")
 
   // Relations
   member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
@@ -472,6 +488,7 @@ model Donation {
   @@index([receivedAt])
   @@index([memberId])
   @@index([fundId])
+  @@index([stripePaymentIntentId])
   @@map("donations")
 }
 
@@ -709,4 +726,93 @@ model SaleItem {
   @@index([saleId])
   @@index([productId])
   @@map("sale_items")
+}
+
+// ============================================
+// Settings Models (Admin Settings Center)
+// ============================================
+
+model Setting {
+  id        String   @id @default(cuid())
+  category  String
+  key       String
+  value     Json
+  updatedBy String?  @map("updated_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, key])
+  @@index([category])
+  @@map("settings")
+}
+
+// ============================================
+// Groups & Ministries Models
+// ============================================
+
+model Ministry {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  parentId    String?  @map("parent_id")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  parent   Ministry?  @relation("MinistryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Ministry[] @relation("MinistryHierarchy")
+  groups   Group[]
+
+  @@index([parentId])
+  @@map("ministries")
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  ministryId  String   @map("ministry_id")
+  description String?
+  meetingDay  String?  @map("meeting_day")
+  meetingTime String?  @map("meeting_time")
+  location    String?
+  capacity    Int?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  ministry Ministry      @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+  members  GroupMember[]
+  leaders  GroupLeader[]
+
+  @@index([ministryId])
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String   @map("group_id")
+  memberId String   @map("member_id")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  // Relations
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@map("group_members")
+}
+
+model GroupLeader {
+  id       String @id @default(cuid())
+  groupId  String @map("group_id")
+  memberId String @map("member_id")
+  role     String @default("leader")
+
+  // Relations
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@map("group_leaders")
 }

@@ -1,8 +1,10 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
-import { hashPassword, verifyPassword, signToken } from '../lib/auth.js'
+import { hashPassword, verifyPassword, signToken, invalidateToken, COOKIE_OPTIONS, COOKIE_NAME } from '../lib/auth.js'
 import { requireAuth } from '../middleware/auth.js'
+import { loginRateLimiter } from '../middleware/rateLimiter.js'
+import { validatePassword } from '../lib/security.js'
 
 const router = Router()
 
@@ -12,10 +14,15 @@ const loginRequestSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 })
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(12, 'Password must be at least 12 characters'),
+})
+
 // ============================================
 // POST /api/auth/login
 // ============================================
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
   try {
     // Validate request body
     const parseResult = loginRequestSchema.safeParse(req.body)
@@ -107,7 +114,7 @@ router.post('/login', async (req: Request, res: Response) => {
     ]
 
     // Generate JWT
-    const token = signToken({
+    const { accessToken, expiresAt } = signToken({
       userId: user.id,
       email: user.email,
       roles,
@@ -125,8 +132,13 @@ router.post('/login', async (req: Request, res: Response) => {
       },
     })
 
+    // Set httpOnly cookie
+    res.cookie(COOKIE_NAME, accessToken, COOKIE_OPTIONS)
+
+    // Also return token in response body for API clients
     res.json({
-      token,
+      token: accessToken,
+      expiresAt: expiresAt.toISOString(),
       user: {
         id: user.id,
         email: user.email,
@@ -143,11 +155,17 @@ router.post('/login', async (req: Request, res: Response) => {
 
 // ============================================
 // POST /api/auth/logout
-// Strategy: Stateless - client deletes token
-// No server-side token blacklist required
+// Now invalidates token via blacklist
 // ============================================
 router.post('/logout', requireAuth, async (req: Request, res: Response) => {
   try {
+    // Get the token for blacklisting
+    const token = req.cookies?.[COOKIE_NAME] || req.headers.authorization?.split(' ')[1]
+    
+    if (token) {
+      invalidateToken(token)
+    }
+
     // Log logout
     if (req.user) {
       await prisma.auditLog.create({
@@ -161,13 +179,133 @@ router.post('/logout', requireAuth, async (req: Request, res: Response) => {
       })
     }
 
-    // Stateless logout: client is responsible for deleting the token
-    // This endpoint exists for audit logging and potential future token blacklisting
+    // Clear the cookie
+    res.clearCookie(COOKIE_NAME, { path: '/' })
+
     res.json({
-      message: 'Logged out successfully. Please delete the token on client side.',
+      message: 'Logged out successfully',
     })
   } catch (error) {
     console.error('Logout error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// ============================================
+// POST /api/auth/change-password
+// ============================================
+router.post('/change-password', requireAuth, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' })
+      return
+    }
+
+    const parseResult = changePasswordSchema.safeParse(req.body)
+    if (!parseResult.success) {
+      res.status(400).json({
+        error: 'Validation failed',
+        details: parseResult.error.flatten().fieldErrors,
+      })
+      return
+    }
+
+    const { currentPassword, newPassword } = parseResult.data
+
+    // Validate password strength
+    const passwordValidation = validatePassword(newPassword)
+    if (!passwordValidation.isValid) {
+      res.status(400).json({
+        error: 'Password does not meet requirements',
+        details: passwordValidation.errors,
+      })
+      return
+    }
+
+    // Get user with password hash
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+    })
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' })
+      return
+    }
+
+    // Verify current password
+    const isValidPassword = await verifyPassword(currentPassword, user.passwordHash)
+    if (!isValidPassword) {
+      await prisma.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          action: 'PASSWORD_CHANGE_FAILED',
+          entityType: 'User',
+          entityId: user.id,
+          metadata: { reason: 'Invalid current password' },
+        },
+      })
+
+      res.status(401).json({ error: 'Current password is incorrect' })
+      return
+    }
+
+    // Hash and update new password
+    const newPasswordHash = await hashPassword(newPassword)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: newPasswordHash },
+    })
+
+    // Log password change
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        action: 'PASSWORD_CHANGED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: {},
+      },
+    })
+
+    // Invalidate current token to force re-login
+    const token = req.cookies?.[COOKIE_NAME] || req.headers.authorization?.split(' ')[1]
+    if (token) {
+      invalidateToken(token)
+    }
+    res.clearCookie(COOKIE_NAME, { path: '/' })
+
+    res.json({
+      message: 'Password changed successfully. Please log in again.',
+    })
+  } catch (error) {
+    console.error('Change password error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// ============================================
+// POST /api/auth/validate-password
+// Check password strength without changing
+// ============================================
+router.post('/validate-password', async (req: Request, res: Response) => {
+  try {
+    const { password } = req.body
+
+    if (!password || typeof password !== 'string') {
+      res.status(400).json({ error: 'Password is required' })
+      return
+    }
+
+    const validation = validatePassword(password)
+
+    res.json({
+      isValid: validation.isValid,
+      errors: validation.errors,
+      score: validation.score,
+      scoreLabel: ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'][validation.score],
+    })
+  } catch (error) {
+    console.error('Validate password error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -234,4 +372,3 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 export { hashPassword }
 
 export default router
-

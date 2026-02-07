@@ -50,17 +50,19 @@ describe('JWT Token', () => {
     permissions: ['admin.access'],
   }
 
-  it('signs a token', () => {
-    const token = signToken(testPayload)
+  it('signs a token and returns TokenPair', () => {
+    const { accessToken, expiresAt } = signToken(testPayload)
     
-    expect(token).toBeDefined()
-    expect(typeof token).toBe('string')
-    expect(token.split('.')).toHaveLength(3) // JWT has 3 parts
+    expect(accessToken).toBeDefined()
+    expect(typeof accessToken).toBe('string')
+    expect(accessToken.split('.')).toHaveLength(3) // JWT has 3 parts
+    expect(expiresAt).toBeInstanceOf(Date)
+    expect(expiresAt.getTime()).toBeGreaterThan(Date.now())
   })
 
   it('verifies a valid token', () => {
-    const token = signToken(testPayload)
-    const decoded = verifyToken(token)
+    const { accessToken } = signToken(testPayload)
+    const decoded = verifyToken(accessToken)
     
     expect(decoded).toBeDefined()
     expect(decoded?.userId).toBe(testPayload.userId)
@@ -84,4 +86,3 @@ describe('JWT Token', () => {
     expect(decoded).toBeNull()
   })
 })
-

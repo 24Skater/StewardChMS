@@ -1,6 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import cookieParser from 'cookie-parser'
+import { validateEnvironment } from './lib/security.js'
+import { apiRateLimiter } from './middleware/rateLimiter.js'
 import healthRouter from './routes/health.js'
 import authRouter from './routes/auth.js'
 import membersRouter from './routes/members.js'
@@ -26,6 +29,19 @@ import reportsRouter from './routes/reports.js'
 import productsRouter from './routes/products.js'
 import inventoryRouter from './routes/inventory.js'
 import salesRouter from './routes/sales.js'
+// Setup + Settings
+import setupRouter from './routes/setup.js'
+import settingsRouter, { publicSettingsRouter } from './routes/settings.js'
+// Groups & Ministries
+import ministriesRouter from './routes/ministries.js'
+import groupsRouter from './routes/groups.js'
+// Kids Check-in
+import kidsCheckinRouter from './routes/kids-checkin.js'
+// Online Giving
+import onlineGivingRouter from './routes/online-giving.js'
+
+// Validate environment on startup
+validateEnvironment()
 
 const app = express()
 
@@ -36,9 +52,15 @@ app.use(cors({
   credentials: true,
 }))
 
+// Cookie parser for httpOnly cookie auth
+app.use(cookieParser())
+
 // Body parsing - increase limit for CSV import
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ extended: true }))
+
+// Global rate limiting (more permissive)
+app.use('/api', apiRateLimiter)
 
 // Routes
 app.use('/api/health', healthRouter)
@@ -69,10 +91,24 @@ app.use('/api/products', productsRouter)
 app.use('/api/inventory', inventoryRouter)
 app.use('/api/sales', salesRouter)
 
+// Setup + Settings (no auth required for setup)
+app.use('/api/setup', setupRouter)
+app.use('/api/settings', publicSettingsRouter) // Public branding endpoint
+app.use('/api/settings', settingsRouter) // Protected settings
+
+// Groups & Ministries
+app.use('/api/ministries', ministriesRouter)
+app.use('/api/groups', groupsRouter)
+
+// Kids Check-in
+app.use('/api/kids-checkin', kidsCheckinRouter)
+
+// Online Giving (public routes + admin routes)
+app.use('/api/online-giving', onlineGivingRouter)
+
 // 404 handler
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' })
 })
 
 export default app
-

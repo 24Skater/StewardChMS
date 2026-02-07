@@ -6,13 +6,14 @@ import {
   useCallback,
   ReactNode,
 } from 'react'
-import { User, getToken, removeToken, getMe, ApiClientError } from '@/lib/api'
+import { User, getToken, removeToken, setToken as saveToken, getMe, ApiClientError } from '@/lib/api'
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
   setUser: (user: User | null) => void
+  setToken: (token: string) => void
   logout: () => void
   checkAuth: () => Promise<void>
 }
@@ -61,6 +62,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null)
   }, [])
 
+  const setToken = useCallback((token: string) => {
+    saveToken(token)
+  }, [])
+
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
@@ -70,6 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     isAuthenticated: !!user,
     setUser,
+    setToken,
     logout,
     checkAuth,
   }
