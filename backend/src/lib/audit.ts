@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 import prisma from './prisma.js'
 
 interface AuditLogData {
@@ -6,7 +5,8 @@ interface AuditLogData {
   action: string
   entityType: string
   entityId?: string | null
-  metadata?: Prisma.InputJsonValue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>
 }
 
 /**
