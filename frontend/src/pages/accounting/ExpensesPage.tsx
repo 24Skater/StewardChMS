@@ -19,6 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
+import { getExpenses } from '@/lib/api'
+import { downloadCSV, generateExportFilename, formatCentsToDollars, formatDate as formatDateExport } from '@/lib/csv'
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
@@ -47,6 +49,49 @@ export default function ExpensesPage() {
   })
 
   const deleteMutation = useDeleteExpense()
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getExpenses({
+        limit: 10000,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        fundId: fundId || undefined,
+        vendorId: vendorId || undefined,
+      })
+
+      const headers = [
+        'Date',
+        'Description',
+        'Amount',
+        'Vendor',
+        'Fund',
+        'Reference Number',
+        'Note',
+        'Created At',
+      ]
+
+      const rows = allData.expenses.map(expense => [
+        formatDateExport(expense.expenseDate),
+        expense.description,
+        formatCentsToDollars(expense.amountCents),
+        expense.vendorName || '',
+        expense.fundName || 'General',
+        expense.referenceNumber || '',
+        expense.note || '',
+        formatDateExport(expense.createdAt),
+      ])
+
+      downloadCSV(generateExportFilename('expenses'), headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export expenses. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this expense?')) {
@@ -62,11 +107,21 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Expenses</h1>
-        <Link to="/expenses/new">
-          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
-            Add Expense
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        </Link>
+          <Link to="/expenses/new">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
+              Add Expense
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

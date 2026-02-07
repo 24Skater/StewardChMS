@@ -18,7 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
-import { PledgeStatus } from '../../lib/api'
+import { PledgeStatus, getPledges } from '../../lib/api'
+import { downloadCSV, generateExportFilename, formatCentsToDollars, formatDate as formatDateExport } from '@/lib/csv'
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
@@ -48,6 +49,49 @@ export default function PledgesPage() {
   })
 
   const deleteMutation = useDeletePledge()
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getPledges({
+        limit: 10000,
+        status: status || undefined,
+        fundId: fundId || undefined,
+      })
+
+      const headers = [
+        'Member',
+        'Amount Pledged',
+        'Amount Fulfilled',
+        'Remaining',
+        'Fund',
+        'Status',
+        'Start Date',
+        'End Date',
+        'Note',
+      ]
+
+      const rows = allData.pledges.map(pledge => [
+        pledge.memberName || 'Unknown',
+        formatCentsToDollars(pledge.amountCents),
+        formatCentsToDollars(pledge.fulfilledCents),
+        formatCentsToDollars(pledge.amountCents - pledge.fulfilledCents),
+        pledge.fundName || 'General',
+        pledge.status,
+        formatDateExport(pledge.startDate),
+        formatDateExport(pledge.endDate),
+        pledge.note || '',
+      ])
+
+      downloadCSV(generateExportFilename('pledges'), headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export pledges. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this pledge?')) {
@@ -63,9 +107,19 @@ export default function PledgesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Pledges</h1>
-        <Link to="/pledges/new">
-          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Add Pledge</Button>
-        </Link>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </Button>
+          <Link to="/pledges/new">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">Add Pledge</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

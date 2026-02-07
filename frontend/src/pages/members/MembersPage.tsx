@@ -19,7 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { MemberStatus } from '@/lib/api'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { MemberStatus, getMembers, Member } from '@/lib/api'
+import { downloadCSV, generateExportFilename, formatDate } from '@/lib/csv'
 
 function MembersPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -31,6 +38,7 @@ function MembersPage() {
 
   const { data, isLoading, error } = useMembers({ search, status, page, limit: 20 })
   const deleteMutation = useDeleteMember()
+  const [isExporting, setIsExporting] = useState(false)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,6 +75,67 @@ function MembersPage() {
     }
   }
 
+  const exportMembers = async (exportAll: boolean) => {
+    setIsExporting(true)
+    try {
+      // Fetch all members or current filtered view
+      let membersToExport: Member[]
+      
+      if (exportAll) {
+        // Fetch all members (high limit to get everyone)
+        const allData = await getMembers({ limit: 10000 })
+        membersToExport = allData.members
+      } else {
+        // Export current filtered view
+        const filteredData = await getMembers({ search, status, limit: 10000 })
+        membersToExport = filteredData.members
+      }
+
+      // Define all exportable fields
+      const headers = [
+        'First Name',
+        'Last Name',
+        'Email',
+        'Phone',
+        'Street',
+        'City',
+        'State',
+        'ZIP',
+        'Date of Birth',
+        'Status',
+        'Notes',
+        'Household',
+        'Created At',
+        'Updated At',
+      ]
+
+      const rows = membersToExport.map(member => [
+        member.firstName,
+        member.lastName,
+        member.email || '',
+        member.phone || '',
+        member.street || '',
+        member.city || '',
+        member.state || '',
+        member.zip || '',
+        formatDate(member.dateOfBirth),
+        member.status,
+        member.notes || '',
+        member.households?.map(h => h.householdName || 'Unnamed').join('; ') || '',
+        formatDate(member.createdAt),
+        formatDate(member.updatedAt),
+      ])
+
+      const filename = generateExportFilename(exportAll ? 'members-all' : 'members-filtered')
+      downloadCSV(filename, headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export members. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   const getStatusBadge = (status: MemberStatus) => {
     switch (status) {
       case 'active':
@@ -87,6 +156,31 @@ function MembersPage() {
           <p className="mt-1 text-[var(--st-muted)]">Manage church members and families</p>
         </div>
         <div className="flex gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+                disabled={isExporting}
+              >
+                {isExporting ? 'Exporting...' : 'Export CSV'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
+              <DropdownMenuItem 
+                onClick={() => exportMembers(true)}
+                className="text-[var(--st-fg)] focus:bg-[var(--st-surface-hover)] cursor-pointer"
+              >
+                Export All Members
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => exportMembers(false)}
+                className="text-[var(--st-fg)] focus:bg-[var(--st-surface-hover)] cursor-pointer"
+              >
+                Export Current View
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link to="/members/import">
             <Button variant="outline" className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">
               Import CSV

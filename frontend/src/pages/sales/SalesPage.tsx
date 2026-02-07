@@ -13,6 +13,8 @@ import {
   TableRow,
 } from '../../components/ui/table'
 import { Plus } from 'lucide-react'
+import { getSales } from '@/lib/api'
+import { downloadCSV, generateExportFilename, formatCentsToDollars, formatDateTime } from '@/lib/csv'
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
@@ -39,18 +41,67 @@ export default function SalesPage() {
   const defaults = getDefaultDateRange()
   const [dateFrom, setDateFrom] = useState(defaults.dateFrom)
   const [dateTo, setDateTo] = useState(defaults.dateTo)
+  const [isExporting, setIsExporting] = useState(false)
 
   const { data, isLoading } = useSales({ dateFrom, dateTo })
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getSales({ dateFrom, dateTo, limit: 10000 })
+
+      const headers = [
+        'Sale Number',
+        'Date/Time',
+        'Customer',
+        'Items',
+        'Total',
+        'Payment Method',
+        'Status',
+        'Sold By',
+        'Note',
+      ]
+
+      const rows = allData.sales.map(sale => [
+        sale.saleNumber || sale.id,
+        formatDateTime(sale.saleDate),
+        sale.memberName || sale.guestName || 'Walk-in',
+        sale.lineItems?.map(li => `${li.productName} x${li.quantity}`).join('; ') || '',
+        formatCentsToDollars(sale.totalCents),
+        sale.paymentMethod,
+        sale.status,
+        sale.soldByUserName || '',
+        sale.note || '',
+      ])
+
+      downloadCSV(generateExportFilename('sales'), headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export sales. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Sales</h1>
-        <Link to="/sales/new">
-          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
-            <Plus className="h-4 w-4 mr-2" /> New Sale
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        </Link>
+          <Link to="/sales/new">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
+              <Plus className="h-4 w-4 mr-2" /> New Sale
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Date Range Filter */}

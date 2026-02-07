@@ -14,6 +14,8 @@ import {
 import { Badge } from '../../components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { DatePicker } from '../../components/ui/date-picker'
+import { getEvents } from '@/lib/api'
+import { downloadCSV, generateExportFilename, formatDateTime, formatBoolean } from '@/lib/csv'
 
 export default function EventsPage() {
   const [dateFrom, setDateFrom] = useState('')
@@ -28,6 +30,50 @@ export default function EventsPage() {
     page,
     limit: 20,
   })
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getEvents({
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        category: category || undefined,
+        limit: 10000,
+      })
+
+      const headers = [
+        'Title',
+        'Category',
+        'Location',
+        'Start Date',
+        'End Date',
+        'Recurrence',
+        'Check-in Enabled',
+        'Description',
+        'Created At',
+      ]
+
+      const rows = allData.events.map(event => [
+        event.title,
+        event.category || '',
+        event.location || '',
+        formatDateTime(event.startDateTime),
+        formatDateTime(event.endDateTime),
+        event.recurrenceRule || 'One-time',
+        formatBoolean(event.checkInEnabled),
+        event.description || '',
+        formatDateTime(event.createdAt),
+      ])
+
+      downloadCSV(generateExportFilename('events'), headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export events. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
@@ -44,11 +90,21 @@ export default function EventsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-[var(--st-fg)]">Events</h1>
-        <Link to="/events/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
-            Create Event
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        </Link>
+          <Link to="/events/new">
+            <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+              Create Event
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

@@ -28,6 +28,7 @@ const navSections: NavSection[] = [
     title: 'People & Groups',
     items: [
       { label: 'Members', href: '/members', icon: '👥' },
+      { label: 'Households', href: '/households', icon: '👨‍👩‍👧‍👦' },
       { label: 'Groups', href: '/groups', icon: '🏛️' },
     ],
   },

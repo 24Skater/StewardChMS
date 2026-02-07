@@ -18,7 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
-import { InvoiceStatus } from '../../lib/api'
+import { InvoiceStatus, getInvoices } from '../../lib/api'
+import { downloadCSV, generateExportFilename, formatCentsToDollars, formatDate as formatDateExport } from '@/lib/csv'
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
@@ -49,6 +50,47 @@ export default function InvoicesPage() {
   })
 
   const deleteMutation = useDeleteInvoice()
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getInvoices({
+        limit: 10000,
+        status: status || undefined,
+        vendorId: vendorId || undefined,
+      })
+
+      const headers = [
+        'Invoice Number',
+        'Vendor',
+        'Issue Date',
+        'Due Date',
+        'Total',
+        'Status',
+        'Note',
+        'Created At',
+      ]
+
+      const rows = allData.invoices.map(invoice => [
+        invoice.invoiceNumber || invoice.id,
+        invoice.vendorName || '',
+        formatDateExport(invoice.issueDate),
+        formatDateExport(invoice.dueDate),
+        formatCentsToDollars(invoice.totalCents),
+        invoice.status,
+        invoice.note || '',
+        formatDateExport(invoice.createdAt),
+      ])
+
+      downloadCSV(generateExportFilename('invoices'), headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export invoices. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this invoice?')) {
@@ -64,11 +106,21 @@ export default function InvoicesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Invoices</h1>
-        <Link to="/invoices/new">
-          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
-            Create Invoice
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        </Link>
+          <Link to="/invoices/new">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
+              Create Invoice
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

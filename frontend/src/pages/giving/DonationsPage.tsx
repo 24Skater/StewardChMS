@@ -19,6 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
+import { getDonations } from '@/lib/api'
+import { downloadCSV, generateExportFilename, formatCentsToDollars, formatDate as formatDateExport } from '@/lib/csv'
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
@@ -44,6 +46,49 @@ export default function DonationsPage() {
   })
 
   const deleteMutation = useDeleteDonation()
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const allData = await getDonations({
+        limit: 10000,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        fundId: fundId || undefined,
+      })
+
+      const headers = [
+        'Date',
+        'Donor',
+        'Email',
+        'Amount',
+        'Fund',
+        'Method',
+        'Note',
+        'Created At',
+      ]
+
+      const rows = allData.donations.map(donation => [
+        formatDateExport(donation.receivedAt),
+        donation.memberName || donation.guestName || 'Anonymous',
+        donation.guestEmail || '',
+        formatCentsToDollars(donation.amountCents),
+        donation.fundName || 'General',
+        donation.method,
+        donation.note || '',
+        formatDateExport(donation.createdAt),
+      ])
+
+      const filename = generateExportFilename('donations')
+      downloadCSV(filename, headers, rows)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Failed to export donations. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this donation?')) {
@@ -67,11 +112,21 @@ export default function DonationsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-[var(--st-fg)]">Donations</h1>
-        <Link to="/giving/new">
-          <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
-            Add Donation
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        </Link>
+          <Link to="/giving/new">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]">
+              Add Donation
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

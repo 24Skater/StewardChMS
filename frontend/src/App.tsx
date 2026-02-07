@@ -6,6 +6,7 @@ import MembersPage from './pages/members/MembersPage'
 import MemberFormPage from './pages/members/MemberFormPage'
 import MemberDetailPage from './pages/members/MemberDetailPage'
 import MemberImportPage from './pages/members/MemberImportPage'
+import HouseholdsPage from './pages/households/HouseholdsPage'
 import HouseholdDetailPage from './pages/households/HouseholdDetailPage'
 import EventsPage from './pages/events/EventsPage'
 import EventFormPage from './pages/events/EventFormPage'
@@ -86,6 +87,7 @@ function App() {
         <Route path="/members/:id/edit" element={<MemberFormPage />} />
         
         {/* Households */}
+        <Route path="/households" element={<HouseholdsPage />} />
         <Route path="/households/:id" element={<HouseholdDetailPage />} />
         
         {/* Events */}
