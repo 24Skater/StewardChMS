@@ -5,6 +5,9 @@ import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { getProviderForChannel } from '../providers/messaging/index.js'
 import { createAuditLog } from '../lib/audit.js'
 
+// Transaction client type for Prisma $transaction callbacks
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">
+
 // Type aliases for Prisma enums (to avoid import issues with generated client)
 type MessageChannel = 'email' | 'sms'
 type MemberStatus = 'active' | 'inactive' | 'visitor'
@@ -228,7 +231,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     }
 
     // Create message and recipients in a transaction
-    const message = await prisma.$transaction(async (tx) => {
+    const message = await prisma.$transaction(async (tx: TransactionClient) => {
       const newMessage = await tx.message.create({
         data: {
           channel: channel as MessageChannel,
