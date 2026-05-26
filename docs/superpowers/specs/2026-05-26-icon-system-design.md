@@ -17,7 +17,7 @@ Replace every emoji used as a UI element in StewardChMS with a professional SVG 
 
 ### New files
 
-```
+```text
 frontend/src/lib/icons/
 ├── Icon.tsx          ← the one component all consumers use
 ├── registry.ts       ← IconName union + name → { outlined, filled } map
@@ -37,7 +37,7 @@ frontend/src/components/ui/
 ```tsx
 interface IconProps {
   name: IconName               // TypeScript union — compile-time checked
-  size?: 16 | 18 | 20 | 24 | 32 | 48  // defaults to 18
+  size?: 12 | 14 | 16 | 18 | 20 | 24 | 32 | 48  // defaults to 18
   active?: boolean             // false = outlined, true = filled
   className?: string
   'aria-label'?: string        // omit for decorative; provide for semantic
@@ -47,17 +47,18 @@ export function Icon({ name, size = 18, active = false, className, 'aria-label':
 ```
 
 **Filled behaviour:**
+
 - Lucide icons: same icon component rendered with `fill="currentColor"` and `strokeWidth={0}`
 - Custom SVGs: separate outlined and filled SVG path definitions per icon
 
 ### Size scale — context defaults
 
 | px | Context |
-|----|---------|
+| --- | --- |
 | 12 | Status badges |
 | 14 | Action buttons |
 | 16 | Form prefixes |
-| **18** | **Nav sidebar (default)** |
+| 18 (default) | Nav sidebar |
 | 24 | Page headers, dashboard stat cards |
 | 48 | Empty state illustrations |
 
@@ -70,7 +71,7 @@ export function Icon({ name, size = 18, active = false, className, 'aria-label':
 ### Custom SVGs (church-specific)
 
 | IconName | Component | Description |
-|----------|-----------|-------------|
+| --- | --- | --- |
 | `"ministry"` | `MinistryIcon` | Concentric hexagon layers — structured org |
 | `"kids-checkin"` | `KidsCheckinIcon` | Person silhouette + check circle overlay |
 | `"worship"` | `WorshipIcon` | Raised-hands arch form |
@@ -81,7 +82,7 @@ Each custom component exports `{ outlined: FC, filled: FC }`.
 ### Lucide mappings
 
 | IconName | Lucide component | Primary context |
-|----------|-----------------|-----------------|
+| --- | --- | --- |
 | `"dashboard"` | `LayoutDashboard` | Nav |
 | `"members"` | `Users` | Nav, dashboard card, empty state |
 | `"groups"` | `Globe` | Nav, dashboard card, empty state |
@@ -133,6 +134,7 @@ Each custom component exports `{ outlined: FC, filled: FC }`.
 **Scope:** Create the icon module; migrate nav and dashboard.
 
 Build order:
+
 1. `custom/KidsCheckinIcon.tsx` — outlined + filled SVG paths
 2. `custom/MinistryIcon.tsx` — outlined + filled SVG paths
 3. `custom/WorshipIcon.tsx` — outlined + filled SVG paths
@@ -149,16 +151,16 @@ Build order:
 **Scope:** All remaining emoji removed.
 
 | File | Change |
-|------|--------|
+| --- | --- |
 | `frontend/src/pages/giving/ThankYouPage.tsx` | Celebratory emoji removed; copy updated to professional phrasing |
-| `frontend/src/pages/kids-checkin/CheckInPage.tsx` | Emoji → `<Icon>` |
-| `frontend/src/pages/kids-checkin/CheckInKiosk.tsx` | Emoji → `<Icon>` |
-| `frontend/src/pages/kids-checkin/ChildCard.tsx` | Emoji → `<Icon>` |
-| `frontend/src/pages/kids-checkin/GuardianSearch.tsx` | Emoji → `<Icon>` |
-| `frontend/src/pages/kids-checkin/PrintBadge.tsx` | Emoji → `<Icon>` |
+| `frontend/src/pages/kids-checkin/CheckInPage.tsx` | Emoji replaced with `<Icon>` |
+| `frontend/src/pages/kids-checkin/CheckInKiosk.tsx` | Emoji replaced with `<Icon>` |
+| `frontend/src/pages/kids-checkin/ChildCard.tsx` | Emoji replaced with `<Icon>` |
+| `frontend/src/pages/kids-checkin/GuardianSearch.tsx` | Emoji replaced with `<Icon>` |
+| `frontend/src/pages/kids-checkin/PrintBadge.tsx` | Emoji replaced with `<Icon>` |
 | `frontend/src/lib/api.ts` | Emoji stripped from error message strings |
-| `backend/src/index.ts` | Startup log emoji → plain text |
-| `backend/prisma/seed.ts` | Seed log emoji → plain text |
+| `backend/src/index.ts` | Startup log emoji replaced with plain text |
+| `backend/prisma/seed.ts` | Seed log emoji replaced with plain text |
 
 ---
 
@@ -167,12 +169,12 @@ Build order:
 ### Test files
 
 | File | Tool | Covers |
-|------|------|--------|
+| --- | --- | --- |
 | `frontend/src/lib/icons/Icon.test.tsx` | Vitest + @testing-library/react | Renders all 46 names; correct size attr; outlined/filled toggle; aria-hidden on decorative; aria-label on semantic; default size 18 |
 | `frontend/src/lib/icons/registry.test.ts` | Vitest | Every `IconName` key present in registry; both variants are functions |
-| `e2e/icon-sprite.spec.ts` | Playwright | Screenshot of all 46 icons at all sizes on light + dark background |
+| `e2e/icon-sprite.spec.ts` | Playwright | Screenshot of all 46 icons at all sizes on light and dark background |
 | `e2e/nav-icons.spec.ts` | Playwright | Nav screenshot inactive state; nav screenshot active state |
-| `scripts/check-no-emoji.sh` | bash + grep | Fails CI if any Unicode emoji found in `*.ts` / `*.tsx` source files |
+| `scripts/check-no-emoji.sh` | bash + grep | Fails CI if any Unicode emoji found in `*.ts` or `*.tsx` source files |
 
 ### Accessibility invariants
 
