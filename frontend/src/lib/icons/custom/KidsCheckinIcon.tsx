@@ -21,6 +21,7 @@ export const KidsCheckinIconOutlined: FC<Props> = ({ size = 18, className, ...ar
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <circle cx="17.5" cy="16.5" r="4.5" stroke="currentColor" strokeWidth="1.8" />
     <path
@@ -53,7 +54,7 @@ export const KidsCheckinIconFilled: FC<Props> = ({ size = 18, className, ...aria
     <path
       d="m14.8 16.5 1.8 1.8 3.1-3.1"
       stroke="white"
-      strokeWidth="2"
+      strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
