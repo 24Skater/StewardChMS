@@ -59,6 +59,7 @@ import GivingPortalPage from './pages/giving/GivingPortalPage'
 import ThankYouPage from './pages/giving/ThankYouPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
+import { IconTestPage } from './pages/IconTestPage'
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/icon-test" element={<IconTestPage />} />
       <Route path="/setup" element={<SetupWizardPage />} />
       <Route path="/kids-checkin/kiosk" element={<KioskModePage />} />
       <Route path="/give" element={<GivingPortalPage />} />
