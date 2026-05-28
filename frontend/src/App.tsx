@@ -67,7 +67,9 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/icon-test" element={<IconTestPage />} />
+      {import.meta.env.DEV && (
+        <Route path="/icon-test" element={<IconTestPage />} />
+      )}
       <Route path="/setup" element={<SetupWizardPage />} />
       <Route path="/kids-checkin/kiosk" element={<KioskModePage />} />
       <Route path="/give" element={<GivingPortalPage />} />
