@@ -53,12 +53,12 @@ function Label({ data }: { data: CheckInLabel }) {
         </div>
         {data.allergies && (
           <div className="bg-red-100 text-red-800 p-3 rounded-lg text-lg">
-            <strong>⚠️ ALLERGIES:</strong> {data.allergies}
+            <strong>ALLERGIES:</strong> {data.allergies}
           </div>
         )}
         {data.medicalNotes && (
           <div className="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-lg">
-            <strong>📋 MEDICAL:</strong> {data.medicalNotes}
+            <strong>MEDICAL:</strong> {data.medicalNotes}
           </div>
         )}
         <div className="text-sm text-gray-600 text-center pt-4 border-t">
@@ -312,7 +312,7 @@ export default function KioskModePage() {
                     <div className="text-left">
                       <div className="font-bold">{child.firstName} {child.lastName}</div>
                       {child.allergies && (
-                        <div className="text-sm text-[var(--st-color-danger)]">⚠️ Allergies</div>
+                        <div className="text-sm text-[var(--st-color-danger)]">Allergies</div>
                       )}
                     </div>
                   </div>
@@ -355,7 +355,7 @@ export default function KioskModePage() {
                 </div>
                 {selectedChild.allergies && (
                   <div className="bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)] p-3 rounded-lg text-center border border-[var(--st-color-danger)]/30">
-                    ⚠️ Allergies: {selectedChild.allergies}
+                    Allergies: {selectedChild.allergies}
                   </div>
                 )}
               </div>

@@ -208,7 +208,6 @@ export default function GivingPortalPage() {
     <div className="min-h-screen bg-gradient-to-br from-[var(--st-color-success)] via-[var(--st-primary)] to-[var(--st-primary-hover)] flex items-center justify-center p-4">
       <Card className="w-full max-w-lg shadow-2xl border-[var(--st-border)] bg-[var(--st-surface)]">
         <CardHeader className="text-center border-b border-[var(--st-border)] pb-6">
-          <div className="text-4xl mb-2">💝</div>
           <CardTitle className="text-2xl text-[var(--st-fg)]">{config.churchName}</CardTitle>
           <CardDescription className="text-lg text-[var(--st-muted)]">Online Giving Portal</CardDescription>
         </CardHeader>
@@ -397,7 +396,6 @@ export default function GivingPortalPage() {
           {/* Step 4: Success */}
           {step === 'success' && (
             <div className="text-center space-y-6 py-8">
-              <div className="text-6xl">🙏</div>
               <div>
                 <h2 className="text-2xl font-bold text-[var(--st-color-success)]">Thank You!</h2>
                 <p className="text-[var(--st-muted)] mt-2">

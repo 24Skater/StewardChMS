@@ -53,12 +53,12 @@ function CheckinLabel({ data }: { data: CheckInResponse['label'] }) {
         </div>
         {data.allergies && (
           <div className="bg-red-100 text-red-800 p-2 rounded text-xs">
-            <strong>⚠️ ALLERGIES:</strong> {data.allergies}
+            <strong>ALLERGIES:</strong> {data.allergies}
           </div>
         )}
         {data.medicalNotes && (
           <div className="bg-yellow-100 text-yellow-800 p-2 rounded text-xs">
-            <strong>📋 MEDICAL:</strong> {data.medicalNotes}
+            <strong>MEDICAL:</strong> {data.medicalNotes}
           </div>
         )}
         <div className="text-xs text-gray-600 text-center pt-2">
@@ -226,7 +226,7 @@ export default function KidsCheckinPage() {
                       {filteredChildren.map((child) => (
                         <SelectItem key={child.id} value={child.id} className="text-[var(--st-fg)]">
                           {child.firstName} {child.lastName}
-                          {child.allergies && ' ⚠️'}
+                          {child.allergies && ' *'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -247,12 +247,12 @@ export default function KidsCheckinPage() {
                       )}
                       {selectedChild.allergies && (
                         <div className="text-sm text-[var(--st-color-danger)]">
-                          ⚠️ Allergies: {selectedChild.allergies}
+                          Allergies: {selectedChild.allergies}
                         </div>
                       )}
                       {selectedChild.medicalNotes && (
                         <div className="text-sm text-[var(--st-color-warning)]">
-                          📋 Medical: {selectedChild.medicalNotes}
+                          Medical: {selectedChild.medicalNotes}
                         </div>
                       )}
                       {selectedChild.parents.length > 0 && (

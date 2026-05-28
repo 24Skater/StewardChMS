@@ -111,7 +111,7 @@ export default function TemplatesPage() {
                 <TableCell className="font-medium text-[var(--st-fg)]">{template.name}</TableCell>
                 <TableCell>
                   <Badge variant={template.channel === 'email' ? 'default' : 'secondary'} className={template.channel === 'email' ? 'bg-[var(--st-primary)]' : ''}>
-                    {template.channel === 'email' ? '📧 Email' : '📱 SMS'}
+                    {template.channel === 'email' ? 'Email' : 'SMS'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-[var(--st-muted)]">

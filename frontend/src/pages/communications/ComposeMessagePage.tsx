@@ -128,7 +128,7 @@ export default function ComposeMessagePage() {
               onClick={() => setValue('channel', 'email')}
               className={channel === 'email' ? 'bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]' : 'border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]'}
             >
-              📧 Email
+              Email
             </Button>
             <Button
               type="button"
@@ -136,7 +136,7 @@ export default function ComposeMessagePage() {
               onClick={() => setValue('channel', 'sms')}
               className={channel === 'sms' ? 'bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]' : 'border-[var(--st-border)] text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]'}
             >
-              📱 SMS
+              SMS
             </Button>
           </div>
         </div>

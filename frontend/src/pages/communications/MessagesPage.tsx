@@ -110,7 +110,7 @@ export default function MessagesPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={message.channel === 'email' ? 'default' : 'secondary'} className={message.channel === 'email' ? 'bg-[var(--st-primary)]' : ''}>
-                      {message.channel === 'email' ? '📧 Email' : '📱 SMS'}
+                      {message.channel === 'email' ? 'Email' : 'SMS'}
                     </Badge>
                   </TableCell>
                   <TableCell className="max-w-[300px] text-[var(--st-fg)]">
