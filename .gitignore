@@ -54,3 +54,6 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Playwright auth state
+e2e/.auth/
+

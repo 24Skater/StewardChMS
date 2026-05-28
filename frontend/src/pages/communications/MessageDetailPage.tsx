@@ -74,7 +74,7 @@ export default function MessageDetailPage() {
           <div>
             <span className="text-[var(--st-muted)]">Channel:</span>
             <Badge className="ml-2" variant={message.channel === 'email' ? 'default' : 'secondary'}>
-              {message.channel === 'email' ? '📧 Email' : '📱 SMS'}
+              {message.channel === 'email' ? 'Email' : 'SMS'}
             </Badge>
           </div>
           <div>

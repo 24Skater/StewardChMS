@@ -62,8 +62,8 @@ describe('ComposeMessagePage', () => {
     renderComponent()
 
     expect(screen.getByText('Compose Message')).toBeInTheDocument()
-    expect(screen.getByText('📧 Email')).toBeInTheDocument()
-    expect(screen.getByText('📱 SMS')).toBeInTheDocument()
+    expect(screen.getByText('Email')).toBeInTheDocument()
+    expect(screen.getByText('SMS')).toBeInTheDocument()
   })
 
   it('shows subject field for email', () => {

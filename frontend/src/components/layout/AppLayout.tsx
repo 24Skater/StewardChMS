@@ -5,11 +5,13 @@ import { useLogout } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useState } from 'react'
+import { Icon } from '@/lib/icons'
+import type { IconName } from '@/lib/icons'
 
 interface NavItem {
   label: string
   href: string
-  icon: string
+  icon: IconName
 }
 
 interface NavSection {
@@ -21,56 +23,56 @@ const navSections: NavSection[] = [
   {
     title: 'Main',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: '🏠' },
+      { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
     ],
   },
   {
     title: 'People & Groups',
     items: [
-      { label: 'Members', href: '/members', icon: '👥' },
-      { label: 'Households', href: '/households', icon: '👨‍👩‍👧‍👦' },
-      { label: 'Groups', href: '/groups', icon: '🏛️' },
+      { label: 'Members', href: '/members', icon: 'members' },
+      { label: 'Households', href: '/households', icon: 'households' },
+      { label: 'Groups', href: '/groups', icon: 'groups' },
     ],
   },
   {
     title: 'Events & Worship',
     items: [
-      { label: 'Events', href: '/events', icon: '📅' },
-      { label: 'Kids Check-In', href: '/kids-checkin', icon: '🧒' },
-      { label: 'Songs', href: '/songs', icon: '🎵' },
+      { label: 'Events', href: '/events', icon: 'events' },
+      { label: 'Kids Check-In', href: '/kids-checkin', icon: 'kids-checkin' },
+      { label: 'Songs', href: '/songs', icon: 'songs' },
     ],
   },
   {
     title: 'Communication',
     items: [
-      { label: 'Messages', href: '/communications', icon: '✉️' },
+      { label: 'Messages', href: '/communications', icon: 'messages' },
     ],
   },
   {
     title: 'Giving & Finance',
     items: [
-      { label: 'Donations', href: '/giving', icon: '💝' },
-      { label: 'Pledges', href: '/pledges', icon: '🤝' },
-      { label: 'Funds', href: '/funds', icon: '🏦' },
-      { label: 'Expenses', href: '/expenses', icon: '📤' },
-      { label: 'Invoices', href: '/invoices', icon: '📄' },
-      { label: 'Purchase Orders', href: '/purchase-orders', icon: '📋' },
-      { label: 'Vendors', href: '/vendors', icon: '🏢' },
+      { label: 'Donations', href: '/giving', icon: 'giving' },
+      { label: 'Pledges', href: '/pledges', icon: 'pledges' },
+      { label: 'Funds', href: '/funds', icon: 'funds' },
+      { label: 'Expenses', href: '/expenses', icon: 'expenses' },
+      { label: 'Invoices', href: '/invoices', icon: 'invoices' },
+      { label: 'Purchase Orders', href: '/purchase-orders', icon: 'purchase-orders' },
+      { label: 'Vendors', href: '/vendors', icon: 'vendors' },
     ],
   },
   {
     title: 'Sales & Inventory',
     items: [
-      { label: 'Products', href: '/products', icon: '🛒' },
-      { label: 'Inventory', href: '/inventory', icon: '📦' },
-      { label: 'Sales', href: '/sales', icon: '💳' },
+      { label: 'Products', href: '/products', icon: 'products' },
+      { label: 'Inventory', href: '/inventory', icon: 'inventory' },
+      { label: 'Sales', href: '/sales', icon: 'sales' },
     ],
   },
   {
     title: 'System',
     items: [
-      { label: 'Reports', href: '/reports', icon: '📊' },
-      { label: 'Settings', href: '/admin/settings', icon: '⚙️' },
+      { label: 'Reports', href: '/reports', icon: 'reports' },
+      { label: 'Settings', href: '/admin/settings', icon: 'settings' },
     ],
   },
 ]
@@ -136,7 +138,7 @@ export function AppLayout() {
                       }`}
                       title={!sidebarOpen ? item.label : undefined}
                     >
-                      <span className="text-lg flex-shrink-0">{item.icon}</span>
+                      <Icon name={item.icon} size={18} active={isActive} className="flex-shrink-0" />
                       {sidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
                     </Link>
                   )

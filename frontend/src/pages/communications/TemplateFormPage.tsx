@@ -119,8 +119,8 @@ export default function TemplateFormPage() {
               <SelectValue placeholder="Select channel" />
             </SelectTrigger>
             <SelectContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
-              <SelectItem value="email" className="text-[var(--st-fg)]">📧 Email</SelectItem>
-              <SelectItem value="sms" className="text-[var(--st-fg)]">📱 SMS</SelectItem>
+              <SelectItem value="email" className="text-[var(--st-fg)]">Email</SelectItem>
+              <SelectItem value="sms" className="text-[var(--st-fg)]">SMS</SelectItem>
             </SelectContent>
           </Select>
           {errors.channel && (

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Icon } from '@/lib/icons'
 
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams()
@@ -33,13 +34,11 @@ export default function ThankYouPage() {
         <CardHeader className="text-center">
           {status === 'loading' && (
             <>
-              <div className="text-6xl mb-4">⏳</div>
               <CardTitle>Processing...</CardTitle>
             </>
           )}
           {status === 'success' && (
             <>
-              <div className="text-6xl mb-4">🙏</div>
               <CardTitle className="text-2xl text-green-600">Thank You!</CardTitle>
               <CardDescription className="text-lg mt-2">
                 {message}
@@ -48,7 +47,7 @@ export default function ThankYouPage() {
           )}
           {status === 'error' && (
             <>
-              <div className="text-6xl mb-4">❌</div>
+              <Icon name="error" size={48} className="text-red-500 mb-4" aria-label="Payment failed" />
               <CardTitle className="text-2xl text-red-600">Payment Issue</CardTitle>
               <CardDescription className="text-lg mt-2">
                 {message}

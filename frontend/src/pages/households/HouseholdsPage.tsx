@@ -356,7 +356,7 @@ function HouseholdsPage() {
       {/* Help Text */}
       <Card className="bg-[var(--st-surface)]/50 border-[var(--st-border)]">
         <CardContent className="py-4">
-          <h3 className="font-medium text-[var(--st-fg)] mb-2">💡 How Households Work</h3>
+          <h3 className="font-medium text-[var(--st-fg)] mb-2">How Households Work</h3>
           <ul className="text-sm text-[var(--st-muted)] space-y-1 list-disc list-inside">
             <li>Households group family members together (parents, children, spouses)</li>
             <li>Each member can have a relationship type within the household</li>

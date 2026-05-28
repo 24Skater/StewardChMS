@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { apiRequest } from '@/lib/api'
+import { Icon } from '@/lib/icons'
+import type { IconName } from '@/lib/icons'
 
 interface DashboardStats {
   members: { total: number; active: number; newThisMonth: number }
@@ -70,11 +72,11 @@ function DashboardPage() {
     }).format(cents / 100)
   }
 
-  const quickActions = [
-    { label: 'Add Member', href: '/members/new', icon: '👤', color: 'bg-blue-500/20 text-blue-400' },
-    { label: 'Create Event', href: '/events/new', icon: '📅', color: 'bg-emerald-500/20 text-emerald-400' },
-    { label: 'Record Donation', href: '/giving/new', icon: '💝', color: 'bg-amber-500/20 text-amber-400' },
-    { label: 'Send Message', href: '/communications/new', icon: '✉️', color: 'bg-purple-500/20 text-purple-400' },
+  const quickActions: { label: string; href: string; icon: IconName; color: string }[] = [
+    { label: 'Add Member', href: '/members/new', icon: 'members', color: 'bg-blue-500/20 text-blue-400' },
+    { label: 'Create Event', href: '/events/new', icon: 'events', color: 'bg-emerald-500/20 text-emerald-400' },
+    { label: 'Record Donation', href: '/giving/new', icon: 'giving', color: 'bg-amber-500/20 text-amber-400' },
+    { label: 'Send Message', href: '/communications/new', icon: 'messages', color: 'bg-purple-500/20 text-purple-400' },
   ]
 
   return (
@@ -95,7 +97,7 @@ function DashboardPage() {
               to={action.href}
               className="flex items-center gap-3 rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-4 backdrop-blur-sm hover:bg-[var(--st-surfaceMuted)] transition-colors"
             >
-              <span className={`text-2xl p-2 rounded-lg ${action.color}`}>{action.icon}</span>
+              <span className={`p-2 rounded-lg ${action.color}`}><Icon name={action.icon} size={20} /></span>
               <span className="font-medium text-[var(--st-fg)]">{action.label}</span>
             </Link>
           ))}
@@ -107,7 +109,7 @@ function DashboardPage() {
         <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--st-muted)]">Total Members</p>
-            <span className="text-2xl">👥</span>
+            <Icon name="members" size={24} className="text-muted-foreground" />
           </div>
           <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">{stats?.members.total ?? '—'}</p>
           <Link to="/members" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">View all →</Link>
@@ -116,7 +118,7 @@ function DashboardPage() {
         <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--st-muted)]">Events</p>
-            <span className="text-2xl">📅</span>
+            <Icon name="events" size={24} className="text-muted-foreground" />
           </div>
           <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">{stats?.events.upcoming ?? '—'}</p>
           <Link to="/events" className="mt-2 text-xs text-[var(--st-link)] hover:underline inline-block">View calendar →</Link>
@@ -125,7 +127,7 @@ function DashboardPage() {
         <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--st-muted)]">Giving (This Month)</p>
-            <span className="text-2xl">💝</span>
+            <Icon name="giving" size={24} className="text-muted-foreground" />
           </div>
           <p className="mt-2 text-3xl font-bold text-[var(--st-success)]">
             {stats ? formatCurrency(stats.giving.monthTotal) : '—'}
@@ -136,7 +138,7 @@ function DashboardPage() {
         <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[var(--st-muted)]">Groups & Ministries</p>
-            <span className="text-2xl">🏛️</span>
+            <Icon name="groups" size={24} className="text-muted-foreground" />
           </div>
           <p className="mt-2 text-3xl font-bold text-[var(--st-fg)]">
             {stats ? `${stats.groups.ministries} / ${stats.groups.total}` : '—'}
