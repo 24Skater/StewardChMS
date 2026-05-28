@@ -59,7 +59,7 @@ const DEFAULT_PERMISSIONS = [
 ]
 
 async function main() {
-  console.log('🌱 Starting seed...')
+  console.log('Starting seed...')
 
   // Check if a primary admin already exists - if so, skip seed account creation
   const primaryAdmin = await prisma.user.findFirst({
@@ -67,12 +67,12 @@ async function main() {
   })
 
   if (primaryAdmin) {
-    console.log('⚠️  Primary admin already exists. Skipping seed account creation.')
+    console.log('Primary admin already exists. Skipping seed account creation.')
     console.log('   Only seeding permissions and roles...')
   }
 
   // Seed permissions (idempotent)
-  console.log('📋 Seeding permissions...')
+  console.log('Seeding permissions...')
   for (const perm of DEFAULT_PERMISSIONS) {
     await prisma.permission.upsert({
       where: { key: perm.key },
@@ -80,10 +80,10 @@ async function main() {
       create: perm,
     })
   }
-  console.log(`   ✓ ${DEFAULT_PERMISSIONS.length} permissions seeded`)
+  console.log(`   [OK] ${DEFAULT_PERMISSIONS.length} permissions seeded`)
 
   // Seed admin role (idempotent)
-  console.log('👤 Seeding admin role...')
+  console.log('Seeding admin role...')
   const adminRole = await prisma.role.upsert({
     where: { name: 'admin' },
     update: { description: 'System Administrator with full access' },
@@ -92,7 +92,7 @@ async function main() {
       description: 'System Administrator with full access',
     },
   })
-  console.log('   ✓ Admin role created/updated')
+  console.log('   [OK] Admin role created/updated')
 
   // Assign all permissions to admin role
   const allPermissions = await prisma.permission.findMany()
@@ -111,7 +111,7 @@ async function main() {
       },
     })
   }
-  console.log(`   ✓ ${allPermissions.length} permissions assigned to admin role`)
+  console.log(`   [OK] ${allPermissions.length} permissions assigned to admin role`)
 
   // Only create seed account if no primary admin exists
   if (!primaryAdmin) {
@@ -120,7 +120,7 @@ async function main() {
     const passwordHash = await bcrypt.hash(seedPassword, 12)
 
     // Create or update seed account (DISABLED by default)
-    console.log('🔐 Creating seed account (emergency recovery)...')
+    console.log('Creating seed account (emergency recovery)...')
     const seedUser = await prisma.user.upsert({
       where: { email: SEED_ACCOUNT_EMAIL },
       update: {
@@ -137,9 +137,9 @@ async function main() {
         isPrimaryAdmin: false,
       },
     })
-    console.log(`   ✓ Seed account created: ${SEED_ACCOUNT_EMAIL}`)
-    console.log('   ⚠️  Seed account is DISABLED by default')
-    console.log('   ⚠️  Only the primary admin can enable it')
+    console.log(`   [OK] Seed account created: ${SEED_ACCOUNT_EMAIL}`)
+    console.log('   [WARN] Seed account is DISABLED by default')
+    console.log('   [WARN] Only the primary admin can enable it')
 
     // Assign admin role to seed account (for when it's enabled)
     await prisma.userRole.upsert({
@@ -155,7 +155,7 @@ async function main() {
         roleId: adminRole.id,
       },
     })
-    console.log('   ✓ Admin role assigned to seed account')
+    console.log('   [OK] Admin role assigned to seed account')
 
     // Log seed completion
     await prisma.auditLog.create({
@@ -172,9 +172,9 @@ async function main() {
     })
 
     console.log('')
-    console.log('✅ Seed completed successfully!')
+    console.log('Seed completed successfully!')
     console.log('')
-    console.log('📝 Next steps:')
+    console.log('Next steps:')
     console.log('   1. Run the setup wizard to create your primary admin account')
     console.log('   2. The seed account will remain disabled until needed')
     console.log('   3. Only the primary admin can enable the seed account')
@@ -193,14 +193,14 @@ async function main() {
     })
 
     console.log('')
-    console.log('✅ Seed completed successfully!')
+    console.log('Seed completed successfully!')
     console.log('   Permissions and roles have been updated.')
   }
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e)
+    console.error('Seed failed:', e)
     process.exit(1)
   })
   .finally(async () => {

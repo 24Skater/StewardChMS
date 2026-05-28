@@ -46,12 +46,12 @@ export function validateEnvironment(): void {
 
   // Log warnings
   for (const warning of warnings) {
-    console.warn(`⚠️  Security Warning: ${warning}`)
+    console.warn(`Security Warning: ${warning}`)
   }
 
   // Throw on errors
   if (errors.length > 0) {
-    console.error('❌ Security validation failed:')
+    console.error('Security validation failed:')
     for (const error of errors) {
       console.error(`   - ${error}`)
     }

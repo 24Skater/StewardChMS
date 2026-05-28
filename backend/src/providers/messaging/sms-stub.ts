@@ -15,7 +15,7 @@ export class SmsStubProvider implements MessageProvider {
     await new Promise(resolve => setTimeout(resolve, 50))
 
     // Log the SMS for debugging
-    console.log('📱 [STUB SMS] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('[STUB SMS] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     console.log(`   To: ${to}`)
     console.log(`   Message: ${body.substring(0, 160)}${body.length > 160 ? '...' : ''}`)
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')

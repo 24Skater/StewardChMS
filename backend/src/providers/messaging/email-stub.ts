@@ -13,7 +13,7 @@ export class EmailStubProvider implements MessageProvider {
     await new Promise(resolve => setTimeout(resolve, 100))
 
     // Log the email for debugging
-    console.log('📧 [STUB EMAIL] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('[STUB EMAIL] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     console.log(`   To: ${to}`)
     console.log(`   Subject: ${subject || '(no subject)'}`)
     console.log(`   Body: ${body.substring(0, 100)}${body.length > 100 ? '...' : ''}`)
