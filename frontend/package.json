@@ -38,6 +38,7 @@
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^6.26.2",
     "react-to-print": "^3.2.0",
+    "recharts": "^3.8.1",
     "steward-brand": "github:24Skater/steward-brand#main",
     "tailwind-merge": "^2.5.2",
     "zod": "^3.23.8"

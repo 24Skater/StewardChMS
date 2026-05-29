@@ -1,13 +1,21 @@
 import { Link } from 'react-router-dom'
-import { 
-  Users, 
-  Calendar, 
-  DollarSign, 
+import {
+  Users,
+  Calendar,
+  DollarSign,
   ShoppingCart,
-  FileText
+  FileText,
+  BarChart2,
 } from 'lucide-react'
 
 const reportCards = [
+  {
+    title: 'Financial Dashboard',
+    description: 'Charts and graphs: monthly giving vs expenses, fund breakdown, net surplus/deficit',
+    icon: BarChart2,
+    href: '/reports/financial-dashboard',
+    color: 'bg-indigo-500',
+  },
   {
     title: 'Membership Summary',
     description: 'Total members by status, new members, and missing contact info',

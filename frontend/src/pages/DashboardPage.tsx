@@ -20,39 +20,36 @@ function DashboardPage() {
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
       try {
-        // Fetch various stats in parallel
-        const [members, events, donations, groups, ministries] = await Promise.all([
-          apiRequest<{ id: string }[]>('/members?limit=1000').catch(() => []),
-          apiRequest<{ id: string }[]>('/events?limit=100').catch(() => []),
-          apiRequest<{ id: string; amountCents: number; receivedAt: string }[]>('/donations?limit=1000').catch(() => []),
-          apiRequest<{ id: string }[]>('/groups').catch(() => []),
-          apiRequest<{ id: string }[]>('/ministries').catch(() => []),
-        ])
-
         const now = new Date()
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
         const startOfYear = new Date(now.getFullYear(), 0, 1)
 
-        const monthDonations = Array.isArray(donations) 
-          ? donations.filter(d => new Date(d.receivedAt) >= startOfMonth)
-          : []
-        const yearDonations = Array.isArray(donations)
-          ? donations.filter(d => new Date(d.receivedAt) >= startOfYear)
-          : []
+        const [membersResp, eventsResp, monthDonationsResp, yearDonationsResp, groups, ministries] = await Promise.all([
+          apiRequest<{ members: unknown[]; total: number }>('/members?limit=1').catch(() => null),
+          apiRequest<{ events: unknown[]; total: number }>('/events?limit=1').catch(() => null),
+          apiRequest<{ donations: { amountCents: number }[]; total: number }>(
+            `/donations?limit=100&dateFrom=${startOfMonth.toISOString()}`
+          ).catch(() => null),
+          apiRequest<{ donations: { amountCents: number }[]; total: number }>(
+            `/donations?limit=100&dateFrom=${startOfYear.toISOString()}`
+          ).catch(() => null),
+          apiRequest<{ id: string }[]>('/groups').catch(() => []),
+          apiRequest<{ id: string }[]>('/ministries').catch(() => []),
+        ])
 
         return {
           members: {
-            total: Array.isArray(members) ? members.length : 0,
-            active: Array.isArray(members) ? members.length : 0,
+            total: membersResp?.total ?? 0,
+            active: membersResp?.total ?? 0,
             newThisMonth: 0,
           },
           events: {
-            upcoming: Array.isArray(events) ? events.length : 0,
+            upcoming: eventsResp?.total ?? 0,
             thisWeek: 0,
           },
           giving: {
-            monthTotal: monthDonations.reduce((sum, d) => sum + (d.amountCents || 0), 0),
-            yearTotal: yearDonations.reduce((sum, d) => sum + (d.amountCents || 0), 0),
+            monthTotal: (monthDonationsResp?.donations ?? []).reduce((sum, d) => sum + (d.amountCents || 0), 0),
+            yearTotal: (yearDonationsResp?.donations ?? []).reduce((sum, d) => sum + (d.amountCents || 0), 0),
           },
           groups: {
             total: Array.isArray(groups) ? groups.length : 0,

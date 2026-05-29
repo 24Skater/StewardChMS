@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useFundsSummary, useGivingSummary, useDonorStatement } from '../../hooks/useAccounting'
 import { useMembers } from '../../hooks/useMembers'
+import { useSettingsCategory } from '../../hooks/useSettings'
+import type { Organization } from '../../lib/pdf'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
@@ -49,16 +51,31 @@ export default function FinanceReportsPage() {
 
   const { data: fundSummary, isLoading: loadingFunds } = useFundsSummary(dateFrom, dateTo)
   const { data: givingSummary, isLoading: loadingGiving } = useGivingSummary(dateFrom, dateTo)
-  const { data: membersData } = useMembers({ limit: 500 })
+  const { data: membersData } = useMembers({ limit: 100 })
   const { data: donorStatement, isLoading: loadingStatement } = useDonorStatement(
     selectedMemberId,
     statementYear
   )
+  const { data: orgSettings } = useSettingsCategory('organization')
 
   const handleDownloadStatement = () => {
-    if (donorStatement) {
-      generateDonorStatementPDF(donorStatement)
+    if (!donorStatement) return
+    const s = orgSettings as Record<string, string> | undefined
+    const org: Organization = {
+      name: s?.name || 'Your Church',
+      legalName: s?.legalName || undefined,
+      ein: s?.ein || undefined,
+      address: s?.street || undefined,
+      city: s?.city || undefined,
+      state: s?.state || undefined,
+      zip: s?.zip || undefined,
+      phone: s?.phone || undefined,
+      email: s?.email || undefined,
+      website: s?.website || undefined,
+      authorizedOfficerName: s?.authorizedOfficerName || undefined,
+      authorizedOfficerTitle: s?.authorizedOfficerTitle || undefined,
     }
+    generateDonorStatementPDF(donorStatement, org)
   }
 
   return (

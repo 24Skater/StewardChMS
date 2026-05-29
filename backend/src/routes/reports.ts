@@ -609,4 +609,92 @@ router.get('/sales-summary', requireAuth, requirePermission('reports.view'), asy
   }
 })
 
+// GET /api/reports/financial-overview?year=XXXX
+// Monthly giving, monthly expenses, giving by fund — for the financial dashboard charts
+router.get('/financial-overview', requireAuth, requirePermission('accounting.view'), async (req, res) => {
+  try {
+    const yearNum = parseInt((req.query.year as string) || new Date().getFullYear().toString(), 10)
+    if (isNaN(yearNum)) return res.status(400).json({ error: 'Invalid year' })
+
+    const startDate = new Date(yearNum, 0, 1)
+    const endDate   = new Date(yearNum, 11, 31, 23, 59, 59, 999)
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+    // Monthly giving totals
+    const donationRows = await prisma.donation.groupBy({
+      by: ['receivedAt'],
+      where: { receivedAt: { gte: startDate, lte: endDate } },
+      _sum: { amountCents: true },
+    })
+
+    // Aggregate client-side by month index
+    const givingByMonth = Array.from({ length: 12 }, (_, i) => ({ month: MONTHS[i], totalCents: 0 }))
+    for (const row of donationRows) {
+      const m = new Date(row.receivedAt).getMonth()
+      givingByMonth[m].totalCents += row._sum.amountCents ?? 0
+    }
+
+    // Monthly expenses totals
+    const expenseRows = await prisma.expense.groupBy({
+      by: ['expenseDate'],
+      where: { expenseDate: { gte: startDate, lte: endDate } },
+      _sum: { amountCents: true },
+    })
+
+    const expensesByMonth = Array.from({ length: 12 }, (_, i) => ({ month: MONTHS[i], totalCents: 0 }))
+    for (const row of expenseRows) {
+      const m = new Date(row.expenseDate).getMonth()
+      expensesByMonth[m].totalCents += row._sum.amountCents ?? 0
+    }
+
+    // Merge into a single monthly series for the combined chart
+    const monthly = MONTHS.map((month, i) => ({
+      month,
+      givingCents:  givingByMonth[i].totalCents,
+      expensesCents: expensesByMonth[i].totalCents,
+      netCents: givingByMonth[i].totalCents - expensesByMonth[i].totalCents,
+    }))
+
+    // Giving by fund (donut chart data)
+    const fundRows = await prisma.donation.groupBy({
+      by: ['fundId'],
+      where: { receivedAt: { gte: startDate, lte: endDate } },
+      _sum: { amountCents: true },
+    })
+
+    const fundIds = fundRows.map(r => r.fundId).filter(Boolean) as string[]
+    const funds = fundIds.length
+      ? await prisma.fund.findMany({ where: { id: { in: fundIds } }, select: { id: true, name: true } })
+      : []
+    const fundMap = new Map(funds.map(f => [f.id, f.name]))
+
+    const ytdGivingCents = fundRows.reduce((s, r) => s + (r._sum.amountCents ?? 0), 0)
+    const givingByFund = fundRows.map(r => ({
+      fundName: fundMap.get(r.fundId ?? '') ?? 'Undesignated',
+      totalCents: r._sum.amountCents ?? 0,
+      percentage: ytdGivingCents > 0
+        ? Math.round(((r._sum.amountCents ?? 0) / ytdGivingCents) * 1000) / 10
+        : 0,
+    })).sort((a, b) => b.totalCents - a.totalCents)
+
+    // YTD totals
+    const ytdExpensesCents = expenseRows.reduce((s, r) => s + (r._sum.amountCents ?? 0), 0)
+
+    res.json({
+      year: yearNum,
+      monthly,
+      givingByFund,
+      summary: {
+        ytdGivingCents,
+        ytdExpensesCents,
+        ytdNetCents: ytdGivingCents - ytdExpensesCents,
+      },
+    })
+  } catch (error) {
+    console.error('Financial overview error:', error)
+    res.status(500).json({ error: 'Failed to generate financial overview' })
+  }
+})
+
 export default router

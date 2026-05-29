@@ -35,6 +35,7 @@ import PurchaseOrdersPage from './pages/accounting/PurchaseOrdersPage'
 import PurchaseOrderFormPage from './pages/accounting/PurchaseOrderFormPage'
 import PurchaseOrderDetailPage from './pages/accounting/PurchaseOrderDetailPage'
 import FinanceReportsPage from './pages/reports/FinanceReportsPage'
+import FinancialDashboardPage from './pages/reports/FinancialDashboardPage'
 // Phase 6: Reporting + Sales
 import ReportsHubPage from './pages/reports/ReportsHubPage'
 import MembershipReportPage from './pages/reports/MembershipReportPage'
@@ -137,6 +138,7 @@ function App() {
         
         {/* Reports */}
         <Route path="/reports" element={<ReportsHubPage />} />
+        <Route path="/reports/financial-dashboard" element={<FinancialDashboardPage />} />
         <Route path="/reports/finance" element={<FinanceReportsPage />} />
         <Route path="/reports/membership" element={<MembershipReportPage />} />
         <Route path="/reports/attendance" element={<AttendanceReportPage />} />
