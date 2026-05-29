@@ -1,6 +1,9 @@
 # Git worktrees
 .worktrees/
 
+# AI tooling session data
+.superpowers/
+
 # Dependencies
 node_modules/
 .pnp
@@ -17,6 +20,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+docker.env
 
 # Logs
 logs

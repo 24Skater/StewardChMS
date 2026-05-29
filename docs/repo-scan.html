@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StewardChMS — Repo Scan Report</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2128; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950;
+    --yellow: #d29922; --red: #f85149; --orange: #fb8500;
+    --tag-core: #1f4e3d; --tag-core-text: #3fb950;
+    --tag-extract: #1a3a5c; --tag-extract-text: #58a6ff;
+    --tag-rebuild: #3a2500; --tag-rebuild-text: #fb8500;
+    --tag-deprecate: #3d1a1a; --tag-deprecate-text: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Layout */
+  .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  header { padding: 2rem 0 2.5rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+  header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: .4rem; }
+  header .meta { color: var(--muted); font-size: .85rem; }
+  header .meta span { margin-right: 1.5rem; }
+
+  /* Summary bar */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: .75rem; margin-bottom: 2.5rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; }
+  .stat-card .val { font-size: 1.8rem; font-weight: 700; line-height: 1.1; }
+  .stat-card .lbl { color: var(--muted); font-size: .78rem; margin-top: .2rem; }
+  .val-green { color: var(--green); }
+  .val-yellow { color: var(--yellow); }
+  .val-red { color: var(--red); }
+  .val-orange { color: var(--orange); }
+  .val-blue { color: var(--accent); }
+
+  /* Section headings */
+  h2 { font-size: 1.15rem; font-weight: 600; margin: 2.2rem 0 .9rem; display: flex; align-items: center; gap: .5rem; }
+  h2::before { content: ''; display: block; width: 3px; height: 1.1em; background: var(--accent); border-radius: 2px; }
+  h3 { font-size: 1rem; font-weight: 600; margin: 1.4rem 0 .6rem; color: var(--text); }
+
+  /* Verdict badge */
+  .badge { display: inline-block; padding: .15rem .55rem; border-radius: 4px; font-size: .74rem; font-weight: 600; letter-spacing: .04em; white-space: nowrap; }
+  .badge-core     { background: var(--tag-core);     color: var(--tag-core-text); }
+  .badge-extract  { background: var(--tag-extract);  color: var(--tag-extract-text); }
+  .badge-rebuild  { background: var(--tag-rebuild);  color: var(--tag-rebuild-text); }
+  .badge-deprecate{ background: var(--tag-deprecate);color: var(--tag-deprecate-text); }
+
+  /* Severity */
+  .sev { display: inline-block; padding: .1rem .45rem; border-radius: 3px; font-size: .73rem; font-weight: 700; }
+  .sev-critical { background: #3d1a1a; color: #f85149; }
+  .sev-high     { background: #3a2500; color: #fb8500; }
+  .sev-medium   { background: #2a2500; color: #d29922; }
+  .sev-low      { background: #1a2a1a; color: #3fb950; }
+
+  /* Module table */
+  .mod-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .mod-table th { background: var(--surface2); padding: .6rem 1rem; text-align: left; font-size: .8rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+  .mod-table td { padding: .55rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .mod-table tr:last-child td { border-bottom: none; }
+  .mod-table tr:hover td { background: var(--surface2); }
+  .file-path { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: .82rem; color: var(--muted); }
+  .file-path strong { color: var(--text); }
+  .lines { font-size: .82rem; color: var(--muted); }
+  .lines.over { color: var(--orange); font-weight: 600; }
+  .lines.critical { color: var(--red); font-weight: 700; }
+
+  /* Issues */
+  .issue { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: .75rem; }
+  .issue-header { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .3rem; }
+  .issue-title { font-weight: 600; }
+  .issue-body { color: var(--muted); font-size: .87rem; }
+  .issue-body code { background: var(--surface2); padding: .1rem .35rem; border-radius: 3px; font-size: .8rem; font-family: 'Cascadia Code', 'Fira Code', monospace; color: var(--text); }
+  .issue-body ul { margin: .4rem 0 0 1.2rem; }
+  .issue-body li { margin-bottom: .2rem; }
+
+  /* Stack architecture diagram */
+  .arch { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+  .arch-layer { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .arch-layer h4 { font-size: .85rem; color: var(--muted); margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .arch-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: .35rem .7rem; margin-bottom: .35rem; font-size: .82rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .arch-item .tech { color: var(--muted); font-size: .75rem; }
+
+  /* Progress bar */
+  .prog-wrap { background: var(--surface2); border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
+  .prog-bar { height: 100%; border-radius: 4px; }
+
+  /* Recommendation cards */
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: .8rem; margin-top: .5rem; }
+  .rec-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .rec-card h4 { font-size: .9rem; margin-bottom: .4rem; }
+  .rec-card p { color: var(--muted); font-size: .84rem; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.4rem; margin-bottom: 2rem; display: inline-block; }
+  .toc h4 { font-size: .82rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+  .toc ol { padding-left: 1.2rem; }
+  .toc li { margin-bottom: .2rem; font-size: .87rem; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  .chip { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: .1rem .5rem; font-size: .78rem; color: var(--muted); margin-right: .3rem; margin-bottom: .3rem; font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>StewardChMS — Repo Scan</h1>
+    <div class="meta">
+      <span>Date: 2026-05-26</span>
+      <span>Branch: main</span>
+      <span>Tracked files: 241</span>
+      <span>Depth: standard</span>
+    </div>
+  </header>
+
+  <div class="toc">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#summary">Summary Metrics</a></li>
+      <li><a href="#stack">Stack Architecture</a></li>
+      <li><a href="#modules">Module Inventory &amp; Verdicts</a></li>
+      <li><a href="#issues">Structural Issues</a></li>
+      <li><a href="#deps">Dependency Audit</a></li>
+      <li><a href="#recommendations">Recommendations</a></li>
+    </ol>
+  </div>
+
+  <!-- SUMMARY -->
+  <h2 id="summary">Summary Metrics</h2>
+  <div class="summary-grid">
+    <div class="stat-card"><div class="val val-blue">241</div><div class="lbl">Tracked files</div></div>
+    <div class="stat-card"><div class="val val-green">3</div><div class="lbl">npm workspaces</div></div>
+    <div class="stat-card"><div class="val val-blue">38,338</div><div class="lbl">Source lines (approx)</div></div>
+    <div class="stat-card"><div class="val val-green">0</div><div class="lbl">Vendored third-party source</div></div>
+    <div class="stat-card"><div class="val val-orange">5</div><div class="lbl">Files exceeding 800 lines</div></div>
+    <div class="stat-card"><div class="val val-red">1</div><div class="lbl">Critical oversize file</div></div>
+    <div class="stat-card"><div class="val val-yellow">25</div><div class="lbl">Backend test files</div></div>
+    <div class="stat-card"><div class="val val-yellow">11</div><div class="lbl">Frontend test files</div></div>
+    <div class="stat-card"><div class="val val-red">2</div><div class="lbl">Stub-only providers</div></div>
+    <div class="stat-card"><div class="val val-green">0</div><div class="lbl">Build artifacts in git</div></div>
+  </div>
+
+  <p style="color:var(--muted); font-size:.88rem; margin-bottom:2rem;">
+    <strong style="color:var(--green)">Good news:</strong> No embedded third-party source trees, no vendored libraries, no committed build artifacts.
+    All dependencies are properly declared in package.json files. Code ownership is 100% project code.
+  </p>
+
+  <hr class="divider" />
+
+  <!-- STACK -->
+  <h2 id="stack">Stack Architecture</h2>
+  <div class="arch">
+    <div class="arch-layer">
+      <h4>Frontend · /frontend</h4>
+      <div class="arch-item">React 18 <span class="tech">UI framework</span></div>
+      <div class="arch-item">Vite 7 <span class="tech">build tool</span></div>
+      <div class="arch-item">TypeScript 5.6 <span class="tech">type safety</span></div>
+      <div class="arch-item">TanStack Query <span class="tech">server state</span></div>
+      <div class="arch-item">Radix UI / shadcn <span class="tech">component layer</span></div>
+      <div class="arch-item">Tailwind CSS 3 <span class="tech">styling</span></div>
+      <div class="arch-item">React Hook Form + Zod <span class="tech">forms</span></div>
+      <div class="arch-item">Stripe.js <span class="tech">online giving</span></div>
+      <div class="arch-item">jsPDF + autotable <span class="tech">PDF export</span></div>
+    </div>
+    <div class="arch-layer">
+      <h4>Backend · /backend</h4>
+      <div class="arch-item">Express 4.21 <span class="tech">HTTP server</span></div>
+      <div class="arch-item">TypeScript 5.6 <span class="tech">type safety</span></div>
+      <div class="arch-item">Prisma 5.20 <span class="tech">ORM</span></div>
+      <div class="arch-item">PostgreSQL <span class="tech">database</span></div>
+      <div class="arch-item">JWT (jsonwebtoken) <span class="tech">auth tokens</span></div>
+      <div class="arch-item">bcryptjs <span class="tech">password hashing</span></div>
+      <div class="arch-item">Stripe SDK 20 <span class="tech">payments</span></div>
+      <div class="arch-item">helmet + rate-limit <span class="tech">security</span></div>
+      <div class="arch-item">Vitest <span class="tech">testing</span></div>
+    </div>
+    <div class="arch-layer">
+      <h4>Shared · /shared</h4>
+      <div class="arch-item">Zod schemas <span class="tech">validation + types</span></div>
+      <div class="arch-item">10 schema modules <span class="tech">domain coverage</span></div>
+    </div>
+    <div class="arch-layer">
+      <h4>Infrastructure</h4>
+      <div class="arch-item">Docker Compose <span class="tech">local dev</span></div>
+      <div class="arch-item">GitHub Actions CI <span class="tech">CI/CD</span></div>
+      <div class="arch-item">nginx <span class="tech">frontend serving</span></div>
+      <div class="arch-item">7 Prisma migrations <span class="tech">schema history</span></div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- MODULES -->
+  <h2 id="modules">Module Inventory &amp; Verdicts</h2>
+
+  <h3>Backend — /backend/src</h3>
+  <table class="mod-table">
+    <thead>
+      <tr><th>Module / File</th><th>Lines</th><th>Verdict</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="file-path">routes/<strong>setup.ts</strong></span></td>
+        <td><span class="lines over">646</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Wizard + admin RBAC logic combined; approaching limit</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>reports.ts</strong></span></td>
+        <td><span class="lines over">612</span></td>
+        <td><span class="badge badge-extract">Extract &amp; Merge</span></td>
+        <td>6+ report types; extract per-domain report handlers</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>worship-plans.ts</strong></span></td>
+        <td><span class="lines over">601</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Dense but cohesive; consider controller extraction</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>events.ts</strong></span></td>
+        <td><span class="lines">508</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Well within limits</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>kids-checkin.ts</strong></span></td>
+        <td><span class="lines">501</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>purchase-orders.ts</strong></span></td>
+        <td><span class="lines">497</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>invoices.ts</strong></span></td>
+        <td><span class="lines">494</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>messages.ts</strong></span></td>
+        <td><span class="lines">479</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">routes/<strong>members.ts</strong></span></td>
+        <td><span class="lines">478</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">lib/<strong>security.ts</strong></span></td>
+        <td><span class="lines">~220</span></td>
+        <td><span class="badge badge-rebuild">Rebuild</span></td>
+        <td>In-memory token blacklist — won't survive restarts; needs Redis/DB</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">lib/<strong>auth.ts</strong></span></td>
+        <td><span class="lines">~135</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Clean JWT + bcrypt wrapper</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">lib/<strong>audit.ts</strong></span></td>
+        <td><span class="lines">~50</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">providers/messaging/<strong>email-stub.ts</strong></span></td>
+        <td><span class="lines">~30</span></td>
+        <td><span class="badge badge-rebuild">Rebuild</span></td>
+        <td>Stub only — logs to console; no real email delivery</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">providers/messaging/<strong>sms-stub.ts</strong></span></td>
+        <td><span class="lines">~30</span></td>
+        <td><span class="badge badge-rebuild">Rebuild</span></td>
+        <td>Stub only — logs to console; no real SMS delivery</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">middleware/<strong>auth.ts</strong></span></td>
+        <td><span class="lines">~80</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Permission-based guard, clean</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">middleware/<strong>rateLimiter.ts</strong></span></td>
+        <td><span class="lines">~30</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path"><strong>prisma/schema.prisma</strong></span></td>
+        <td><span class="lines">821</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>6-phase domain model; well organized by phase comments</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Frontend — /frontend/src</h3>
+  <table class="mod-table">
+    <thead>
+      <tr><th>Module / File</th><th>Lines</th><th>Verdict</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="file-path">lib/<strong>api.ts</strong></span></td>
+        <td><span class="lines critical">1,986</span></td>
+        <td><span class="badge badge-extract">Extract &amp; Merge</span></td>
+        <td>🚨 2.5× over limit — all API calls for all domains in one file</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">pages/setup/<strong>SetupWizardPage.tsx</strong></span></td>
+        <td><span class="lines over">801</span></td>
+        <td><span class="badge badge-extract">Extract &amp; Merge</span></td>
+        <td>Slightly over; each step could be its own component</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">pages/occurrences/<strong>OccurrenceDetailPage.tsx</strong></span></td>
+        <td><span class="lines">730</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Complex page; watch for further growth</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">pages/admin/<strong>AdminSettingsPage.tsx</strong></span></td>
+        <td><span class="lines">678</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">hooks/<strong>useAccounting.ts</strong></span></td>
+        <td><span class="lines">521</span></td>
+        <td><span class="badge badge-extract">Extract &amp; Merge</span></td>
+        <td>All accounting domain hooks in one file; split by subdomain</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">pages/kids-checkin/<strong>KioskModePage.tsx</strong></span></td>
+        <td><span class="lines">435</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">lib/<strong>pdf.ts</strong></span></td>
+        <td><span class="lines">420</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>PDF generation utility; cohesive</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">pages/giving/<strong>GivingPortalPage.tsx</strong></span></td>
+        <td><span class="lines">420</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Public-facing giving page with Stripe</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">components/ui/<strong>* (11 files)</strong></span></td>
+        <td><span class="lines">~700 total</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>shadcn/radix wrappers — treat as owned UI primitives</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">context/<strong>AuthContext.tsx</strong></span></td>
+        <td><span class="lines">~100</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="file-path">hooks/<strong>use*.ts (18 files)</strong></span></td>
+        <td><span class="lines">~2,200 total</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>1 hook per domain — clean pattern</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Shared — /shared/src</h3>
+  <table class="mod-table">
+    <thead>
+      <tr><th>Module</th><th>Lines</th><th>Verdict</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="file-path">schemas/<strong>accounting.ts</strong></span></td>
+        <td><span class="lines">464</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Largest schema file; consider splitting by entity</td>
+      </tr>
+      <tr>
+        <td><span class="file-path">schemas/<strong>auth.ts, events.ts, members.ts …</strong></span></td>
+        <td><span class="lines">~100–200 each</span></td>
+        <td><span class="badge badge-core">Core Asset</span></td>
+        <td>Well-sized Zod schema modules</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <!-- ISSUES -->
+  <h2 id="issues">Structural Issues</h2>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-critical">CRITICAL</span>
+      <span class="issue-title">frontend/src/lib/api.ts is 1,986 lines — 2.5× over limit</span>
+    </div>
+    <div class="issue-body">
+      Every API call for every domain (members, events, giving, accounting, sales, settings, comms…) is packed into
+      one flat file. This makes the file impossible to review in isolation, causes merge conflicts, and defeats
+      tree-shaking.
+      <ul>
+        <li>Split into per-domain API modules: <code>api/members.ts</code>, <code>api/events.ts</code>, <code>api/accounting.ts</code>, etc.</li>
+        <li>Keep <code>api/client.ts</code> for the shared fetch wrapper + error types only.</li>
+        <li>Each hook file already has a 1-to-1 domain mapping — mirror that structure here.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-critical">CRITICAL</span>
+      <span class="issue-title">In-memory token blacklist won't survive process restarts</span>
+    </div>
+    <div class="issue-body">
+      <code>backend/src/lib/security.ts</code> stores the logout blacklist in a plain JS array.
+      Any restart (deploy, crash, scaling) clears it — allowing a logged-out token to be replayed.
+      The code itself carries the comment "In production, this should use Redis or database."
+      <ul>
+        <li>Add a <code>token_blacklist</code> table in Postgres with <code>(jti, expires_at)</code> and a cleanup job.</li>
+        <li>Or configure an Upstash Redis instance and replace the in-memory set.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-high">HIGH</span>
+      <span class="issue-title">Auth token stored in localStorage (XSS-vulnerable)</span>
+    </div>
+    <div class="issue-body">
+      <code>frontend/src/lib/api.ts</code> reads/writes <code>auth_token</code> from <code>localStorage</code>.
+      The comment at line 1 acknowledges this is vulnerable to XSS and defers a fix.
+      Meanwhile, the backend already issues <code>httpOnly</code> cookies (<code>steward_session</code>).
+      <ul>
+        <li>Stop dual-storing. Remove the <code>localStorage</code> path; let the httpOnly cookie do all auth.</li>
+        <li>The backend's <code>COOKIE_OPTIONS</code> is already correctly configured with <code>secure + sameSite: strict</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-high">HIGH</span>
+      <span class="issue-title">Messaging providers are stubs — no real delivery</span>
+    </div>
+    <div class="issue-body">
+      <code>providers/messaging/email-stub.ts</code> and <code>sms-stub.ts</code> only <code>console.log</code>.
+      The Phase 4 communications feature (compose message, templates, opt-in) is fully wired but silently discards
+      all outbound messages.
+      <ul>
+        <li>Wire up a real email provider: SendGrid, Postmark, or Amazon SES via their Node SDK.</li>
+        <li>Wire up a real SMS provider: Twilio or similar.</li>
+        <li>Keep stubs for test environments; swap via an environment variable (<code>MESSAGING_PROVIDER=stub|sendgrid</code>).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-high">HIGH</span>
+      <span class="issue-title">steward-brand dependency loaded from GitHub URL</span>
+    </div>
+    <div class="issue-body">
+      <code>frontend/package.json</code> declares <code>"steward-brand": "github:24Skater/steward-brand#main"</code>.
+      This pins to a branch tip, not a commit hash or tag — meaning the dependency silently updates whenever
+      someone force-pushes to <code>main</code> on that repo.
+      <ul>
+        <li>Pin to a specific commit SHA: <code>"github:24Skater/steward-brand#&lt;sha&gt;"</code>.</li>
+        <li>Or publish the package to npm (even a private registry) so it gets a lockfile-safe version.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-medium">MEDIUM</span>
+      <span class="issue-title">vite listed in backend production dependencies</span>
+    </div>
+    <div class="issue-body">
+      <code>backend/package.json</code> has <code>"vite": "7.3.1"</code> under <code>dependencies</code>, not <code>devDependencies</code>.
+      Vite is a dev-time build tool; it has no role at runtime and adds ~4 MB to the production install.
+      Move it to <code>devDependencies</code>.
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-medium">MEDIUM</span>
+      <span class="issue-title">Sparse test coverage — 25 backend + 11 frontend test files for 168 source files</span>
+    </div>
+    <div class="issue-body">
+      Route-level integration tests exist for the most critical paths (auth, members, events, accounting, sales),
+      but most route files have no test file. The frontend has only component-level smoke tests.
+      <ul>
+        <li>Backend coverage target: add test files for <code>worship-plans</code>, <code>messages</code>, <code>kids-checkin</code>, <code>online-giving</code>, <code>groups</code>.</li>
+        <li>Frontend: add hook-level tests using <code>msw</code> or vitest mocks alongside the existing RTL component tests.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-low">LOW</span>
+      <span class="issue-title">reports.ts (612 lines) — should be split by domain</span>
+    </div>
+    <div class="issue-body">
+      The reports route bundles attendance, giving, membership, finance, and sales report endpoints together.
+      Each report type is independent; extract into <code>routes/reports/attendance.ts</code>,
+      <code>giving.ts</code>, etc., then re-export from an index.
+    </div>
+  </div>
+
+  <div class="issue">
+    <div class="issue-header">
+      <span class="sev sev-low">LOW</span>
+      <span class="issue-title">frontend/dist/ present on disk but not tracked in git</span>
+    </div>
+    <div class="issue-body">
+      The <code>frontend/dist/</code> directory exists locally but is correctly excluded from git via <code>.gitignore</code>.
+      No action needed — just confirming it's clean.
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- DEPS -->
+  <h2 id="deps">Dependency Audit</h2>
+
+  <h3>Backend Runtime Dependencies</h3>
+  <table class="mod-table">
+    <thead><tr><th>Package</th><th>Version</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>express</td><td>^4.21.0</td><td>HTTP framework</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>@prisma/client</td><td>^5.20.0</td><td>ORM</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>bcryptjs</td><td>^2.4.3</td><td>Password hashing</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>jsonwebtoken</td><td>^9.0.2</td><td>JWT</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>helmet</td><td>^7.1.0</td><td>Security headers</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>express-rate-limit</td><td>^8.2.1</td><td>Rate limiting</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>stripe</td><td>^20.3.1</td><td>Payments</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>zod</td><td>^3.23.8</td><td>Validation</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>cookie-parser</td><td>^1.4.7</td><td>Cookie parsing</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td><strong>vite</strong></td><td>7.3.1</td><td>Build tool</td><td><span class="badge badge-rebuild">Should be devDep</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Frontend Notable Dependencies</h3>
+  <table class="mod-table">
+    <thead><tr><th>Package</th><th>Version</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>react + react-dom</td><td>^18.3.1</td><td>UI framework</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>@tanstack/react-query</td><td>^5.59.0</td><td>Server state</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>@radix-ui/*</td><td>various</td><td>Accessible primitives</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>react-hook-form + zod</td><td>^7.53.0</td><td>Forms + validation</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>@stripe/react-stripe-js</td><td>^5.6.0</td><td>Stripe Elements</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>jspdf + jspdf-autotable</td><td>^4.0.0</td><td>PDF export</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td>date-fns</td><td>^3.6.0</td><td>Date utilities</td><td><span class="badge badge-core">OK</span></td></tr>
+      <tr><td><strong>steward-brand</strong></td><td>github:#main</td><td>Branding assets</td><td><span class="badge badge-rebuild">Pin to commit SHA</span></td></tr>
+      <tr><td>react-to-print</td><td>^3.2.0</td><td>Print support</td><td><span class="badge badge-core">OK</span></td></tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <!-- RECOMMENDATIONS -->
+  <h2 id="recommendations">Recommendations — Prioritized</h2>
+
+  <div class="rec-grid">
+    <div class="rec-card">
+      <h4>1 · Split api.ts immediately</h4>
+      <p>The 1,986-line monolith is the single biggest maintenance liability. Split into
+      ~10 domain API files this sprint. Hooks already provide the right split structure to follow.</p>
+    </div>
+    <div class="rec-card">
+      <h4>2 · Fix token blacklist for production</h4>
+      <p>Before real users log in, replace the in-memory blacklist with a Postgres table or Redis.
+      A user whose session is terminated can still replay their token until the server restarts.</p>
+    </div>
+    <div class="rec-card">
+      <h4>3 · Consolidate auth storage</h4>
+      <p>Remove <code>localStorage</code> token storage; rely solely on the httpOnly cookie already being set.
+      This eliminates the XSS risk at minimal effort since the backend infra is already correct.</p>
+    </div>
+    <div class="rec-card">
+      <h4>4 · Wire real messaging providers</h4>
+      <p>Add <code>MESSAGING_PROVIDER</code> env var. Implement SendGrid (email) and Twilio (SMS) adapters.
+      Keep stubs for test environments. Communications feature is complete but currently silent.</p>
+    </div>
+    <div class="rec-card">
+      <h4>5 · Pin steward-brand to a commit SHA</h4>
+      <p>Change <code>"github:24Skater/steward-brand#main"</code> to a specific commit hash.
+      This prevents silent upstream changes from breaking your builds.</p>
+    </div>
+    <div class="rec-card">
+      <h4>6 · Move vite to devDependencies in backend</h4>
+      <p>One-line change in <code>backend/package.json</code>. Keeps the production Docker image lean.</p>
+    </div>
+    <div class="rec-card">
+      <h4>7 · Expand test coverage</h4>
+      <p>Add backend integration tests for: <code>worship-plans</code>, <code>messages</code>, <code>kids-checkin</code>, <code>online-giving</code>, <code>groups</code>.
+      Target 80% route handler coverage.</p>
+    </div>
+    <div class="rec-card">
+      <h4>8 · Split reports.ts and useAccounting.ts</h4>
+      <p>Both files bundle multiple domains. A low-risk refactor that pays off when teams start
+      working on reports or accounting features in parallel.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+  <p style="color:var(--muted); font-size:.8rem; text-align:center;">
+    Generated by repo-scan · StewardChMS · 2026-05-26 · All 241 tracked files classified · 0 vendored third-party source
+  </p>
+</div>
+</body>
+</html>
