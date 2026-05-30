@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 48" fill="none">
+  <rect width="840" height="48" fill="#0a0f1e"/>
+  <rect width="3" height="48" fill="#ec4899"/>
+  <rect x="3" y="47" width="837" height="1" fill="#1e293b"/>
+  <!-- ShoppingBag icon -->
+  <g transform="translate(18,14) scale(0.833)" stroke="#ec4899" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+    <path d="M3 6h18"/>
+    <path d="M16 10a4 4 0 0 1-8 0"/>
+  </g>
+  <text x="50" y="30" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="600" fill="#f1f5f9" letter-spacing="0.5">Sales &amp; Inventory</text>
+  <text x="195" y="30" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#475569">Product Catalog · Stock Tracking · POS · Sales Reports</text>
+  <rect x="820" y="20" width="8" height="8" rx="2" fill="#ec4899" opacity="0.4"/>
+</svg>
