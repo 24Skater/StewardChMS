@@ -99,8 +99,8 @@ function ScheduleKioskPage() {
             <h1 style={{ fontSize: vw(3) }} className="font-bold">Schedule Unavailable</h1>
             <p style={{ fontSize: vw(1.2) }} className="dark:text-gray-400 text-gray-500">{error}</p>
           </div>
-          <ThemeToggle isDark={isDark} toggle={toggle} />
         </div>
+        <ThemeToggle isDark={isDark} toggle={toggle} />
       </div>
     )
   }
@@ -110,14 +110,14 @@ function ScheduleKioskPage() {
       <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
         <div className="h-screen flex items-center justify-center dark:bg-gray-950 bg-white">
           <p style={{ fontSize: vw(1.8) }} className="dark:text-gray-400 text-gray-500 animate-pulse">Loading schedule...</p>
-          <ThemeToggle isDark={isDark} toggle={toggle} />
         </div>
+        <ThemeToggle isDark={isDark} toggle={toggle} />
       </div>
     )
   }
 
   const today = new Date()
-  const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   const { year, month, grid, slotsByDay } = buildMonth(schedule.slots)
 
   if (schedule.slots.length === 0) {
@@ -190,7 +190,7 @@ function ScheduleKioskPage() {
             className="flex-1 grid grid-cols-7 border-b dark:border-gray-800 border-gray-200 last:border-b-0"
           >
             {row.map((day, ci) => {
-              const isToday = day !== null && `${year}-${month}-${day}` === todayKey
+              const isToday = day !== null && `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}` === todayKey
               const daySlots = day !== null ? (slotsByDay[day] ?? []) : []
               const hasSlots = daySlots.length > 0
 
