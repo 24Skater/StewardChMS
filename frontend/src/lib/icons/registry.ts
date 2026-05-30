@@ -34,7 +34,7 @@ function lf(L: LucideIcon): IconVariant {
 }
 
 export type IconName =
-  | 'dashboard' | 'members' | 'households' | 'groups' | 'events'
+  | 'dashboard' | 'members' | 'households' | 'groups' | 'events' | 'schedules'
   | 'kids-checkin' | 'songs' | 'messages' | 'giving' | 'pledges'
   | 'funds' | 'expenses' | 'invoices' | 'purchase-orders' | 'vendors'
   | 'products' | 'inventory' | 'sales' | 'reports' | 'settings'
@@ -53,6 +53,7 @@ export const registry: Record<IconName, { outlined: IconVariant; filled: IconVar
   'households':      { outlined: lo(Home),            filled: lf(Home) },
   'groups':          { outlined: lo(Landmark),        filled: lf(Landmark) },
   'events':          { outlined: lo(Calendar),        filled: lf(Calendar) },
+  'schedules':       { outlined: lo(CalendarDays),    filled: lf(CalendarDays) },
   'kids-checkin':    { outlined: KidsCheckinIconOutlined, filled: KidsCheckinIconFilled },
   'songs':           { outlined: lo(Music),           filled: lf(Music) },
   'messages':        { outlined: lo(MessageSquare),   filled: lf(MessageSquare) },

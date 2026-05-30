@@ -56,6 +56,24 @@ const DEFAULT_PERMISSIONS = [
   { key: 'checkin.operate', description: 'Perform check-ins/check-outs' },
   // Online giving permissions
   { key: 'giving.online.configure', description: 'Configure online giving settings' },
+  // Ministry Scheduling permissions (Phase 7)
+  { key: 'schedules.view', description: 'View ministry calendars and schedules' },
+  { key: 'schedules.manage', description: 'Full CRUD on calendars, periods, slots, and assignments' },
+]
+
+const SCHEDULE_MESSAGE_TEMPLATES = [
+  {
+    name: 'schedule.assigned',
+    channel: 'email' as const,
+    subject: 'You have been scheduled',
+    body: 'Hi {name}, you are scheduled for {duty} on {date} at {church_name}.',
+  },
+  {
+    name: 'schedule.reminder',
+    channel: 'email' as const,
+    subject: 'Upcoming duty reminder',
+    body: 'Reminder: you are scheduled for {duty} in {days} day(s) at {church_name}.',
+  },
 ]
 
 async function main() {
@@ -93,6 +111,41 @@ async function main() {
     },
   })
   console.log('   [OK] Admin role created/updated')
+
+  // Seed Scheduler role
+  console.log('Seeding scheduler role...')
+  const schedulerRole = await prisma.role.upsert({
+    where: { name: 'scheduler' },
+    update: { description: 'Ministry Scheduler with schedule management access' },
+    create: {
+      name: 'scheduler',
+      description: 'Ministry Scheduler with schedule management access',
+    },
+  })
+  const schedulerPermKeys = ['schedules.view', 'schedules.manage']
+  for (const key of schedulerPermKeys) {
+    const perm = await prisma.permission.findUnique({ where: { key } })
+    if (perm) {
+      await prisma.rolePermission.upsert({
+        where: { roleId_permissionId: { roleId: schedulerRole.id, permissionId: perm.id } },
+        update: {},
+        create: { roleId: schedulerRole.id, permissionId: perm.id },
+      })
+    }
+  }
+  console.log('   [OK] Scheduler role created/updated')
+
+  // Seed scheduling message templates (idempotent by name)
+  console.log('Seeding schedule message templates...')
+  for (const tmpl of SCHEDULE_MESSAGE_TEMPLATES) {
+    const existing = await prisma.messageTemplate.findFirst({ where: { name: tmpl.name } })
+    if (!existing) {
+      await prisma.messageTemplate.create({ data: tmpl })
+    } else {
+      await prisma.messageTemplate.update({ where: { id: existing.id }, data: { subject: tmpl.subject, body: tmpl.body } })
+    }
+  }
+  console.log('   [OK] Schedule message templates seeded')
 
   // Assign all permissions to admin role
   const allPermissions = await prisma.permission.findMany()

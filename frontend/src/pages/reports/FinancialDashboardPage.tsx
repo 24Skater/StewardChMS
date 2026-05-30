@@ -5,6 +5,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts'
 import { apiRequest } from '../../lib/api'
+import type { LucideIcon } from 'lucide-react'
 import { TrendingUp, TrendingDown, DollarSign, BarChart2 } from 'lucide-react'
 
 // ── types ────────────────────────────────────────────────────────────────────
@@ -49,12 +50,15 @@ const FUND_COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#6b7280', '#ec
 
 // ── custom tooltip ────────────────────────────────────────────────────────────
 
-function BarTooltip({ active, payload, label }: any) {
+interface TooltipEntry { name: string; value: number; fill: string; payload: Record<string, number> }
+interface ChartTooltipProps { active?: boolean; payload?: TooltipEntry[]; label?: string }
+
+function BarTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-surface)] p-3 shadow-lg text-xs">
       <p className="font-semibold text-[var(--st-fg)] mb-2">{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: p.fill }} />
           <span className="text-[var(--st-muted)]">{p.name}:</span>
@@ -65,7 +69,7 @@ function BarTooltip({ active, payload, label }: any) {
   )
 }
 
-function PieTooltip({ active, payload }: any) {
+function PieTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   return (
@@ -78,7 +82,7 @@ function PieTooltip({ active, payload }: any) {
 
 // ── KPI card ─────────────────────────────────────────────────────────────────
 
-function KpiCard({ label, cents, icon: Icon, color, subLabel }: { label: string; cents: number; icon: any; color: string; subLabel?: string }) {
+function KpiCard({ label, cents, icon: Icon, color, subLabel }: { label: string; cents: number; icon: LucideIcon; color: string; subLabel?: string }) {
   const isNegative = cents < 0
   return (
     <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/60 p-5 backdrop-blur-sm">

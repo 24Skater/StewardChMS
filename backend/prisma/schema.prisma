@@ -26,11 +26,13 @@ model User {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  userRoles      UserRole[]
-  auditLogs      AuditLog[]      @relation("ActorAuditLogs")
-  messages       Message[]
-  purchaseOrders PurchaseOrder[]
-  sales          Sale[]
+  userRoles            UserRole[]
+  auditLogs            AuditLog[]      @relation("ActorAuditLogs")
+  messages             Message[]
+  purchaseOrders       PurchaseOrder[]
+  sales                Sale[]
+  createdCalendars     MinistryCalendar[]  @relation("CalendarCreatedBy")
+  assignedSlots        SlotAssignment[]    @relation("AssignedBy")
 
   @@map("users")
 }
@@ -129,17 +131,19 @@ model Member {
   updatedAt       DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  householdMembers  HouseholdMember[]
-  registrations     Registration[]
-  checkIns          CheckIn[]
-  worshipPlanItems  WorshipPlanItem[]
-  messageRecipients MessageRecipient[]
-  optInPreferences  OptInPreference[]
-  donations         Donation[]
-  pledges           Pledge[]
-  sales             Sale[]
-  groupMemberships  GroupMember[]
-  groupLeaderships  GroupLeader[]
+  householdMembers     HouseholdMember[]
+  registrations        Registration[]
+  checkIns             CheckIn[]
+  worshipPlanItems     WorshipPlanItem[]
+  messageRecipients    MessageRecipient[]
+  optInPreferences     OptInPreference[]
+  donations            Donation[]
+  pledges              Pledge[]
+  sales                Sale[]
+  groupMemberships     GroupMember[]
+  groupLeaderships     GroupLeader[]
+  rotationMemberships  CalendarRotationMember[]
+  slotAssignments      SlotAssignment[]
 
   @@index([lastName])
   @@index([email])
@@ -223,10 +227,11 @@ model EventOccurrence {
   notes    String?
 
   // Relations
-  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  registrations Registration[]
-  checkIns      CheckIn[]
-  worshipPlan   WorshipPlan?
+  event          Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  registrations  Registration[]
+  checkIns       CheckIn[]
+  worshipPlan    WorshipPlan?
+  scheduleSlots  ScheduleSlot[]
 
   @@unique([eventId, startsAt])
   @@index([startsAt])
@@ -761,9 +766,10 @@ model Ministry {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  parent   Ministry?  @relation("MinistryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children Ministry[] @relation("MinistryHierarchy")
-  groups   Group[]
+  parent    Ministry?          @relation("MinistryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Ministry[]         @relation("MinistryHierarchy")
+  groups    Group[]
+  calendars MinistryCalendar[]
 
   @@index([parentId])
   @@map("ministries")
@@ -817,4 +823,112 @@ model GroupLeader {
 
   @@unique([groupId, memberId])
   @@map("group_leaders")
+}
+
+// ============================================
+// Ministry Scheduling Models (Phase 7)
+// ============================================
+
+enum SchedulePeriodStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model MinistryCalendar {
+  id                     String   @id @default(cuid())
+  name                   String
+  description            String?
+  ministryId             String   @map("ministry_id")
+  shareToken             String   @unique @map("share_token")
+  reminderDaysBeforeSlot Int      @default(2) @map("reminder_days_before_slot")
+  serviceDayOfWeek       Int      @default(0) @map("service_day_of_week")
+  rotationNextIndex      Int      @default(0) @map("rotation_next_index")
+  isActive               Boolean  @default(true) @map("is_active")
+  createdById            String   @map("created_by_id")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  ministry        Ministry                 @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+  createdBy       User                     @relation("CalendarCreatedBy", fields: [createdById], references: [id])
+  rotationMembers CalendarRotationMember[]
+  periods         SchedulePeriod[]
+
+  @@index([ministryId])
+  @@index([shareToken])
+  @@map("ministry_calendars")
+}
+
+model CalendarRotationMember {
+  id            String @id @default(cuid())
+  calendarId    String @map("calendar_id")
+  memberId      String @map("member_id")
+  rotationOrder Int    @map("rotation_order")
+
+  // Relations
+  calendar MinistryCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  member   Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([calendarId, memberId])
+  @@unique([calendarId, rotationOrder])
+  @@index([calendarId])
+  @@map("calendar_rotation_members")
+}
+
+model SchedulePeriod {
+  id         String               @id @default(cuid())
+  calendarId String               @map("calendar_id")
+  year       Int
+  month      Int
+  status     SchedulePeriodStatus @default(DRAFT)
+  createdAt  DateTime             @default(now()) @map("created_at")
+  updatedAt  DateTime             @updatedAt @map("updated_at")
+
+  // Relations
+  calendar MinistryCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  slots    ScheduleSlot[]
+
+  @@unique([calendarId, year, month])
+  @@index([calendarId])
+  @@map("schedule_periods")
+}
+
+model ScheduleSlot {
+  id                String   @id @default(cuid())
+  periodId          String   @map("period_id")
+  slotDate          DateTime @map("slot_date")
+  label             String?
+  eventOccurrenceId String?  @map("event_occurrence_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  period          SchedulePeriod   @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  eventOccurrence EventOccurrence? @relation(fields: [eventOccurrenceId], references: [id], onDelete: SetNull)
+  assignment      SlotAssignment?
+
+  @@index([periodId])
+  @@index([slotDate])
+  @@map("schedule_slots")
+}
+
+model SlotAssignment {
+  id             String    @id @default(cuid())
+  slotId         String    @unique @map("slot_id")
+  memberId       String    @map("member_id")
+  assignedById   String    @map("assigned_by_id")
+  notifiedAt     DateTime? @map("notified_at")
+  reminderSentAt DateTime? @map("reminder_sent_at")
+  notes          String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  slot       ScheduleSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  member     Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  assignedBy User         @relation("AssignedBy", fields: [assignedById], references: [id])
+
+  @@index([memberId])
+  @@index([slotId])
+  @@map("slot_assignments")
 }

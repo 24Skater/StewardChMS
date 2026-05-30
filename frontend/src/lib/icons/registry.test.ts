@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { registry, allIconNames } from './registry'
 
 describe('registry', () => {
-  it('has 56 entries', () => {
-    expect(allIconNames.length).toBe(56)
+  it('has 57 entries', () => {
+    expect(allIconNames.length).toBe(57)
   })
 
   it('every IconName has an entry in the registry', () => {

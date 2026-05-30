@@ -40,3 +40,6 @@ export * from './communications.js'
 // Accounting + Giving schemas (Phase 5)
 export * from './accounting.js'
 
+// Ministry Scheduling schemas (Phase 7)
+export * from './schedules.js'
+

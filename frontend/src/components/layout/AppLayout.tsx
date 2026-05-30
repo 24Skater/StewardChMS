@@ -38,6 +38,7 @@ const navSections: NavSection[] = [
     title: 'Events & Worship',
     items: [
       { label: 'Events', href: '/events', icon: 'events' },
+      { label: 'Schedules', href: '/schedules', icon: 'schedules' },
       { label: 'Kids Check-In', href: '/kids-checkin', icon: 'kids-checkin' },
       { label: 'Songs', href: '/songs', icon: 'songs' },
     ],

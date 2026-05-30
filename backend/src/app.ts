@@ -39,6 +39,11 @@ import groupsRouter from './routes/groups.js'
 import kidsCheckinRouter from './routes/kids-checkin.js'
 // Online Giving
 import onlineGivingRouter from './routes/online-giving.js'
+// Ministry Scheduling (Phase 7)
+import ministryCalendarsRouter from './routes/ministry-calendars.js'
+import schedulePeriodsRouter from './routes/schedule-periods.js'
+import scheduleSlotsRouter from './routes/schedule-slots.js'
+import publicScheduleRouter from './routes/public-schedule.js'
 
 // Validate environment on startup
 validateEnvironment()
@@ -105,6 +110,13 @@ app.use('/api/kids-checkin', kidsCheckinRouter)
 
 // Online Giving (public routes + admin routes)
 app.use('/api/online-giving', onlineGivingRouter)
+
+// Ministry Scheduling (Phase 7)
+app.use('/api/ministry-calendars', ministryCalendarsRouter)
+app.use('/api/ministry-calendars/:calendarId/periods', schedulePeriodsRouter)
+app.use('/api/schedule-slots', scheduleSlotsRouter)
+// Public kiosk schedule (no auth)
+app.use('/public/schedule', publicScheduleRouter)
 
 // 404 handler
 app.use((_req, res) => {
