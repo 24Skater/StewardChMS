@@ -229,7 +229,7 @@ export default function KioskModePage() {
   }
 
   return (
-    <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+    <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
     <div className="min-h-screen bg-gradient-to-br from-[var(--st-primary)] via-purple-600 to-[var(--st-color-success)] flex items-center justify-center p-4">
       <Card className="w-full max-w-xl shadow-2xl bg-[var(--st-surface)] border-[var(--st-border)]">
         <CardHeader className="text-center pb-2">
@@ -439,7 +439,11 @@ export default function KioskModePage() {
       <button
         onClick={toggle}
         aria-label="Toggle theme"
-        className="fixed bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:opacity-80 transition-opacity shadow-md"
+        className={`absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border shadow-md hover:opacity-80 transition-opacity ${
+          isDark
+            ? 'bg-white/20 backdrop-blur-sm border-white/30 text-white'
+            : 'bg-white/90 border-gray-300 text-gray-700'
+        }`}
       >
         {isDark ? <Sun size={16} /> : <Moon size={16} />}
       </button>
