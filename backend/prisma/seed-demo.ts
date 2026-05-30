@@ -14,6 +14,7 @@ import {
   MessageChannel,
   PaymentMethod,
   PledgeStatus,
+  Prisma,
   PrismaClient,
   PurchaseOrderStatus,
   RelationshipType,
@@ -414,7 +415,7 @@ async function main() {
   ]
 
   for (const d of donationData) {
-    await prisma.donation.create({ data: { ...d, currency: 'USD' } as any })
+    await prisma.donation.create({ data: { ...d, currency: 'USD' } as Prisma.DonationCreateInput })
   }
   console.log(`   ${donationData.length} donations created`)
 

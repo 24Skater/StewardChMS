@@ -58,6 +58,12 @@ import KioskModePage from './pages/kids-checkin/KioskModePage'
 // Online Giving
 import GivingPortalPage from './pages/giving/GivingPortalPage'
 import ThankYouPage from './pages/giving/ThankYouPage'
+// Ministry Scheduling (Phase 7)
+import SchedulesPage from './pages/schedules/SchedulesPage'
+import ScheduleFormPage from './pages/schedules/ScheduleFormPage'
+import ScheduleDetailPage from './pages/schedules/ScheduleDetailPage'
+import SchedulePeriodPage from './pages/schedules/SchedulePeriodPage'
+import ScheduleKioskPage from './pages/schedules/ScheduleKioskPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
 import { IconTestPage } from './pages/IconTestPage'
@@ -74,6 +80,7 @@ function App() {
       <Route path="/setup" element={<SetupWizardPage />} />
       <Route path="/kids-checkin/kiosk" element={<KioskModePage />} />
       <Route path="/give" element={<GivingPortalPage />} />
+      <Route path="/kiosk/:token" element={<ScheduleKioskPage />} />
       <Route path="/give/thank-you" element={<ThankYouPage />} />
 
       {/* Protected Routes with App Layout */}
@@ -154,6 +161,13 @@ function App() {
         
         {/* Kids Check-in */}
         <Route path="/kids-checkin" element={<KidsCheckinPage />} />
+
+        {/* Ministry Scheduling */}
+        <Route path="/schedules" element={<SchedulesPage />} />
+        <Route path="/schedules/new" element={<ScheduleFormPage />} />
+        <Route path="/schedules/:id" element={<ScheduleDetailPage />} />
+        <Route path="/schedules/:id/edit" element={<ScheduleFormPage />} />
+        <Route path="/schedules/:id/periods/:periodId" element={<SchedulePeriodPage />} />
       </Route>
     </Routes>
   )
