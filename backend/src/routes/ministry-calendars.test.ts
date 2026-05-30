@@ -13,6 +13,7 @@ if (DATABASE_URL) {
 const describeWithDb = DATABASE_URL ? describe : describe.skip
 
 describeWithDb('Ministry Calendars API', () => {
+  let testUserId: string
   let testMinistryId: string
   let testCalendarId: string
   let manageToken: string
@@ -22,23 +23,33 @@ describeWithDb('Ministry Calendars API', () => {
   beforeAll(async () => {
     if (!prisma) return
 
+    // Create a real test user so createdById FK constraints pass
+    const user = await prisma.user.create({
+      data: {
+        email: `sched-test-${Date.now()}@example.com`,
+        passwordHash: 'test-hash',
+        isActive: true,
+      },
+    })
+    testUserId = user.id
+
     manageToken = signToken({
-      userId: 'test-user-id',
-      email: 'test@example.com',
+      userId: testUserId,
+      email: user.email,
       roles: ['admin'],
       permissions: ['schedules.view', 'schedules.manage'],
     }).accessToken
 
     viewToken = signToken({
-      userId: 'test-user-id',
-      email: 'test@example.com',
+      userId: testUserId,
+      email: user.email,
       roles: ['scheduler'],
       permissions: ['schedules.view'],
     }).accessToken
 
     noToken = signToken({
-      userId: 'test-user-id',
-      email: 'test@example.com',
+      userId: testUserId,
+      email: user.email,
       roles: ['staff'],
       permissions: ['members.read'],
     }).accessToken
@@ -54,6 +65,7 @@ describeWithDb('Ministry Calendars API', () => {
     if (!prisma) return
     await prisma.ministryCalendar.deleteMany({ where: { ministryId: testMinistryId } })
     await prisma.ministry.delete({ where: { id: testMinistryId } }).catch(() => {})
+    await prisma.user.delete({ where: { id: testUserId } }).catch(() => {})
     await prisma.$disconnect()
   })
 
