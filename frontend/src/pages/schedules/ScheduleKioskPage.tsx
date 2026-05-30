@@ -114,6 +114,7 @@ function ScheduleKioskPage() {
         className={`h-screen flex items-center justify-center dark:bg-gray-950 bg-white ${isDark ? 'dark' : ''}`}
       >
         <p style={{ fontSize: vw(1.8) }} className="dark:text-gray-400 text-gray-500 animate-pulse">Loading schedule...</p>
+        <ThemeToggle isDark={isDark} toggle={toggle} />
       </div>
     )
   }

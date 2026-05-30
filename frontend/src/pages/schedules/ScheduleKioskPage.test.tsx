@@ -41,14 +41,16 @@ describe('ScheduleKioskPage theme toggle', () => {
 
   it('removes dark class when toggle is clicked', async () => {
     renderPage()
-    const btn = await screen.findByRole('button', { name: /toggle theme/i })
+    await screen.findByText('Sunday Team')
+    const btn = screen.getByRole('button', { name: /toggle theme/i })
     fireEvent.click(btn)
     expect(screen.getByTestId('kiosk-root')).not.toHaveClass('dark')
   })
 
   it('persists light preference to localStorage after toggle', async () => {
     renderPage()
-    const btn = await screen.findByRole('button', { name: /toggle theme/i })
+    await screen.findByText('Sunday Team')
+    const btn = screen.getByRole('button', { name: /toggle theme/i })
     fireEvent.click(btn)
     expect(localStorage.getItem('kiosk-theme')).toBe('light')
   })
