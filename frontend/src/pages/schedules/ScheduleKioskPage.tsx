@@ -12,7 +12,6 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 interface MonthData {
   year: number
   month: number
-  numRows: number
   grid: (number | null)[][]
   slotsByDay: Record<number, PublicSlot[]>
 }
@@ -44,7 +43,7 @@ function buildMonth(slots: PublicSlot[]): MonthData {
     }
   }
 
-  return { year, month, numRows: grid.length, grid, slotsByDay }
+  return { year, month, grid, slotsByDay }
 }
 
 // vw-based text sizing — scales linearly with screen width
@@ -56,7 +55,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean; toggle: () => void }
     <button
       onClick={toggle}
       aria-label="Toggle theme"
-      className={`fixed bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border shadow-md hover:opacity-80 transition-opacity ${
+      className={`absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center border shadow-md hover:opacity-80 transition-opacity ${
         isDark
           ? 'bg-gray-800 border-gray-600 text-gray-200'
           : 'bg-gray-100 border-gray-300 text-gray-700'
@@ -93,7 +92,7 @@ function ScheduleKioskPage() {
 
   if (error) {
     return (
-      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+      <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
         <div className="h-screen flex items-center justify-center dark:bg-gray-950 bg-white dark:text-white text-gray-900">
           <div className="text-center space-y-4">
             <h1 style={{ fontSize: vw(3) }} className="font-bold">Schedule Unavailable</h1>
@@ -107,7 +106,7 @@ function ScheduleKioskPage() {
 
   if (!schedule) {
     return (
-      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+      <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
         <div className="h-screen flex items-center justify-center dark:bg-gray-950 bg-white">
           <p style={{ fontSize: vw(1.8) }} className="dark:text-gray-400 text-gray-500 animate-pulse">Loading schedule...</p>
         </div>
@@ -122,7 +121,7 @@ function ScheduleKioskPage() {
 
   if (schedule.slots.length === 0) {
     return (
-      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+      <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
         <div className="h-screen flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900">
           <div className="px-[2.5vw] py-[1.5vh] border-b dark:border-gray-800 border-gray-200">
             <h1 style={{ fontSize: vw(2.8) }} className="font-bold tracking-tight">{schedule.calendarName}</h1>
@@ -145,7 +144,7 @@ function ScheduleKioskPage() {
   const weekdayHeaderSize = vw(0.75)
 
   return (
-    <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+    <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
     <div className="h-screen overflow-hidden flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900">
 
       {/* ── Header ── */}

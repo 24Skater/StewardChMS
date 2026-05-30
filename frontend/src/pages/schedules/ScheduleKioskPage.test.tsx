@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import ScheduleKioskPage from './ScheduleKioskPage'
 
@@ -25,18 +25,14 @@ describe('ScheduleKioskPage theme toggle', () => {
     localStorage.clear()
   })
 
-  it('root element has dark class by default', async () => {
+  it('root element has dark class by default', () => {
     renderPage()
-    await waitFor(() => {
-      expect(screen.getByTestId('kiosk-root')).toHaveClass('dark')
-    })
+    expect(screen.getByTestId('kiosk-root')).toHaveClass('dark')
   })
 
-  it('renders a theme toggle button', async () => {
+  it('renders a theme toggle button', () => {
     renderPage()
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /toggle theme/i })).toBeInTheDocument()
-    })
+    expect(screen.getByRole('button', { name: /toggle theme/i })).toBeInTheDocument()
   })
 
   it('removes dark class when toggle is clicked', async () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 const STORAGE_KEY = 'kiosk-theme'
 
@@ -8,11 +8,13 @@ export function useKioskTheme(): { isDark: boolean; toggle: () => void } {
     return stored !== 'light'
   })
 
-  const toggle = () => {
-    const next = !isDark
-    setIsDark(next)
-    localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light')
-  }
+  const toggle = useCallback(() => {
+    setIsDark(prev => {
+      const next = !prev
+      localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light')
+      return next
+    })
+  }, [])
 
   return { isDark, toggle }
 }
