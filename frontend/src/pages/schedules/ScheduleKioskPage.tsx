@@ -74,47 +74,44 @@ function ScheduleKioskPage() {
   const [error, setError] = useState<string | null>(null)
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date())
 
-  const load = async () => {
-    if (!token) return
-    try {
-      const data = await getPublicSchedule(token)
-      setSchedule(data)
-      setLastRefreshed(new Date())
-      setError(null)
-    } catch {
-      setError('Schedule not found or the link has expired.')
-    }
-  }
-
   useEffect(() => {
-    load()
-    const interval = setInterval(load, REFRESH_INTERVAL_MS)
+    if (!token) return
+    const doLoad = async () => {
+      try {
+        const data = await getPublicSchedule(token)
+        setSchedule(data)
+        setLastRefreshed(new Date())
+        setError(null)
+      } catch {
+        setError('Schedule not found or the link has expired.')
+      }
+    }
+    doLoad()
+    const interval = setInterval(doLoad, REFRESH_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [token])
 
   if (error) {
     return (
-      <div
-        data-testid="kiosk-root"
-        className={`h-screen flex items-center justify-center dark:bg-gray-950 bg-white dark:text-white text-gray-900 ${isDark ? 'dark' : ''}`}
-      >
-        <div className="text-center space-y-4">
-          <h1 style={{ fontSize: vw(3) }} className="font-bold">Schedule Unavailable</h1>
-          <p style={{ fontSize: vw(1.2) }} className="dark:text-gray-400 text-gray-500">{error}</p>
+      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+        <div className="h-screen flex items-center justify-center dark:bg-gray-950 bg-white dark:text-white text-gray-900">
+          <div className="text-center space-y-4">
+            <h1 style={{ fontSize: vw(3) }} className="font-bold">Schedule Unavailable</h1>
+            <p style={{ fontSize: vw(1.2) }} className="dark:text-gray-400 text-gray-500">{error}</p>
+          </div>
+          <ThemeToggle isDark={isDark} toggle={toggle} />
         </div>
-        <ThemeToggle isDark={isDark} toggle={toggle} />
       </div>
     )
   }
 
   if (!schedule) {
     return (
-      <div
-        data-testid="kiosk-root"
-        className={`h-screen flex items-center justify-center dark:bg-gray-950 bg-white ${isDark ? 'dark' : ''}`}
-      >
-        <p style={{ fontSize: vw(1.8) }} className="dark:text-gray-400 text-gray-500 animate-pulse">Loading schedule...</p>
-        <ThemeToggle isDark={isDark} toggle={toggle} />
+      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+        <div className="h-screen flex items-center justify-center dark:bg-gray-950 bg-white">
+          <p style={{ fontSize: vw(1.8) }} className="dark:text-gray-400 text-gray-500 animate-pulse">Loading schedule...</p>
+          <ThemeToggle isDark={isDark} toggle={toggle} />
+        </div>
       </div>
     )
   }
@@ -125,18 +122,17 @@ function ScheduleKioskPage() {
 
   if (schedule.slots.length === 0) {
     return (
-      <div
-        data-testid="kiosk-root"
-        className={`h-screen flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900 ${isDark ? 'dark' : ''}`}
-      >
-        <div className="px-[2.5vw] py-[1.5vh] border-b dark:border-gray-800 border-gray-200">
-          <h1 style={{ fontSize: vw(2.8) }} className="font-bold tracking-tight">{schedule.calendarName}</h1>
-          <p style={{ fontSize: vw(1) }} className="dark:text-gray-500 text-gray-400 mt-1">{MONTH_NAMES[month - 1]} {year}</p>
+      <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+        <div className="h-screen flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900">
+          <div className="px-[2.5vw] py-[1.5vh] border-b dark:border-gray-800 border-gray-200">
+            <h1 style={{ fontSize: vw(2.8) }} className="font-bold tracking-tight">{schedule.calendarName}</h1>
+            <p style={{ fontSize: vw(1) }} className="dark:text-gray-500 text-gray-400 mt-1">{MONTH_NAMES[month - 1]} {year}</p>
+          </div>
+          <div className="flex-1 flex items-center justify-center">
+            <p style={{ fontSize: vw(1.6) }} className="dark:text-gray-600 text-gray-400">No upcoming duties scheduled</p>
+          </div>
+          <ThemeToggle isDark={isDark} toggle={toggle} />
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <p style={{ fontSize: vw(1.6) }} className="dark:text-gray-600 text-gray-400">No upcoming duties scheduled</p>
-        </div>
-        <ThemeToggle isDark={isDark} toggle={toggle} />
       </div>
     )
   }
@@ -149,10 +145,8 @@ function ScheduleKioskPage() {
   const weekdayHeaderSize = vw(0.75)
 
   return (
-    <div
-      data-testid="kiosk-root"
-      className={`h-screen overflow-hidden flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900 ${isDark ? 'dark' : ''}`}
-    >
+    <div data-testid="kiosk-root" className={isDark ? 'dark' : ''}>
+    <div className="h-screen overflow-hidden flex flex-col dark:bg-gray-950 bg-white dark:text-white text-gray-900">
 
       {/* ── Header ── */}
       <header
@@ -277,6 +271,7 @@ function ScheduleKioskPage() {
       </footer>
 
       <ThemeToggle isDark={isDark} toggle={toggle} />
+    </div>
     </div>
   )
 }
