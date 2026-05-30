@@ -39,7 +39,7 @@ function generateShareToken(): string {
 // ============================================
 // GET /api/ministry-calendars
 // ============================================
-router.get('/', requirePermission('schedules.view'), async (req: Request, res: Response) => {
+router.get('/', requirePermission('schedules.view'), async (_req: Request, res: Response) => {
   try {
     const calendars = await prisma.ministryCalendar.findMany({
       where: { isActive: true },

@@ -136,7 +136,7 @@ export function useDeletePeriod() {
 export function useCreateSlot() {
   const qc = useQueryClient()
   return useMutation<Awaited<ReturnType<typeof createSlot>>, ApiClientError, { calendarId: string } & CreateSlotData>({
-    mutationFn: ({ calendarId: _cid, ...data }) => createSlot(data),
+    mutationFn: (vars) => createSlot({ periodId: vars.periodId, slotDate: vars.slotDate, label: vars.label, eventOccurrenceId: vars.eventOccurrenceId }),
     onSuccess: (_data, { calendarId }) => {
       qc.invalidateQueries({ queryKey: scheduleKeys.periods(calendarId) })
       qc.invalidateQueries({ queryKey: scheduleKeys.all })
@@ -147,7 +147,7 @@ export function useCreateSlot() {
 export function useUpdateSlot() {
   const qc = useQueryClient()
   return useMutation<Awaited<ReturnType<typeof updateSlot>>, ApiClientError, { id: string; calendarId: string; slotDate?: string; label?: string | null }>({
-    mutationFn: ({ id, calendarId: _cid, ...data }) => updateSlot(id, data),
+    mutationFn: (vars) => updateSlot(vars.id, { slotDate: vars.slotDate, label: vars.label }),
     onSuccess: (_, { calendarId }) => { qc.invalidateQueries({ queryKey: scheduleKeys.periods(calendarId) }) },
   })
 }
