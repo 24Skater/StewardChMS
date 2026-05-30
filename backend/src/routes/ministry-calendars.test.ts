@@ -21,27 +21,24 @@ describeWithDb('Ministry Calendars API', () => {
 
   beforeAll(async () => {
     if (!prisma) return
-    // Use the first real user in the DB so FK constraints pass
-    const user = await prisma.user.findFirst({ where: { isActive: true } })
-    if (!user) return
 
     manageToken = signToken({
-      userId: user.id,
-      email: user.email,
+      userId: 'test-user-id',
+      email: 'test@example.com',
       roles: ['admin'],
       permissions: ['schedules.view', 'schedules.manage'],
     }).accessToken
 
     viewToken = signToken({
-      userId: user.id,
-      email: user.email,
+      userId: 'test-user-id',
+      email: 'test@example.com',
       roles: ['scheduler'],
       permissions: ['schedules.view'],
     }).accessToken
 
     noToken = signToken({
-      userId: user.id,
-      email: user.email,
+      userId: 'test-user-id',
+      email: 'test@example.com',
       roles: ['staff'],
       permissions: ['members.read'],
     }).accessToken
