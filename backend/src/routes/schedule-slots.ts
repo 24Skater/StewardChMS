@@ -7,29 +7,31 @@ import { getEmailProvider } from '../providers/messaging/index.js'
 
 const router = Router()
 
-router.use(requireAuth)
-
 // ============================================
-// Schemas
+// Zod Schemas (mirrored from shared/src/schemas/schedules.ts)
 // ============================================
 
-const createSlotSchema = z.object({
-  periodId: z.string().min(1),
-  slotDate: z.string().min(1),
-  label: z.string().max(100).nullable().optional(),
-  eventOccurrenceId: z.string().nullable().optional(),
+const CreateScheduleSlotSchema = z.object({
+  periodId: z.string().cuid(),
+  slotDate: z.string().datetime(),
+  label: z.string().optional(),
+  eventOccurrenceId: z.string().cuid().optional(),
 })
 
-const updateSlotSchema = z.object({
-  slotDate: z.string().optional(),
-  label: z.string().max(100).nullable().optional(),
-  eventOccurrenceId: z.string().nullable().optional(),
+const UpdateScheduleSlotSchema = z.object({
+  slotDate: z.string().datetime().optional(),
+  label: z.string().optional(),
+  eventOccurrenceId: z.string().cuid().optional(),
 })
 
-const assignSlotSchema = z.object({
-  memberId: z.string().min(1, 'Member is required'),
-  notes: z.string().max(500).nullable().optional(),
+const AssignSlotSchema = z.object({
+  memberId: z.string().cuid(),
+  notes: z.string().optional(),
 })
+
+// ============================================
+// Types
+// ============================================
 
 interface ConflictInfo {
   calendarId: string
@@ -39,225 +41,353 @@ interface ConflictInfo {
 }
 
 // ============================================
-// POST /api/schedule-slots
+// POST /api/schedule-slots — Add manual slot to a DRAFT period
 // ============================================
-router.post('/', requirePermission('schedules.manage'), async (req: Request, res: Response) => {
-  try {
-    const data = createSlotSchema.parse(req.body)
 
-    const period = await prisma.schedulePeriod.findUnique({ where: { id: data.periodId } })
-    if (!period) {
-      return res.status(404).json({ error: 'Period not found' })
-    }
-    if (period.status === 'PUBLISHED') {
-      return res.status(409).json({ error: 'Cannot add slots to a published period' })
-    }
+router.post(
+  '/',
+  requireAuth,
+  requirePermission('schedules.manage'),
+  async (req: Request, res: Response) => {
+    try {
+      const parseResult = CreateScheduleSlotSchema.safeParse(req.body)
+      if (!parseResult.success) {
+        res.status(400).json({ error: 'Validation failed', details: parseResult.error.flatten() })
+        return
+      }
 
-    const slot = await prisma.scheduleSlot.create({
-      data: {
-        periodId: data.periodId,
-        slotDate: new Date(data.slotDate),
-        label: data.label ?? null,
-        eventOccurrenceId: data.eventOccurrenceId ?? null,
-      },
-    })
+      const { periodId, slotDate, label, eventOccurrenceId } = parseResult.data
 
-    res.status(201).json({
-      id: slot.id,
-      periodId: slot.periodId,
-      slotDate: slot.slotDate.toISOString(),
-      label: slot.label,
-      assignment: null,
-    })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: error.flatten().fieldErrors })
+      const period = await prisma.schedulePeriod.findUnique({
+        where: { id: periodId },
+      })
+      if (!period) {
+        res.status(404).json({ error: 'Schedule period not found' })
+        return
+      }
+
+      if (period.status !== 'DRAFT') {
+        res.status(409).json({ error: 'Cannot add slots to a published period' })
+        return
+      }
+
+      const slot = await prisma.scheduleSlot.create({
+        data: {
+          periodId,
+          slotDate: new Date(slotDate),
+          label,
+          eventOccurrenceId,
+        },
+      })
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: slot.id,
+          periodId: slot.periodId,
+          slotDate: slot.slotDate.toISOString(),
+          label: slot.label,
+          eventOccurrenceId: slot.eventOccurrenceId,
+          createdAt: slot.createdAt.toISOString(),
+          updatedAt: slot.updatedAt.toISOString(),
+        },
+      })
+    } catch (error) {
+      console.error('Error creating schedule slot:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
-    console.error('Create slot error:', error)
-    res.status(500).json({ error: 'Failed to create slot' })
   }
-})
+)
 
 // ============================================
-// PUT /api/schedule-slots/:id
+// PUT /api/schedule-slots/:id — Update slot (DRAFT only)
 // ============================================
-router.put('/:id', requirePermission('schedules.manage'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
-    const data = updateSlotSchema.parse(req.body)
 
-    const slot = await prisma.scheduleSlot.findUnique({
-      where: { id },
-      include: { period: true },
-    })
-    if (!slot) return res.status(404).json({ error: 'Slot not found' })
-    if (slot.period.status === 'PUBLISHED') {
-      return res.status(409).json({ error: 'Cannot edit a slot in a published period' })
+router.put(
+  '/:id',
+  requireAuth,
+  requirePermission('schedules.manage'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+
+      const parseResult = UpdateScheduleSlotSchema.safeParse(req.body)
+      if (!parseResult.success) {
+        res.status(400).json({ error: 'Validation failed', details: parseResult.error.flatten() })
+        return
+      }
+
+      const existing = await prisma.scheduleSlot.findUnique({
+        where: { id },
+        include: { period: true },
+      })
+      if (!existing) {
+        res.status(404).json({ error: 'Schedule slot not found' })
+        return
+      }
+
+      if (existing.period.status !== 'DRAFT') {
+        res.status(409).json({ error: 'Cannot update slots in a published period' })
+        return
+      }
+
+      const updateData: { slotDate?: Date; label?: string; eventOccurrenceId?: string } = {}
+      if (parseResult.data.slotDate !== undefined) {
+        updateData.slotDate = new Date(parseResult.data.slotDate)
+      }
+      if (parseResult.data.label !== undefined) {
+        updateData.label = parseResult.data.label
+      }
+      if (parseResult.data.eventOccurrenceId !== undefined) {
+        updateData.eventOccurrenceId = parseResult.data.eventOccurrenceId
+      }
+
+      const slot = await prisma.scheduleSlot.update({
+        where: { id },
+        data: updateData,
+      })
+
+      res.json({
+        success: true,
+        data: {
+          id: slot.id,
+          periodId: slot.periodId,
+          slotDate: slot.slotDate.toISOString(),
+          label: slot.label,
+          eventOccurrenceId: slot.eventOccurrenceId,
+          createdAt: slot.createdAt.toISOString(),
+          updatedAt: slot.updatedAt.toISOString(),
+        },
+      })
+    } catch (error) {
+      console.error('Error updating schedule slot:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
-
-    const updated = await prisma.scheduleSlot.update({
-      where: { id },
-      data: {
-        ...(data.slotDate !== undefined && { slotDate: new Date(data.slotDate) }),
-        ...(data.label !== undefined && { label: data.label }),
-        ...(data.eventOccurrenceId !== undefined && { eventOccurrenceId: data.eventOccurrenceId }),
-      },
-    })
-
-    res.json({
-      id: updated.id,
-      periodId: updated.periodId,
-      slotDate: updated.slotDate.toISOString(),
-      label: updated.label,
-    })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: error.flatten().fieldErrors })
-    }
-    console.error('Update slot error:', error)
-    res.status(500).json({ error: 'Failed to update slot' })
   }
-})
+)
 
 // ============================================
-// DELETE /api/schedule-slots/:id
+// DELETE /api/schedule-slots/:id — Remove slot (DRAFT only)
 // ============================================
-router.delete('/:id', requirePermission('schedules.manage'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
 
-    const slot = await prisma.scheduleSlot.findUnique({
-      where: { id },
-      include: { period: true },
-    })
-    if (!slot) return res.status(404).json({ error: 'Slot not found' })
-    if (slot.period.status === 'PUBLISHED') {
-      return res.status(409).json({ error: 'Cannot delete a slot in a published period' })
+router.delete(
+  '/:id',
+  requireAuth,
+  requirePermission('schedules.manage'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+
+      const existing = await prisma.scheduleSlot.findUnique({
+        where: { id },
+        include: { period: true },
+      })
+      if (!existing) {
+        res.status(404).json({ error: 'Schedule slot not found' })
+        return
+      }
+
+      if (existing.period.status !== 'DRAFT') {
+        res.status(409).json({ error: 'Cannot delete slots from a published period' })
+        return
+      }
+
+      await prisma.scheduleSlot.delete({ where: { id } })
+
+      res.json({ success: true, message: 'Schedule slot deleted' })
+    } catch (error) {
+      console.error('Error deleting schedule slot:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
-
-    await prisma.scheduleSlot.delete({ where: { id } })
-    res.status(204).send()
-  } catch (error) {
-    console.error('Delete slot error:', error)
-    res.status(500).json({ error: 'Failed to delete slot' })
   }
-})
+)
 
 // ============================================
-// POST /api/schedule-slots/:id/assign
+// POST /api/schedule-slots/:id/assign — Assign member to slot
 // ============================================
-router.post('/:id/assign', requirePermission('schedules.manage'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
-    const data = assignSlotSchema.parse(req.body)
-    const actorUserId = req.user?.userId
 
-    const slot = await prisma.scheduleSlot.findUnique({
-      where: { id },
-      include: { period: { include: { calendar: true } } },
-    })
-    if (!slot) return res.status(404).json({ error: 'Slot not found' })
+router.post(
+  '/:id/assign',
+  requireAuth,
+  requirePermission('schedules.manage'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
 
-    // Remove existing assignment if any
-    await prisma.slotAssignment.deleteMany({ where: { slotId: id } })
+      const parseResult = AssignSlotSchema.safeParse(req.body)
+      if (!parseResult.success) {
+        res.status(400).json({ error: 'Validation failed', details: parseResult.error.flatten() })
+        return
+      }
 
-    const assignment = await prisma.slotAssignment.create({
-      data: {
-        slotId: id,
-        memberId: data.memberId,
-        assignedById: actorUserId!,
-        notes: data.notes ?? null,
-      },
-      include: {
-        member: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-    })
+      const { memberId, notes } = parseResult.data
 
-    // Conflict detection: same member on same date across all calendars
-    const slotDateStart = new Date(slot.slotDate)
-    slotDateStart.setHours(0, 0, 0, 0)
-    const slotDateEnd = new Date(slot.slotDate)
-    slotDateEnd.setHours(23, 59, 59, 999)
-
-    const conflicts = await prisma.slotAssignment.findMany({
-      where: {
-        memberId: data.memberId,
-        slotId: { not: id },
-        slot: { slotDate: { gte: slotDateStart, lte: slotDateEnd } },
-      },
-      include: {
-        slot: {
-          include: {
-            period: { include: { calendar: { select: { id: true, name: true } } } },
+      const slot = await prisma.scheduleSlot.findUnique({
+        where: { id },
+        include: {
+          assignment: true,
+          period: {
+            include: { calendar: true },
           },
         },
-      },
-    })
-
-    const conflictInfo: ConflictInfo[] = conflicts.map(c => ({
-      calendarId: c.slot.period.calendar.id,
-      calendarName: c.slot.period.calendar.name,
-      slotDate: c.slot.slotDate.toISOString(),
-      label: c.slot.label,
-    }))
-
-    // If period is already published, notify immediately
-    if (slot.period.status === 'PUBLISHED' && assignment.member.email) {
-      await getEmailProvider().send(
-        assignment.member.email,
-        'You have been scheduled',
-        `Hi ${assignment.member.firstName}, you are scheduled for ${slot.label ?? 'your duty'} on ${slot.slotDate.toDateString()} at your church.`,
-      )
-      await prisma.slotAssignment.update({
-        where: { id: assignment.id },
-        data: { notifiedAt: new Date() },
       })
-    }
+      if (!slot) {
+        res.status(404).json({ error: 'Schedule slot not found' })
+        return
+      }
 
-    await createAuditLog({
-      actorUserId,
-      action: 'SLOT_ASSIGNED',
-      entityType: 'SlotAssignment',
-      entityId: assignment.id,
-      metadata: { slotId: id, memberId: data.memberId },
-    })
+      if (slot.assignment) {
+        res.status(409).json({ error: 'Slot already has an assignment' })
+        return
+      }
 
-    res.status(201).json({ assignment, conflicts: conflictInfo })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: error.flatten().fieldErrors })
+      let assignmentNotifiedAt: Date | null = null
+
+      const newAssignment = await prisma.slotAssignment.create({
+        data: {
+          slotId: id,
+          memberId,
+          assignedById: req.user!.userId,
+          notes,
+        },
+        include: {
+          member: { select: { id: true, firstName: true, lastName: true, email: true } },
+          assignedBy: { select: { id: true } },
+        },
+      })
+
+      await createAuditLog({
+        actorUserId: req.user?.userId,
+        action: 'slot_assignment.created',
+        entityType: 'SlotAssignment',
+        entityId: newAssignment.id,
+        metadata: { slotId: id, memberId, calendarId: slot.period.calendarId },
+      })
+
+      // Detect conflicts: other assignments for the same member on the same date
+      const dayStart = new Date(slot.slotDate)
+      dayStart.setUTCHours(0, 0, 0, 0)
+      const dayEnd = new Date(slot.slotDate)
+      dayEnd.setUTCHours(23, 59, 59, 999)
+
+      const conflictRecords = await prisma.slotAssignment.findMany({
+        where: {
+          id: { not: newAssignment.id },
+          memberId,
+          slot: {
+            slotDate: { gte: dayStart, lte: dayEnd },
+          },
+        },
+        include: {
+          slot: {
+            include: {
+              period: {
+                include: {
+                  calendar: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const conflicts: ConflictInfo[] = conflictRecords.map(c => ({
+        calendarId: c.slot.period.calendarId,
+        calendarName: c.slot.period.calendar.name,
+        slotDate: c.slot.slotDate.toISOString(),
+        label: c.slot.label,
+      }))
+
+      // If the period is already published, send an immediate assignment notification
+      if (slot.period.status === 'PUBLISHED') {
+        const memberEmail = newAssignment.member.email
+        if (memberEmail) {
+          const emailProvider = getEmailProvider()
+          await emailProvider.send(
+            memberEmail,
+            'You have been scheduled to serve',
+            `Hi ${newAssignment.member.firstName}, you have been scheduled to serve on ${slot.slotDate.toDateString()}. Template: schedule.assigned`
+          )
+        }
+
+        // Stamp notifiedAt
+        assignmentNotifiedAt = new Date()
+        await prisma.slotAssignment.update({
+          where: { id: newAssignment.id },
+          data: { notifiedAt: assignmentNotifiedAt },
+        })
+      }
+
+      res.status(201).json({
+        success: true,
+        data: {
+          assignment: {
+            id: newAssignment.id,
+            slotId: newAssignment.slotId,
+            memberId: newAssignment.memberId,
+            member: newAssignment.member,
+            assignedById: newAssignment.assignedById,
+            notes: newAssignment.notes,
+            notifiedAt: assignmentNotifiedAt?.toISOString() ?? null,
+            reminderSentAt: newAssignment.reminderSentAt?.toISOString() ?? null,
+            createdAt: newAssignment.createdAt.toISOString(),
+            updatedAt: newAssignment.updatedAt.toISOString(),
+          },
+          conflicts,
+        },
+      })
+    } catch (error) {
+      console.error('Error assigning slot:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
-    console.error('Assign slot error:', error)
-    res.status(500).json({ error: 'Failed to assign slot' })
   }
-})
+)
 
 // ============================================
-// DELETE /api/schedule-slots/:id/assignment
+// DELETE /api/schedule-slots/:id/assignment — Unassign member from slot
 // ============================================
-router.delete('/:id/assignment', requirePermission('schedules.manage'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params
-    const actorUserId = req.user?.userId
 
-    const assignment = await prisma.slotAssignment.findUnique({ where: { slotId: id } })
-    if (!assignment) return res.status(404).json({ error: 'No assignment for this slot' })
+router.delete(
+  '/:id/assignment',
+  requireAuth,
+  requirePermission('schedules.manage'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
 
-    await prisma.slotAssignment.delete({ where: { slotId: id } })
+      const slot = await prisma.scheduleSlot.findUnique({
+        where: { id },
+        include: { assignment: true },
+      })
+      if (!slot) {
+        res.status(404).json({ error: 'Schedule slot not found' })
+        return
+      }
 
-    await createAuditLog({
-      actorUserId,
-      action: 'SLOT_UNASSIGNED',
-      entityType: 'SlotAssignment',
-      entityId: assignment.id,
-      metadata: { slotId: id },
-    })
+      if (!slot.assignment) {
+        res.status(404).json({ error: 'No assignment found for this slot' })
+        return
+      }
 
-    res.status(204).send()
-  } catch (error) {
-    console.error('Unassign slot error:', error)
-    res.status(500).json({ error: 'Failed to unassign slot' })
+      const assignmentId = slot.assignment.id
+      const memberId = slot.assignment.memberId
+
+      await prisma.slotAssignment.delete({ where: { id: assignmentId } })
+
+      await createAuditLog({
+        actorUserId: req.user?.userId,
+        action: 'slot_assignment.deleted',
+        entityType: 'SlotAssignment',
+        entityId: assignmentId,
+        metadata: { slotId: id, memberId },
+      })
+
+      res.json({ success: true, message: 'Assignment removed' })
+    } catch (error) {
+      console.error('Error removing slot assignment:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
   }
-})
+)
 
 export default router

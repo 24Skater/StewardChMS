@@ -1,63 +1,89 @@
 import { Router, Request, Response } from 'express'
-import rateLimit from 'express-rate-limit'
 import prisma from '../lib/prisma.js'
+import { apiRateLimiter } from '../middleware/rateLimiter.js'
 
 const router = Router()
 
-const publicRateLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 60,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests. Please slow down.' },
-})
+// ============================================
+// Helper: anonymize member name to "First L." format
+// ============================================
+
+function anonymizeName(firstName: string, lastName: string): string {
+  const first = firstName.trim()
+  const last = lastName.trim()
+  if (!last) return first
+  return `${first} ${last[0]}.`
+}
 
 // ============================================
 // GET /public/schedule/:token
-// No auth required — token-based access
+// Public kiosk endpoint — NO auth required
 // ============================================
-router.get('/:token', publicRateLimiter, async (req: Request, res: Response) => {
+
+router.get('/:token', apiRateLimiter, async (req: Request, res: Response) => {
   try {
     const { token } = req.params
 
+    // Look up calendar by share token (unique index — no timing differences)
     const calendar = await prisma.ministryCalendar.findUnique({
       where: { shareToken: token },
     })
 
     if (!calendar || !calendar.isActive) {
-      return res.status(404).json({ error: 'Schedule not found' })
+      res.status(404).json({ error: 'Schedule not found' })
+      return
     }
 
     const now = new Date()
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() + 30)
+    const future = new Date(now)
+    future.setDate(future.getDate() + 30)
 
+    // Find all slots within the next 30 days that belong to a published period of this calendar
+    // and have an assignment
     const slots = await prisma.scheduleSlot.findMany({
       where: {
-        slotDate: { gte: now, lte: cutoff },
-        period: { calendarId: calendar.id, status: 'PUBLISHED' },
+        slotDate: {
+          gte: now,
+          lte: future,
+        },
+        assignment: {
+          isNot: null,
+        },
+        period: {
+          calendarId: calendar.id,
+          status: 'PUBLISHED',
+        },
       },
       include: {
         assignment: {
-          include: { member: { select: { firstName: true, lastName: true } } },
+          include: {
+            member: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
         },
       },
       orderBy: { slotDate: 'asc' },
     })
 
-    res.json({
-      calendarName: calendar.name,
-      slots: slots.map(s => ({
-        slotDate: s.slotDate.toISOString().split('T')[0],
-        label: s.label,
-        assignedMember: s.assignment
-          ? `${s.assignment.member.firstName} ${s.assignment.member.lastName.charAt(0)}.`
-          : null,
-      })),
-    })
+    const data = slots
+      .filter(slot => slot.assignment !== null)
+      .map(slot => {
+        const member = slot.assignment!.member
+        return {
+          slotDate: slot.slotDate.toISOString().split('T')[0], // "YYYY-MM-DD"
+          label: slot.label ?? null,
+          assignedMember: anonymizeName(member.firstName, member.lastName),
+        }
+      })
+
+    res.json({ success: true, calendarName: calendar.name, data })
   } catch (error) {
-    console.error('Public schedule error:', error)
-    res.status(500).json({ error: 'Failed to load schedule' })
+    console.error('Error fetching public schedule:', error)
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
