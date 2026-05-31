@@ -3,6 +3,7 @@
 
 # AI tooling session data
 .superpowers/
+.claude/
 
 # Dependencies
 node_modules/
