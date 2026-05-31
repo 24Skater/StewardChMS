@@ -46,6 +46,16 @@ let testMemberId: string
 describe('Schedule Slots API', () => {
   beforeAll(async () => {
     if (!isDbAvailable) return
+    await prisma.user.upsert({
+      where: { email: 'sched-slots-manage@test.example.com' },
+      update: {},
+      create: { id: 'sched-slots-manage', email: 'sched-slots-manage@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
+    await prisma.user.upsert({
+      where: { email: 'sched-slots-view@test.example.com' },
+      update: {},
+      create: { id: 'sched-slots-view', email: 'sched-slots-view@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
 
     // Ministry
     const ministry = await prisma.ministry.create({
@@ -106,6 +116,9 @@ describe('Schedule Slots API', () => {
     })
     await prisma.member.deleteMany({ where: { id: testMemberId } })
     await prisma.ministry.deleteMany({ where: { id: testMinistryId } })
+    await prisma.user.deleteMany({
+      where: { id: { in: ['sched-slots-manage', 'sched-slots-view'] } },
+    }).catch(() => {})
     await prisma.$disconnect()
   })
 

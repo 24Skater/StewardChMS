@@ -46,6 +46,11 @@ pastDate.setDate(pastDate.getDate() - 7) // 7 days ago
 describe('Public Schedule API', () => {
   beforeAll(async () => {
     if (!isDbAvailable) return
+    await prisma.user.upsert({
+      where: { email: 'public-sched-manage@test.example.com' },
+      update: {},
+      create: { id: 'public-sched-manage', email: 'public-sched-manage@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
 
     // Ministry
     const ministry = await prisma.ministry.create({
@@ -143,6 +148,9 @@ describe('Public Schedule API', () => {
     })
     await prisma.member.deleteMany({ where: { id: testMemberId } })
     await prisma.ministry.deleteMany({ where: { id: testMinistryId } })
+    await prisma.user.deleteMany({
+      where: { id: 'public-sched-manage' },
+    }).catch(() => {})
     await prisma.$disconnect()
   })
 

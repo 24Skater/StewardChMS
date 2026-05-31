@@ -33,7 +33,7 @@ const viewOnlyToken = signToken({
 // ============================================
 
 let testMinistryId: string
-let createdCalendarIds: string[] = []
+const createdCalendarIds: string[] = []
 
 // ============================================
 // Helpers
@@ -68,6 +68,17 @@ async function createTestCalendar(ministryId: string, name: string) {
 describe('Ministry Calendars API', () => {
   beforeAll(async () => {
     if (!isDbAvailable) return
+    // Create real users so createdById FK constraints pass
+    await prisma.user.upsert({
+      where: { email: 'sched-manage@test.example.com' },
+      update: {},
+      create: { id: 'sched-manage-user', email: 'sched-manage@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
+    await prisma.user.upsert({
+      where: { email: 'sched-view@test.example.com' },
+      update: {},
+      create: { id: 'sched-view-user', email: 'sched-view@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
     testMinistryId = await createTestMinistry()
   })
 
@@ -84,6 +95,9 @@ describe('Ministry Calendars API', () => {
     await prisma.ministry.deleteMany({
       where: { id: testMinistryId },
     })
+    await prisma.user.deleteMany({
+      where: { id: { in: ['sched-manage-user', 'sched-view-user'] } },
+    }).catch(() => {})
 
     await prisma.$disconnect()
   })

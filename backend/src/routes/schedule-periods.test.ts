@@ -76,7 +76,16 @@ async function createDraftPeriod(
 describe('Schedule Periods API', () => {
   beforeAll(async () => {
     if (!isDbAvailable) return
-
+    await prisma.user.upsert({
+      where: { email: 'sched-periods-manage@test.example.com' },
+      update: {},
+      create: { id: 'sched-periods-manage', email: 'sched-periods-manage@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
+    await prisma.user.upsert({
+      where: { email: 'sched-periods-view@test.example.com' },
+      update: {},
+      create: { id: 'sched-periods-view', email: 'sched-periods-view@test.example.com', passwordHash: 'test-hash', isActive: true },
+    })
     const ministry = await prisma.ministry.create({
       data: { name: `Period Test Ministry ${Date.now()}` },
     })
@@ -92,6 +101,9 @@ describe('Schedule Periods API', () => {
       where: { ministryId: testMinistryId },
     })
     await prisma.ministry.deleteMany({ where: { id: testMinistryId } })
+    await prisma.user.deleteMany({
+      where: { id: { in: ['sched-periods-manage', 'sched-periods-view'] } },
+    }).catch(() => {})
     await prisma.$disconnect()
   })
 
