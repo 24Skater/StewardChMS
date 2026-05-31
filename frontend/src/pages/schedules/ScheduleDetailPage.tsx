@@ -1,319 +1,347 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import {
-  useCalendar, usePeriods, useCreatePeriod, useDeletePeriod,
-  useUpdateRotation, useRegenerateToken,
+  useMinistryCalendar,
+  usePeriods,
+  useCreatePeriod,
+  useUpdateRotation,
 } from '@/hooks/useSchedules'
 import { useMembers } from '@/hooks/useMembers'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
 
 function ScheduleDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const calendarId = id!
+  const calendarId = id || ''
 
-  const { data: calendar, isLoading: calLoading } = useCalendar(calendarId)
+  const { data: calendar, isLoading: calLoading, error: calError } = useMinistryCalendar(calendarId)
   const { data: periods, isLoading: periodsLoading } = usePeriods(calendarId)
-  const createPeriod = useCreatePeriod()
-  const deletePeriod = useDeletePeriod()
-  const updateRotation = useUpdateRotation()
-  const regenerateToken = useRegenerateToken()
-  const { data: membersData } = useMembers({ limit: 100 })
+  const createPeriodMutation = useCreatePeriod()
+  const updateRotationMutation = useUpdateRotation()
+  const { data: membersData } = useMembers({ limit: 500 })
 
-  const [newPeriodOpen, setNewPeriodOpen] = useState(false)
-  const [periodYear, setPeriodYear] = useState(new Date().getFullYear())
-  const [periodMonth, setPeriodMonth] = useState(new Date().getMonth() + 1)
-  const [autoGenerate, setAutoGenerate] = useState(true)
+  const [isCreatingPeriod, setIsCreatingPeriod] = useState(false)
+  const [newPeriodYear, setNewPeriodYear] = useState(new Date().getFullYear())
+  const [newPeriodMonth, setNewPeriodMonth] = useState(new Date().getMonth() + 1)
 
-  const [rotationOpen, setRotationOpen] = useState(false)
+  // Rotation editing
+  const [editingRotation, setEditingRotation] = useState(false)
   const [rotationIds, setRotationIds] = useState<string[]>([])
-  const [selectedMember, setSelectedMember] = useState('')
 
-  const handleOpenRotation = () => {
-    setRotationIds(calendar?.rotationMembers?.map(rm => rm.memberId) ?? [])
-    setRotationOpen(true)
+  const handleStartEditRotation = () => {
+    const current = calendar?.rotationMembers.map((rm) => rm.memberId) || []
+    setRotationIds(current)
+    setEditingRotation(true)
   }
 
-  const handleAddToRotation = () => {
-    if (selectedMember && !rotationIds.includes(selectedMember)) {
-      setRotationIds([...rotationIds, selectedMember])
-      setSelectedMember('')
-    }
+  const handleRotationMemberChange = (index: number, memberId: string) => {
+    const updated = [...rotationIds]
+    updated[index] = memberId
+    setRotationIds(updated)
+  }
+
+  const handleAddRotationSlot = () => {
+    setRotationIds([...rotationIds, ''])
+  }
+
+  const handleRemoveRotationSlot = (index: number) => {
+    setRotationIds(rotationIds.filter((_, i) => i !== index))
   }
 
   const handleSaveRotation = async () => {
-    await updateRotation.mutateAsync({ id: calendarId, memberIds: rotationIds })
-    setRotationOpen(false)
+    const filtered = rotationIds.filter(Boolean)
+    await updateRotationMutation.mutateAsync({ id: calendarId, memberIds: filtered })
+    setEditingRotation(false)
   }
 
   const handleCreatePeriod = async () => {
-    await createPeriod.mutateAsync({ calendarId, year: periodYear, month: periodMonth, autoGenerate })
-    setNewPeriodOpen(false)
+    await createPeriodMutation.mutateAsync({
+      calendarId,
+      data: { year: newPeriodYear, month: newPeriodMonth, autoGenerate: true },
+    })
+    setIsCreatingPeriod(false)
   }
 
-  const handleDeletePeriod = async (periodId: string) => {
-    if (!confirm('Delete this draft period?')) return
-    await deletePeriod.mutateAsync({ calendarId, id: periodId })
+  if (calLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-[var(--st-muted)]">Loading calendar...</div>
+      </div>
+    )
   }
 
-  const handleRegenerateToken = async () => {
-    if (!confirm('Regenerate share token? All existing TV/kiosk links will stop working immediately.')) return
-    await regenerateToken.mutateAsync(calendarId)
+  if (calError || !calendar) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-red-500">Error loading calendar</div>
+      </div>
+    )
   }
 
-  if (calLoading) return <p className="text-[var(--st-muted)]">Loading...</p>
-  if (!calendar) return <p className="text-[var(--st-danger)]">Calendar not found.</p>
-
-  const members = membersData?.members ?? []
+  const currentYear = new Date().getFullYear()
+  const yearOptions = [currentYear - 1, currentYear, currentYear + 1]
+  const allMembers = membersData?.members || []
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-[var(--st-muted)]">
-            <Link to="/schedules" className="hover:underline">Schedules</Link>
-            {' / '}
-            {calendar.name}
-          </p>
-          <h1 className="text-2xl font-bold text-[var(--st-fg)]">{calendar.name}</h1>
-          <p className="text-sm text-[var(--st-muted)]">
-            {calendar.ministry.name} · {DAYS[calendar.serviceDayOfWeek]}s · {calendar.reminderDaysBeforeSlot} day reminder
+          <div className="flex items-center gap-2">
+            <Link to="/schedules" className="text-[var(--st-muted)] hover:text-[var(--st-primary)] text-sm">
+              Schedules
+            </Link>
+            <span className="text-[var(--st-muted)]">/</span>
+            <h1 className="text-3xl font-bold text-[var(--st-fg)]">{calendar.name}</h1>
+          </div>
+          <p className="mt-1 text-[var(--st-muted)]">
+            {calendar.ministry?.name} — {DAY_NAMES[calendar.serviceDayOfWeek]}s
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link to={`/schedules/${calendarId}/edit`}>
-            <Button variant="outline" className="border-[var(--st-border)] text-[var(--st-mutedFg)]">Edit</Button>
-          </Link>
-        </div>
+        <Link to={`/schedules/${calendarId}/edit`}>
+          <Button variant="outline" className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]">
+            Edit
+          </Button>
+        </Link>
       </div>
 
-      {/* Rotation list */}
+      {/* Calendar Info */}
       <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
+          <CardTitle className="text-[var(--st-fg)]">Calendar Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-3">
           <div>
-            <CardTitle className="text-[var(--st-fg)]">Rotation List</CardTitle>
-            <CardDescription className="text-[var(--st-muted)]">
-              {calendar.rotationMembers?.length ?? 0} members in rotation
-            </CardDescription>
+            <p className="text-sm text-[var(--st-muted)]">Service Day</p>
+            <p className="text-[var(--st-fg)]">{DAY_NAMES[calendar.serviceDayOfWeek]}</p>
           </div>
-          <Dialog open={rotationOpen} onOpenChange={setRotationOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleOpenRotation} variant="outline" className="border-[var(--st-border)] text-[var(--st-mutedFg)]">
-                Edit Rotation
+          <div>
+            <p className="text-sm text-[var(--st-muted)]">Reminder Days</p>
+            <p className="text-[var(--st-fg)]">{calendar.reminderDaysBeforeSlot} days before</p>
+          </div>
+          <div>
+            <p className="text-sm text-[var(--st-muted)]">Description</p>
+            <p className="text-[var(--st-fg)]">{calendar.description || '—'}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Rotation */}
+      <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-[var(--st-fg)]">Rotation Members</CardTitle>
+            {!editingRotation && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleStartEditRotation}
+                className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+              >
+                Manage Rotation
               </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)] max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-[var(--st-fg)]">Edit Rotation</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <Select value={selectedMember} onValueChange={setSelectedMember}>
-                    <SelectTrigger className="flex-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
-                      <SelectValue placeholder="Add member..." />
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {editingRotation ? (
+            <div className="space-y-3">
+              {rotationIds.map((memberId, idx) => (
+                <div key={`${idx}-${memberId}`} className="flex items-center gap-2">
+                  <span className="w-6 text-sm text-[var(--st-muted)]">{idx + 1}.</span>
+                  <Select
+                    value={memberId}
+                    onValueChange={(v) => handleRotationMemberChange(idx, v)}
+                  >
+                    <SelectTrigger className="flex-1 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                      <SelectValue placeholder="Select member" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {members.filter(m => !rotationIds.includes(m.id)).map(m => (
-                        <SelectItem key={m.id} value={m.id}>{m.firstName} {m.lastName}</SelectItem>
+                    <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                      {allMembers.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.firstName} {m.lastName}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleAddToRotation} className="bg-[var(--st-primary)] hover:opacity-90 text-white">Add</Button>
-                </div>
-                <div className="space-y-1">
-                  {rotationIds.map((memberId, idx) => {
-                    const member = members.find(m => m.id === memberId)
-                    const rm = calendar.rotationMembers?.find(r => r.memberId === memberId)
-                    return (
-                      <div key={memberId} className="flex items-center justify-between py-1 px-2 rounded bg-[var(--st-surface-hover)]">
-                        <span className="text-sm text-[var(--st-fg)]">
-                          {idx + 1}. {member?.firstName ?? rm?.member.firstName} {member?.lastName ?? rm?.member.lastName}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="text-xs h-6"
-                          onClick={() => setRotationIds(rotationIds.filter(id => id !== memberId))}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )
-                  })}
-                  {rotationIds.length === 0 && (
-                    <p className="text-sm text-[var(--st-muted)]">No members in rotation yet.</p>
-                  )}
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setRotationOpen(false)} className="border-[var(--st-border)] text-[var(--st-mutedFg)]">Cancel</Button>
-                  <Button onClick={handleSaveRotation} disabled={updateRotation.isPending} className="bg-[var(--st-primary)] hover:opacity-90 text-white">Save</Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {(calendar.rotationMembers?.length ?? 0) === 0 ? (
-            <p className="text-sm text-[var(--st-muted)]">No rotation members. Click "Edit Rotation" to add members.</p>
-          ) : (
-            <div className="space-y-1">
-              {calendar.rotationMembers?.map((rm, i) => (
-                <div key={rm.id} className="text-sm text-[var(--st-fg)]">
-                  {i + 1}. {rm.member.firstName} {rm.member.lastName}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveRotationSlot(idx)}
+                    className="text-red-500 hover:text-red-400"
+                  >
+                    Remove
+                  </Button>
                 </div>
               ))}
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddRotationSlot}
+                  className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+                >
+                  Add Member
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveRotation}
+                  disabled={updateRotationMutation.isPending}
+                  className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                >
+                  {updateRotationMutation.isPending ? 'Saving...' : 'Save Rotation'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingRotation(false)}
+                  className="text-[var(--st-muted)] hover:text-[var(--st-fg)]"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
+          ) : calendar.rotationMembers.length === 0 ? (
+            <p className="text-[var(--st-muted)]">No rotation members. Click "Manage Rotation" to add members.</p>
+          ) : (
+            <ol className="list-decimal list-inside space-y-1">
+              {calendar.rotationMembers
+                .slice()
+                .sort((a, b) => a.rotationOrder - b.rotationOrder)
+                .map((rm) => (
+                  <li key={rm.id} className="text-[var(--st-fg)]">
+                    {rm.member.firstName} {rm.member.lastName}
+                  </li>
+                ))}
+            </ol>
           )}
         </CardContent>
       </Card>
 
-      {/* Kiosk share token */}
-      {calendar.shareToken && (
-        <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-[var(--st-fg)]">TV / Kiosk Link</CardTitle>
-              <CardDescription className="text-[var(--st-muted)]">Share this link for a public display</CardDescription>
-            </div>
-            <Button onClick={handleRegenerateToken} variant="outline" className="border-[var(--st-border)] text-[var(--st-mutedFg)] text-xs">
-              Regenerate Token
-            </Button>
-          </CardHeader>
-          <CardContent className="flex items-center gap-3">
-            <a
-              href={`/kiosk/${calendar.shareToken}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-[var(--st-primary)] underline underline-offset-2 break-all hover:opacity-75 transition-opacity"
-            >
-              {window.location.origin}/kiosk/{calendar.shareToken}
-            </a>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Periods */}
       <Card className="border-[var(--st-border)] bg-[var(--st-surface)]/50">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <CardTitle className="text-[var(--st-fg)]">Schedule Periods</CardTitle>
-            <CardDescription className="text-[var(--st-muted)]">Monthly duty rosters</CardDescription>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCreatingPeriod(!isCreatingPeriod)}
+              className="border-[var(--st-border)] bg-transparent text-[var(--st-fg)] hover:bg-[var(--st-surface-hover)]"
+            >
+              New Period
+            </Button>
           </div>
-          <Dialog open={newPeriodOpen} onOpenChange={setNewPeriodOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[var(--st-primary)] hover:opacity-90 text-white">+ New Period</Button>
-            </DialogTrigger>
-            <DialogContent className="bg-[var(--st-surface)] border-[var(--st-border)]">
-              <DialogHeader>
-                <DialogTitle className="text-[var(--st-fg)]">Create Schedule Period</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-[var(--st-mutedFg)]">Year</Label>
-                    <Input
-                      type="number"
-                      value={periodYear}
-                      onChange={e => setPeriodYear(Number(e.target.value))}
-                      className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-[var(--st-mutedFg)]">Month</Label>
-                    <Select value={String(periodMonth)} onValueChange={v => setPeriodMonth(Number(v))}>
-                      <SelectTrigger className="mt-1 bg-[var(--st-surface)] border-[var(--st-border)] text-[var(--st-fg)]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MONTHS.map((m, i) => <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="autoGenerate"
-                    checked={autoGenerate}
-                    onChange={e => setAutoGenerate(e.target.checked)}
-                    className="rounded"
-                  />
-                  <Label htmlFor="autoGenerate" className="text-[var(--st-mutedFg)]">
-                    Auto-generate slots from rotation
-                  </Label>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setNewPeriodOpen(false)} className="border-[var(--st-border)] text-[var(--st-mutedFg)]">Cancel</Button>
-                  <Button onClick={handleCreatePeriod} disabled={createPeriod.isPending} className="bg-[var(--st-primary)] hover:opacity-90 text-white">
-                    {createPeriod.isPending ? 'Creating...' : 'Create'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* New period form */}
+          {isCreatingPeriod && (
+            <div className="flex items-end gap-3 rounded-lg border border-[var(--st-border)] p-4">
+              <div>
+                <label className="text-sm text-[var(--st-muted)]">Year</label>
+                <Select value={String(newPeriodYear)} onValueChange={(v) => setNewPeriodYear(parseInt(v, 10))}>
+                  <SelectTrigger className="mt-1 w-28 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    {yearOptions.map((y) => (
+                      <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm text-[var(--st-muted)]">Month</label>
+                <Select value={String(newPeriodMonth)} onValueChange={(v) => setNewPeriodMonth(parseInt(v, 10))}>
+                  <SelectTrigger className="mt-1 w-36 border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)]">
+                    {MONTH_NAMES.map((name, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                onClick={handleCreatePeriod}
+                disabled={createPeriodMutation.isPending}
+                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              >
+                {createPeriodMutation.isPending ? 'Creating...' : 'Create'}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setIsCreatingPeriod(false)}
+                className="text-[var(--st-muted)] hover:text-[var(--st-fg)]"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+
           {periodsLoading ? (
-            <p className="text-[var(--st-muted)]">Loading...</p>
+            <div className="text-[var(--st-muted)]">Loading periods...</div>
           ) : !periods || periods.length === 0 ? (
-            <p className="text-sm text-[var(--st-muted)]">No periods yet. Create one to start scheduling.</p>
+            <div className="text-[var(--st-muted)]">No periods yet. Create your first period above.</div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-[var(--st-border)]">
+                <TableRow className="border-[var(--st-border)] hover:bg-transparent">
                   <TableHead className="text-[var(--st-muted)]">Period</TableHead>
                   <TableHead className="text-[var(--st-muted)]">Status</TableHead>
                   <TableHead className="text-[var(--st-muted)]">Slots</TableHead>
-                  <TableHead className="text-[var(--st-muted)]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {periods.map(p => (
-                  <TableRow key={p.id} className="border-[var(--st-border)]">
-                    <TableCell className="text-[var(--st-fg)] font-medium">
-                      {MONTHS[p.month - 1]} {p.year}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs ${p.status === 'PUBLISHED' ? 'bg-[var(--st-success)]/20 text-[var(--st-success)]' : 'bg-[var(--st-warning)]/20 text-[var(--st-warning)]'}`}>
-                        {p.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-[var(--st-muted)]">{p._count?.slots ?? 0}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/schedules/${calendarId}/periods/${p.id}`)}
-                          className="border-[var(--st-border)] text-[var(--st-mutedFg)] text-xs"
-                        >
-                          Open
-                        </Button>
-                        {p.status === 'DRAFT' && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeletePeriod(p.id)}
-                            disabled={deletePeriod.isPending}
-                            className="text-xs"
-                          >
-                            Delete
-                          </Button>
+                {periods
+                  .slice()
+                  .sort((a, b) => b.year - a.year || b.month - a.month)
+                  .map((period) => (
+                    <TableRow
+                      key={period.id}
+                      className="border-[var(--st-border)] cursor-pointer hover:bg-[var(--st-surface-hover)]"
+                      onClick={() => navigate(`/schedules/${calendarId}/periods/${period.id}`)}
+                    >
+                      <TableCell className="font-medium text-[var(--st-fg)]">
+                        {MONTH_NAMES[period.month - 1]} {period.year}
+                      </TableCell>
+                      <TableCell>
+                        {period.status === 'published' ? (
+                          <Badge variant="success">Published</Badge>
+                        ) : (
+                          <Badge variant="warning">Draft</Badge>
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-[var(--st-muted)]">
+                        {period.slotCount} slots
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           )}

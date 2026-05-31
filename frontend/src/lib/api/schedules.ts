@@ -1,19 +1,79 @@
+/**
+ * Schedules API module
+ *
+ * Covers Ministry Calendars, Schedule Periods, Schedule Slots, and the
+ * public kiosk endpoint.  All authenticated routes wrap responses in
+ * { success: true, data: ... } — this module unwraps that envelope before
+ * returning so callers work with plain typed objects.
+ */
+
 import { apiRequest } from '@/lib/api'
 
 // ============================================
-// Types
+// Input types (mirror of shared/src/schemas/schedules.ts)
 // ============================================
 
-export interface Ministry {
-  id: string
+export interface CreateMinistryCalendarInput {
   name: string
+  description?: string
+  ministryId: string
+  reminderDaysBeforeSlot?: number
+  serviceDayOfWeek?: number
 }
 
-export interface RotationMember {
-  id: string
+export interface UpdateMinistryCalendarInput {
+  name?: string
+  description?: string
+  reminderDaysBeforeSlot?: number
+  serviceDayOfWeek?: number
+}
+
+export interface CreateSchedulePeriodInput {
+  year: number
+  month: number
+  autoGenerate?: boolean
+}
+
+export interface CreateScheduleSlotInput {
+  periodId: string
+  slotDate: string
+  label?: string
+  eventOccurrenceId?: string
+}
+
+export interface UpdateScheduleSlotInput {
+  slotDate?: string
+  label?: string
+  eventOccurrenceId?: string
+}
+
+export interface AssignSlotInput {
   memberId: string
-  rotationOrder: number
-  member: { id: string; firstName: string; lastName: string }
+  notes?: string
+}
+
+// ============================================
+// Response type helpers
+// ============================================
+
+interface ApiEnvelope<T> {
+  success: boolean
+  data: T
+}
+
+/** Strip the { success, data } envelope returned by scheduling routes. */
+async function unwrap<T>(promise: Promise<ApiEnvelope<T>>): Promise<T> {
+  const envelope = await promise
+  return envelope.data
+}
+
+// ============================================
+// Domain types
+// ============================================
+
+export interface MinistryInfo {
+  id: string
+  name: string
 }
 
 export interface MinistryCalendar {
@@ -21,16 +81,33 @@ export interface MinistryCalendar {
   name: string
   description: string | null
   ministryId: string
-  ministry: Ministry
+  ministry: MinistryInfo
+  shareToken: string
   reminderDaysBeforeSlot: number
   serviceDayOfWeek: number
-  rotationNextIndex?: number
+  rotationNextIndex: number
+  rotationMemberCount?: number
   isActive: boolean
-  shareToken?: string
-  rotationMembers?: RotationMember[]
   createdAt: string
   updatedAt: string
-  _count?: { rotationMembers: number; periods: number }
+}
+
+export interface MemberSummary {
+  id: string
+  firstName: string
+  lastName: string
+  email: string | null
+}
+
+export interface RotationMember {
+  id: string
+  memberId: string
+  rotationOrder: number
+  member: MemberSummary
+}
+
+export interface MinistryCalendarWithRotation extends MinistryCalendar {
+  rotationMembers: RotationMember[]
 }
 
 export interface SchedulePeriod {
@@ -38,19 +115,40 @@ export interface SchedulePeriod {
   calendarId: string
   year: number
   month: number
-  status: 'DRAFT' | 'PUBLISHED'
+  status: 'draft' | 'published'
+  slotCount: number
   createdAt: string
   updatedAt: string
-  _count?: { slots: number }
 }
 
 export interface SlotAssignment {
   id: string
   memberId: string
-  member: { id: string; firstName: string; lastName: string; email: string | null; phone: string | null }
+  member: MemberSummary
+  assignedById: string
   notes: string | null
   notifiedAt: string | null
   reminderSentAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ScheduleSlot {
+  id: string
+  periodId: string
+  slotDate: string
+  label: string | null
+  eventOccurrenceId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ScheduleSlotWithAssignment extends ScheduleSlot {
+  assignment: SlotAssignment | null
+}
+
+export interface SchedulePeriodWithSlots extends SchedulePeriod {
+  slots: ScheduleSlotWithAssignment[]
 }
 
 export interface ConflictInfo {
@@ -60,21 +158,10 @@ export interface ConflictInfo {
   label: string | null
 }
 
-export interface ScheduleSlot {
-  id: string
-  slotDate: string
-  label: string | null
-  assignment: SlotAssignment | null
-}
-
-export interface SchedulePeriodDetail extends SchedulePeriod {
-  slots: ScheduleSlot[]
-}
-
 export interface PublicSlot {
   slotDate: string
   label: string | null
-  assignedMember: string | null
+  assignedMember: string
 }
 
 export interface PublicSchedule {
@@ -83,113 +170,180 @@ export interface PublicSchedule {
 }
 
 // ============================================
-// Calendar API
+// Ministry Calendars
 // ============================================
 
-export function getCalendars(): Promise<MinistryCalendar[]> {
-  return apiRequest('/ministry-calendars')
+export async function fetchMinistryCalendars(): Promise<MinistryCalendar[]> {
+  return unwrap(
+    apiRequest<ApiEnvelope<MinistryCalendar[]>>('/ministry-calendars')
+  )
 }
 
-export function getCalendar(id: string): Promise<MinistryCalendar> {
-  return apiRequest(`/ministry-calendars/${id}`)
+export async function fetchMinistryCalendar(id: string): Promise<MinistryCalendarWithRotation> {
+  return unwrap(
+    apiRequest<ApiEnvelope<MinistryCalendarWithRotation>>(`/ministry-calendars/${id}`)
+  )
 }
 
-export interface CreateCalendarData {
-  name: string
-  description?: string | null
-  ministryId: string
-  reminderDaysBeforeSlot?: number
-  serviceDayOfWeek?: number
+export async function createMinistryCalendar(
+  data: CreateMinistryCalendarInput
+): Promise<MinistryCalendar> {
+  return unwrap(
+    apiRequest<ApiEnvelope<MinistryCalendar>>('/ministry-calendars', {
+      method: 'POST',
+      body: data,
+    })
+  )
 }
 
-export function createCalendar(data: CreateCalendarData): Promise<MinistryCalendar> {
-  return apiRequest('/ministry-calendars', { method: 'POST', body: data })
+export async function updateMinistryCalendar(
+  id: string,
+  data: UpdateMinistryCalendarInput
+): Promise<MinistryCalendarWithRotation> {
+  return unwrap(
+    apiRequest<ApiEnvelope<MinistryCalendarWithRotation>>(`/ministry-calendars/${id}`, {
+      method: 'PUT',
+      body: data,
+    })
+  )
 }
 
-export function updateCalendar(id: string, data: Partial<CreateCalendarData>): Promise<MinistryCalendar> {
-  return apiRequest(`/ministry-calendars/${id}`, { method: 'PUT', body: data })
-}
-
-export function deleteCalendar(id: string): Promise<void> {
-  return apiRequest(`/ministry-calendars/${id}`, { method: 'DELETE' })
-}
-
-export function updateRotation(id: string, memberIds: string[]): Promise<{ rotationMembers: RotationMember[] }> {
-  return apiRequest(`/ministry-calendars/${id}/rotation`, { method: 'PUT', body: { memberIds } })
-}
-
-export function regenerateToken(id: string): Promise<{ shareToken: string }> {
-  return apiRequest(`/ministry-calendars/${id}/token/regenerate`, { method: 'POST' })
-}
-
-// ============================================
-// Period API
-// ============================================
-
-export function getPeriods(calendarId: string): Promise<SchedulePeriod[]> {
-  return apiRequest(`/ministry-calendars/${calendarId}/periods`)
-}
-
-export function getPeriod(calendarId: string, id: string): Promise<SchedulePeriodDetail> {
-  return apiRequest(`/ministry-calendars/${calendarId}/periods/${id}`)
-}
-
-export interface CreatePeriodData {
-  year: number
-  month: number
-  autoGenerate?: boolean
-}
-
-export function createPeriod(calendarId: string, data: CreatePeriodData): Promise<SchedulePeriod> {
-  return apiRequest(`/ministry-calendars/${calendarId}/periods`, { method: 'POST', body: data })
-}
-
-export function publishPeriod(calendarId: string, id: string): Promise<{ id: string; status: string }> {
-  return apiRequest(`/ministry-calendars/${calendarId}/periods/${id}/publish`, { method: 'POST' })
-}
-
-export function deletePeriod(calendarId: string, id: string): Promise<void> {
-  return apiRequest(`/ministry-calendars/${calendarId}/periods/${id}`, { method: 'DELETE' })
-}
-
-// ============================================
-// Slot API
-// ============================================
-
-export interface CreateSlotData {
-  periodId: string
-  slotDate: string
-  label?: string | null
-  eventOccurrenceId?: string | null
-}
-
-export function createSlot(data: CreateSlotData): Promise<ScheduleSlot> {
-  return apiRequest('/schedule-slots', { method: 'POST', body: data })
-}
-
-export function updateSlot(id: string, data: { slotDate?: string; label?: string | null }): Promise<ScheduleSlot> {
-  return apiRequest(`/schedule-slots/${id}`, { method: 'PUT', body: data })
-}
-
-export function deleteSlot(id: string): Promise<void> {
-  return apiRequest(`/schedule-slots/${id}`, { method: 'DELETE' })
-}
-
-export function assignSlot(id: string, memberId: string, notes?: string | null): Promise<{ assignment: SlotAssignment; conflicts: ConflictInfo[] }> {
-  return apiRequest(`/schedule-slots/${id}/assign`, { method: 'POST', body: { memberId, notes } })
-}
-
-export function unassignSlot(id: string): Promise<void> {
-  return apiRequest(`/schedule-slots/${id}/assignment`, { method: 'DELETE' })
-}
-
-// ============================================
-// Public API (no auth)
-// ============================================
-
-export function getPublicSchedule(token: string): Promise<PublicSchedule> {
-  return fetch(`/public/schedule/${token}`).then(r => {
-    if (!r.ok) throw new Error('Schedule not found')
-    return r.json()
+export async function deleteMinistryCalendar(id: string): Promise<void> {
+  await apiRequest<{ success: boolean; message: string }>(`/ministry-calendars/${id}`, {
+    method: 'DELETE',
   })
 }
+
+export async function updateRotation(
+  id: string,
+  memberIds: string[]
+): Promise<MinistryCalendarWithRotation> {
+  return unwrap(
+    apiRequest<ApiEnvelope<MinistryCalendarWithRotation>>(`/ministry-calendars/${id}/rotation`, {
+      method: 'PUT',
+      body: { memberIds },
+    })
+  )
+}
+
+export async function regenerateShareToken(id: string): Promise<{ shareToken: string }> {
+  return unwrap(
+    apiRequest<ApiEnvelope<{ shareToken: string }>>(
+      `/ministry-calendars/${id}/token/regenerate`,
+      { method: 'POST' }
+    )
+  )
+}
+
+// ============================================
+// Schedule Periods
+// ============================================
+
+export async function fetchPeriods(calendarId: string): Promise<SchedulePeriod[]> {
+  return unwrap(
+    apiRequest<ApiEnvelope<SchedulePeriod[]>>(`/ministry-calendars/${calendarId}/periods`)
+  )
+}
+
+export async function fetchPeriod(
+  calendarId: string,
+  periodId: string
+): Promise<SchedulePeriodWithSlots> {
+  return unwrap(
+    apiRequest<ApiEnvelope<SchedulePeriodWithSlots>>(
+      `/ministry-calendars/${calendarId}/periods/${periodId}`
+    )
+  )
+}
+
+export async function createPeriod(
+  calendarId: string,
+  data: CreateSchedulePeriodInput
+): Promise<SchedulePeriod> {
+  return unwrap(
+    apiRequest<ApiEnvelope<SchedulePeriod>>(`/ministry-calendars/${calendarId}/periods`, {
+      method: 'POST',
+      body: data,
+    })
+  )
+}
+
+export async function publishPeriod(
+  calendarId: string,
+  periodId: string
+): Promise<SchedulePeriod> {
+  return unwrap(
+    apiRequest<ApiEnvelope<SchedulePeriod>>(
+      `/ministry-calendars/${calendarId}/periods/${periodId}/publish`,
+      { method: 'POST' }
+    )
+  )
+}
+
+export async function deletePeriod(calendarId: string, periodId: string): Promise<void> {
+  await apiRequest<{ success: boolean; message: string }>(
+    `/ministry-calendars/${calendarId}/periods/${periodId}`,
+    { method: 'DELETE' }
+  )
+}
+
+// ============================================
+// Schedule Slots
+// ============================================
+
+export async function createSlot(data: CreateScheduleSlotInput): Promise<ScheduleSlot> {
+  return unwrap(
+    apiRequest<ApiEnvelope<ScheduleSlot>>('/schedule-slots', {
+      method: 'POST',
+      body: data,
+    })
+  )
+}
+
+export async function updateSlot(
+  id: string,
+  data: UpdateScheduleSlotInput
+): Promise<ScheduleSlot> {
+  return unwrap(
+    apiRequest<ApiEnvelope<ScheduleSlot>>(`/schedule-slots/${id}`, {
+      method: 'PUT',
+      body: data,
+    })
+  )
+}
+
+export async function deleteSlot(id: string): Promise<void> {
+  await apiRequest<{ success: boolean; message: string }>(`/schedule-slots/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function assignSlot(
+  id: string,
+  data: AssignSlotInput
+): Promise<{ assignment: SlotAssignment; conflicts: ConflictInfo[] }> {
+  return unwrap(
+    apiRequest<ApiEnvelope<{ assignment: SlotAssignment; conflicts: ConflictInfo[] }>>(
+      `/schedule-slots/${id}/assign`,
+      { method: 'POST', body: data }
+    )
+  )
+}
+
+export async function unassignSlot(id: string): Promise<void> {
+  await apiRequest<{ success: boolean; message: string }>(`/schedule-slots/${id}/assignment`, {
+    method: 'DELETE',
+  })
+}
+
+// ============================================
+// Public kiosk (no auth required)
+// ============================================
+
+export async function fetchPublicSchedule(token: string): Promise<PublicSchedule> {
+  return unwrap(
+    apiRequest<ApiEnvelope<PublicSchedule>>(`/public/schedule/${token}`, { auth: false })
+  )
+}
+
+export const getPublicSchedule = fetchPublicSchedule
