@@ -80,7 +80,7 @@ router.get('/:token', apiRateLimiter, async (req: Request, res: Response) => {
         }
       })
 
-    res.json({ success: true, data: { calendarName: calendar.name, slots: data } })
+    res.json({ success: true, calendarName: calendar.name, data })
   } catch (error) {
     console.error('Error fetching public schedule:', error)
     res.status(500).json({ error: 'Internal server error' })
