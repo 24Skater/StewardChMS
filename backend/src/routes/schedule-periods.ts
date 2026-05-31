@@ -5,7 +5,7 @@ import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 import { getEmailProvider } from '../providers/messaging/index.js'
 
-const router = Router()
+const router = Router({ mergeParams: true })
 
 // ============================================
 // Zod Schemas
@@ -38,7 +38,7 @@ function findDatesInMonth(year: number, month: number, dayOfWeek: number): Date[
 // ============================================
 
 router.get(
-  '/:calendarId/periods',
+  '/',
   requireAuth,
   requirePermission('schedules.view'),
   async (req: Request, res: Response) => {
@@ -86,7 +86,7 @@ router.get(
 // ============================================
 
 router.post(
-  '/:calendarId/periods',
+  '/',
   requireAuth,
   requirePermission('schedules.manage'),
   async (req: Request, res: Response) => {
@@ -189,7 +189,7 @@ router.post(
 // ============================================
 
 router.get(
-  '/:calendarId/periods/:id',
+  '/:id',
   requireAuth,
   requirePermission('schedules.view'),
   async (req: Request, res: Response) => {
@@ -308,7 +308,7 @@ router.get(
 // ============================================
 
 router.post(
-  '/:calendarId/periods/:id/publish',
+  '/:id/publish',
   requireAuth,
   requirePermission('schedules.manage'),
   async (req: Request, res: Response) => {
@@ -423,7 +423,7 @@ router.post(
 // ============================================
 
 router.delete(
-  '/:calendarId/periods/:id',
+  '/:id',
   requireAuth,
   requirePermission('schedules.manage'),
   async (req: Request, res: Response) => {
