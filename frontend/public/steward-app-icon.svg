@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <title>Steward App Icon</title>
+
+  <!-- Rounded square background -->
+  <rect width="1024" height="1024" rx="230" fill="#0D1B2E"/>
+
+  <!-- Cross Key Mark — scaled and centered (original 64x82, scaled ~10x to 640x820, offset to center) -->
+  <!-- Center: 512, 512. Mark height 820 -> start y = 512 - 410 = 102. Mark width 640 -> start x = 512 - 320 = 192 -->
+  <!-- Scale factor: ~9.2 to fit with padding. Using 8.5x: 64*8.5=544, 82*8.5=697 -->
+  <!-- Center offset: x = (1024-544)/2 = 240. y = (1024-697)/2 = 163 -->
+
+  <!-- Cross vertical arm: original x=28,y=2,w=8,h=32 scaled 8.5x -> x=238+28*8.5=238+238=476? Let me recalculate -->
+  <!-- offset_x=240, offset_y=163, scale=8.5 -->
+  <!-- x=240+28*8.5=240+238=478, y=163+2*8.5=163+17=180, w=8*8.5=68, h=32*8.5=272 -->
+  <rect x="478" y="180" width="68" height="272" rx="34" fill="#E8B847"/>
+
+  <!-- Cross horizontal arm: x=12,y=14,w=40,h=8 -> x=240+102=342, y=163+119=282, w=340, h=68 -->
+  <rect x="342" y="282" width="340" height="68" rx="34" fill="#E8B847"/>
+
+  <!-- Key shaft: x=30,y=32,w=4,h=40 -> x=240+255=495, y=163+272=435, w=34, h=340 -->
+  <rect x="495" y="435" width="34" height="340" rx="17" fill="#E8B847"/>
+
+  <!-- Tooth 1: x=34,y=53,w=13,h=5 -> x=240+289=529, y=163+450.5=613, w=110.5, h=42.5 -->
+  <rect x="529" y="613" width="110" height="43" rx="21" fill="#E8B847"/>
+
+  <!-- Tooth 2: x=34,y=64,w=9,h=5 -> x=529, y=163+544=707, w=76.5, h=42.5 -->
+  <rect x="529" y="707" width="76" height="43" rx="21" fill="#E8B847"/>
+</svg>

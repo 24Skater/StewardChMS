@@ -207,6 +207,24 @@ const { isDark, toggle } = useKioskTheme()
 
 Kiosk pages apply dark to their own container, not <html>, so their theme is independent of the app.
 
+### Logo & Brand Assets
+
+The Cross Key mark lives in `frontend/public/` and is served as static assets. Use the theme-aware pattern in every component that shows the logo:
+
+```tsx
+const logoSrc = resolvedTheme === 'dark' ? '/steward-mark.svg' : '/steward-mark-light.svg'
+```
+
+| File | Color | Background |
+|------|-------|------------|
+| `steward-mark.svg` | Kingdom Gold `#E8B847` | Dark (navy) surfaces |
+| `steward-mark-light.svg` | Navy `#0D1B2E` | Light (parchment/white) surfaces |
+| `steward-lockup.svg` | Gold on transparent | Dark backgrounds — nav/headers |
+| `steward-lockup-stacked.svg` | Gold on transparent | Splash, auth pages |
+| `steward-app-icon.svg` | Gold on navy square | App icon, rounded-square contexts |
+
+See `docs/brand/brand-guide.md` for full usage rules, color palette tokens, and voice guidelines.
+
 ### CSS Tokens (steward-tokens.css)
 
 frontend/src/styles/steward-tokens.css defines the --st-* design tokens. Use these in JSX rather than hardcoded colors.

@@ -117,6 +117,20 @@ Full technical documentation lives in [`docs/`](docs/README.md). Key references:
 | Adding a new feature domain | [`docs/extending.md`](docs/extending.md) |
 | Production deployment | [`docs/deployment.md`](docs/deployment.md) |
 | Per-domain references (endpoints, models) | [`docs/domains/`](docs/domains/) |
+| Brand identity, logo usage, voice | [`docs/brand/brand-guide.md`](docs/brand/brand-guide.md) |
+| AI branding instructions (skill) | [`docs/brand/steward-branding-skill.md`](docs/brand/steward-branding-skill.md) |
+
+## Brand Identity
+
+**When working on any UI, documentation, or visual element, read `docs/brand/steward-branding-skill.md` first.**
+
+Key brand facts:
+
+- **Mark:** Cross Key (a key whose bow is a Latin cross) — NOT the old shield
+- **Palette:** Deep navy (`#0D1B2E`) + kingdom gold (`#E8B847`) + parchment (`#F5EED8`)
+- **Wordmark:** Georgia light, wide tracking (0.32em), all-caps `STEWARD`
+- **Logo files:** `frontend/public/steward-mark.svg` (dark), `steward-mark-light.svg` (light), `steward-lockup.svg` (horizontal)
+- **Voice:** Faithful, servant-minded, trustworthy — never cold/corporate
 
 ## Known Issues / TODOs
 

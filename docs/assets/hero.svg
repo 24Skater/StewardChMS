@@ -5,13 +5,9 @@
       <stop offset="45%" stop-color="#0d1a33"/>
       <stop offset="100%" stop-color="#080d18"/>
     </linearGradient>
-    <linearGradient id="shieldFill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1e3a5f"/>
-      <stop offset="100%" stop-color="#0d1a33"/>
-    </linearGradient>
     <radialGradient id="shieldAura" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#E8B847" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#E8B847" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="lineH" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#1e293b" stop-opacity="0"/>
@@ -42,15 +38,17 @@
   <circle cx="990" cy="190" r="122" fill="none" stroke="#1e3a5f" stroke-width="0.8"/>
   <circle cx="990" cy="190" r="62"  fill="none" stroke="#1e3a5f" stroke-width="0.8"/>
 
-  <!-- Shield glow aura -->
-  <ellipse cx="192" cy="200" rx="110" ry="140" fill="url(#shieldAura)"/>
+  <!-- Cross Key glow aura -->
+  <ellipse cx="192" cy="195" rx="110" ry="140" fill="url(#shieldAura)"/>
 
-  <!-- Shield mark — scaled 3× from 64×64 source -->
-  <g transform="translate(96, 40) scale(3)" filter="url(#shieldGlow)">
-    <path d="M32 4L8 16v16c0 14.4 10.24 27.84 24 32 13.76-4.16 24-17.6 24-32V16L32 4z" fill="url(#shieldFill)"/>
-    <path d="M32 4L8 16v16c0 14.4 10.24 27.84 24 32 13.76-4.16 24-17.6 24-32V16L32 4z" fill="none" stroke="#2563eb" stroke-width="0.7" opacity="0.6"/>
-    <path d="M32 14c-6.627 0-12 4.477-12 10 0 3.314 2.015 6.236 5.143 8L32 36l6.857-4c3.128-1.764 5.143-4.686 5.143-8 0-5.523-5.373-10-12-10z" fill="#2563EB"/>
-    <path d="M32 50c6.627 0 12-4.477 12-10 0-3.314-2.015-6.236-5.143-8L32 28l-6.857 4c-3.128 1.764-5.143 4.686-5.143 8 0 5.523 5.373 10 12 10z" fill="#2563EB"/>
+  <!-- Cross Key Mark — scaled 3.5× from 64×82 source, centered in left panel -->
+  <!-- 64*3.5=224 wide, 82*3.5=287 tall. x offset=(384-224)/2=80, y offset=(380-287)/2=46 -->
+  <g transform="translate(80, 46) scale(3.5)" filter="url(#shieldGlow)">
+    <rect x="28" y="2" width="8" height="32" rx="4" fill="#E8B847"/>
+    <rect x="12" y="14" width="40" height="8" rx="4" fill="#E8B847"/>
+    <rect x="30" y="32" width="4" height="40" rx="2" fill="#E8B847"/>
+    <rect x="34" y="53" width="13" height="5" rx="2.5" fill="#E8B847"/>
+    <rect x="34" y="64" width="9" height="5" rx="2.5" fill="#E8B847"/>
   </g>
 
   <!-- Vertical divider -->
@@ -60,9 +58,9 @@
   <text x="408" y="156" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="88" font-weight="800" fill="#f8fafc" letter-spacing="-3" opacity="0.96">STEWARD</text>
 
   <!-- Dot row separator -->
-  <circle cx="410" cy="182" r="3.5" fill="#2563eb"/>
-  <circle cx="424" cy="182" r="3.5" fill="#2563eb"/>
-  <circle cx="438" cy="182" r="3.5" fill="#2563eb"/>
+  <circle cx="410" cy="182" r="3.5" fill="#E8B847"/>
+  <circle cx="424" cy="182" r="3.5" fill="#E8B847"/>
+  <circle cx="438" cy="182" r="3.5" fill="#E8B847"/>
 
   <!-- Subtitle -->
   <text x="410" y="216" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="300" fill="#94a3b8" letter-spacing="7">CHURCH MANAGEMENT SYSTEM</text>

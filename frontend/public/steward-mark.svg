@@ -1,18 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 82" fill="none">
   <title>Steward Mark</title>
-  <!-- Shield shape representing stewardship and protection -->
-  <path 
-    d="M32 4L8 16v16c0 14.4 10.24 27.84 24 32 13.76-4.16 24-17.6 24-32V16L32 4z" 
-    fill="#1B2A41"
-  />
-  <!-- Inner S letterform -->
-  <path 
-    d="M32 14c-6.627 0-12 4.477-12 10 0 3.314 2.015 6.236 5.143 8L32 36l6.857-4c3.128-1.764 5.143-4.686 5.143-8 0-5.523-5.373-10-12-10z" 
-    fill="#2563EB"
-  />
-  <path 
-    d="M32 50c6.627 0 12-4.477 12-10 0-3.314-2.015-6.236-5.143-8L32 28l-6.857 4c-3.128 1.764-5.143 4.686-5.143 8 0 5.523 5.373 10 12 10z" 
-    fill="#2563EB"
-  />
+  <rect x="28" y="2" width="8" height="32" rx="4" fill="#E8B847"/>
+  <rect x="12" y="14" width="40" height="8" rx="4" fill="#E8B847"/>
+  <rect x="30" y="32" width="4" height="40" rx="2" fill="#E8B847"/>
+  <rect x="34" y="53" width="13" height="5" rx="2.5" fill="#E8B847"/>
+  <rect x="34" y="64" width="9" height="5" rx="2.5" fill="#E8B847"/>
 </svg>
-

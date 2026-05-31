@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 140" fill="none">
+  <title>Steward Stacked Lockup</title>
+
+  <!-- Cross Key Mark — centered -->
+  <rect x="86" y="2" width="8" height="32" rx="4" fill="#E8B847"/>
+  <rect x="70" y="14" width="40" height="8" rx="4" fill="#E8B847"/>
+  <rect x="88" y="32" width="4" height="40" rx="2" fill="#E8B847"/>
+  <rect x="92" y="53" width="13" height="5" rx="2.5" fill="#E8B847"/>
+  <rect x="92" y="64" width="9" height="5" rx="2.5" fill="#E8B847"/>
+
+  <!-- Wordmark: STEWARD -->
+  <text
+    x="110"
+    y="106"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="22"
+    font-weight="300"
+    letter-spacing="7"
+    fill="#E8B847"
+  >STEWARD</text>
+
+  <!-- Rule -->
+  <line x1="36" y1="113" x2="184" y2="113" stroke="#E8B847" stroke-width="0.7" opacity="0.35"/>
+
+  <!-- Subline -->
+  <text
+    x="110"
+    y="126"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="7"
+    font-weight="400"
+    letter-spacing="3.5"
+    fill="#E8B847"
+    opacity="0.48"
+  >CHURCH MANAGEMENT SYSTEM</text>
+</svg>

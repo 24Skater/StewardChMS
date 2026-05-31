@@ -1,5 +1,7 @@
 # Steward Brand Integration Feedback
 
+> **Note (2026-05-31):** The Steward visual identity has been updated. The shield mark and `steward-brand` package are retired. The current identity is the **Cross Key** mark — see [`docs/brand/brand-guide.md`](brand/brand-guide.md) for the complete brand system. The document below is preserved for historical reference only.
+
 **Date:** February 2026  
 **Integrating Project:** StewardChMS  
 **Repository:** https://github.com/24Skater/steward-brand

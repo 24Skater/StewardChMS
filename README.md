@@ -24,6 +24,8 @@
 
 **Steward ChMS** is a free, open-source **Church Management System** built for modern ministry teams. It covers the full lifecycle of church operations — member CRM, kids check-in, worship planning, online giving, and financial reporting — in a single integrated platform.
 
+> *"Moreover, it is required of stewards that they be found faithful."* — 1 Corinthians 4:2
+
 <br/>
 
 <table>
@@ -852,9 +854,9 @@ and operate with transparency and faithfulness.
 ---
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="frontend/public/steward-mark-light.svg">
-  <source media="(prefers-color-scheme: light)" srcset="frontend/public/steward-mark.svg">
-  <img alt="Steward" src="frontend/public/steward-mark.svg" width="32" height="32"/>
+  <source media="(prefers-color-scheme: dark)" srcset="frontend/public/steward-mark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="frontend/public/steward-mark-light.svg">
+  <img alt="Steward" src="frontend/public/steward-mark.svg" width="25" height="32"/>
 </picture>
 
 <br/>
