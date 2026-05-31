@@ -103,6 +103,21 @@ cp env.example .env
 Required env vars: `DATABASE_URL`, `JWT_SECRET`
 Optional: `PORT` (default 3001), `CORS_ORIGIN` (default `http://localhost:5173`), `JWT_EXPIRES_IN` (default `7d`)
 
+## Documentation
+
+Full technical documentation lives in [`docs/`](docs/README.md). Key references:
+
+| Need | Document |
+| --- | --- |
+| How the system works end-to-end | [`docs/architecture.md`](docs/architecture.md) |
+| Auth, JWT, and permission keys | [`docs/auth-permissions.md`](docs/auth-permissions.md) |
+| Every API error code and shape | [`docs/api-errors.md`](docs/api-errors.md) |
+| All 42 Prisma models documented | [`docs/database-schema.md`](docs/database-schema.md) |
+| Frontend patterns (hooks, forms, icons) | [`docs/frontend-guide.md`](docs/frontend-guide.md) |
+| Adding a new feature domain | [`docs/extending.md`](docs/extending.md) |
+| Production deployment | [`docs/deployment.md`](docs/deployment.md) |
+| Per-domain references (endpoints, models) | [`docs/domains/`](docs/domains/) |
+
 ## Known Issues / TODOs
 
 - `frontend/src/lib/api.ts` is 1,986 lines — split into per-domain modules when touching this file
