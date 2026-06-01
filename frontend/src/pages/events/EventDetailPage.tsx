@@ -179,7 +179,7 @@ export default function EventDetailPage() {
               <Button 
                 onClick={handleGenerateOccurrences} 
                 disabled={generating}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 {generating ? 'Generating...' : 'Generate Occurrences (Next 90 Days)'}
               </Button>
@@ -197,7 +197,7 @@ export default function EventDetailPage() {
               onClick={handleGenerateOccurrences} 
               size="sm" 
               disabled={generating}
-              className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
             >
               {generating ? 'Generating...' : 'Create Occurrence'}
             </Button>

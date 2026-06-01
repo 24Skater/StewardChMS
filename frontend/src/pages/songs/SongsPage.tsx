@@ -40,7 +40,7 @@ export default function SongsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-[var(--st-fg)]">Song Library</h1>
         <Link to="/songs/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
             Add Song
           </Button>
         </Link>

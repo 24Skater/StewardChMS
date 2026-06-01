@@ -238,7 +238,7 @@ function ScheduleFormPage() {
               <Button
                 type="submit"
                 disabled={isSaving}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 {isSaving ? 'Saving...' : isEdit ? 'Update Calendar' : 'Create Calendar'}
               </Button>

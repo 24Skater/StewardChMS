@@ -269,10 +269,10 @@ function AdminSettingsPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6 bg-[var(--st-surface)] border border-[var(--st-border)]">
-          <TabsTrigger value="church" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">General</TabsTrigger>
-          <TabsTrigger value="branding" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Branding</TabsTrigger>
-          <TabsTrigger value="email" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Email</TabsTrigger>
-          <TabsTrigger value="security" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Security</TabsTrigger>
+          <TabsTrigger value="church" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">General</TabsTrigger>
+          <TabsTrigger value="branding" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Branding</TabsTrigger>
+          <TabsTrigger value="email" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Email</TabsTrigger>
+          <TabsTrigger value="security" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Security</TabsTrigger>
         </TabsList>
 
         {/* Church Settings */}
@@ -392,7 +392,7 @@ function AdminSettingsPage() {
                 <Button
                   type="submit"
                   disabled={bulkUpdateMutation.isPending}
-                  className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                  className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                 >
                   {bulkUpdateMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -465,7 +465,7 @@ function AdminSettingsPage() {
                 <Button
                   type="submit"
                   disabled={bulkUpdateMutation.isPending}
-                  className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                  className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                 >
                   {bulkUpdateMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -594,7 +594,7 @@ function AdminSettingsPage() {
                 <Button
                   type="submit"
                   disabled={bulkUpdateMutation.isPending}
-                  className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                  className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                 >
                   {bulkUpdateMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -662,7 +662,7 @@ function AdminSettingsPage() {
                 <Button
                   type="submit"
                   disabled={bulkUpdateMutation.isPending}
-                  className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                  className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                 >
                   {bulkUpdateMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>

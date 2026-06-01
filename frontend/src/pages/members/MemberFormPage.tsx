@@ -279,7 +279,7 @@ function MemberFormPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 {isSubmitting || createMutation.isPending || updateMutation.isPending
                   ? 'Saving...'

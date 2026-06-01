@@ -108,7 +108,7 @@ function HomePage() {
           {user ? (
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--st-primary)] px-8 py-3 font-semibold text-white shadow-lg shadow-[var(--st-primary)]/25 transition-all hover:opacity-90 hover:shadow-[var(--st-primary)]/40"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--st-primary)] px-8 py-3 font-semibold text-[var(--st-primaryFg)] shadow-lg shadow-[var(--st-primary)]/25 transition-all hover:bg-[var(--st-primary-hover)] hover:shadow-[var(--st-primary)]/40"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                 <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -121,7 +121,7 @@ function HomePage() {
           ) : (
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--st-primary)] px-8 py-3 font-semibold text-white shadow-lg shadow-[var(--st-primary)]/25 transition-all hover:opacity-90 hover:shadow-[var(--st-primary)]/40"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--st-primary)] px-8 py-3 font-semibold text-[var(--st-primaryFg)] shadow-lg shadow-[var(--st-primary)]/25 transition-all hover:bg-[var(--st-primary-hover)] hover:shadow-[var(--st-primary)]/40"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />

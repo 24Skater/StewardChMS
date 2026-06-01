@@ -119,9 +119,9 @@ export default function FinanceReportsPage() {
 
       <Tabs defaultValue="funds" className="space-y-4">
         <TabsList className="bg-[var(--st-surface)] border border-[var(--st-border)]">
-          <TabsTrigger value="funds" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Fund Summary</TabsTrigger>
-          <TabsTrigger value="giving" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Giving Summary</TabsTrigger>
-          <TabsTrigger value="statement" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-white">Donor Statement</TabsTrigger>
+          <TabsTrigger value="funds" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Fund Summary</TabsTrigger>
+          <TabsTrigger value="giving" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Giving Summary</TabsTrigger>
+          <TabsTrigger value="statement" className="data-[state=active]:bg-[var(--st-primary)] data-[state=active]:text-[var(--st-primaryFg)]">Donor Statement</TabsTrigger>
         </TabsList>
 
         <TabsContent value="funds">
@@ -304,7 +304,7 @@ export default function FinanceReportsPage() {
                 <Button
                   onClick={handleDownloadStatement}
                   disabled={!selectedMemberId || loadingStatement || !donorStatement}
-                  className="bg-[var(--st-primary)] text-white"
+                  className="bg-[var(--st-primary)] text-[var(--st-primaryFg)]"
                 >
                   Download PDF Statement
                 </Button>

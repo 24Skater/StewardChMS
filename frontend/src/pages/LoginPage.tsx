@@ -146,7 +146,7 @@ function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting || loginMutation.isPending}
-              className="w-full bg-[var(--st-primary)] py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="w-full bg-[var(--st-primary)] py-2.5 font-medium text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)] disabled:opacity-50"
             >
               {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </Button>

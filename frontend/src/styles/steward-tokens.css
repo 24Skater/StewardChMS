@@ -1,171 +1,205 @@
 /**
- * Steward Design System - CSS Tokens
- * Generated from @steward/tokens source
- * https://github.com/24Skater/steward-brand
+ * Steward Design System — Brand Token System
+ * Identity: Cross Key · Kingdom Authority
+ * Palette: Deep Navy + Kingdom Gold + Parchment
  */
 
 :root {
-  /* ===== Brand Colors ===== */
-  --st-color-brand-navy: #1B2A41;
-  --st-color-brand-blue: #2563EB;
-  --st-color-brand-emerald: #16A34A;
-  --st-color-brand-amber: #F59E0B;
-  --st-color-brand-red: #DC2626;
+  /* ===== Brand Color Palette ===== */
+  --st-color-brand-navy-deep:  #060F1A;
+  --st-color-brand-navy:       #0D1B2E;
+  --st-color-brand-navy-mid:   #1A2F4A;
+  --st-color-brand-gold:       #E8B847;
+  --st-color-brand-gold-dark:  #C49A2E;
+  --st-color-brand-parchment:  #F5EED8;
+  --st-color-brand-emerald:    #16A34A;
+  --st-color-brand-amber:      #F59E0B;
+  --st-color-brand-red:        #DC2626;
 
-  /* ===== Neutral Colors ===== */
-  --st-color-neutral-ink: #0B1220;
-  --st-color-neutral-slate: #334155;
-  --st-color-neutral-muted: #64748B;
-  --st-color-neutral-border: #E2E8F0;
-  --st-color-neutral-surface: #FFFFFF;
-  --st-color-neutral-subtle: #F8FAFC;
+  /* ===== Neutral Colors — Light Mode ===== */
+  --st-color-neutral-ink:      #0D1B2E;
+  --st-color-neutral-slate:    #3D4F66;
+  --st-color-neutral-muted:    #6B7A8D;
+  --st-color-neutral-border:   #DDD0A8;
+  --st-color-neutral-surface:  #FFFFFF;
+  --st-color-neutral-subtle:   #FAF7F2;
 
-  /* ===== Typography - Font Family ===== */
-  --st-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --st-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* ===== Typography ===== */
+  --st-font-sans:  'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --st-font-mono:  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-  /* ===== Typography - Font Size ===== */
-  --st-font-size-display: 36px;
-  --st-font-size-h1: 30px;
-  --st-font-size-h2: 24px;
-  --st-font-size-h3: 20px;
-  --st-font-size-body: 16px;
-  --st-font-size-small: 14px;
-  --st-font-size-caption: 12px;
+  --st-font-size-display:  36px;
+  --st-font-size-h1:       30px;
+  --st-font-size-h2:       24px;
+  --st-font-size-h3:       20px;
+  --st-font-size-body:     16px;
+  --st-font-size-small:    14px;
+  --st-font-size-caption:  12px;
 
-  /* ===== Typography - Line Height ===== */
-  --st-line-height-display: 44px;
-  --st-line-height-h1: 38px;
-  --st-line-height-h2: 32px;
-  --st-line-height-h3: 28px;
-  --st-line-height-body: 24px;
-  --st-line-height-small: 20px;
-  --st-line-height-caption: 16px;
+  --st-line-height-display:  44px;
+  --st-line-height-h1:       38px;
+  --st-line-height-h2:       32px;
+  --st-line-height-h3:       28px;
+  --st-line-height-body:     24px;
+  --st-line-height-small:    20px;
+  --st-line-height-caption:  16px;
 
-  /* ===== Typography - Font Weight ===== */
-  --st-font-weight-regular: 400;
-  --st-font-weight-medium: 500;
-  --st-font-weight-semibold: 600;
-  --st-font-weight-bold: 700;
+  --st-font-weight-regular:   400;
+  --st-font-weight-medium:    500;
+  --st-font-weight-semibold:  600;
+  --st-font-weight-bold:      700;
 
   /* ===== Border Radius ===== */
-  --st-radius-none: 0px;
-  --st-radius-sm: 6px;
-  --st-radius-md: 10px;
-  --st-radius-lg: 16px;
-  --st-radius-full: 9999px;
+  --st-radius-none:  0px;
+  --st-radius-sm:    6px;
+  --st-radius-md:    10px;
+  --st-radius-lg:    16px;
+  --st-radius-full:  9999px;
 
   /* ===== Shadows ===== */
-  --st-shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
-  --st-shadow-md: 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --st-shadow-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --st-shadow-sm:  0px 1px 2px rgba(13, 27, 46, 0.08);
+  --st-shadow-md:  0px 4px 6px -1px rgba(13, 27, 46, 0.12);
+  --st-shadow-lg:  0px 10px 15px -3px rgba(13, 27, 46, 0.15);
 
-  /* ===== Light Theme Semantic Tokens ===== */
-  --st-bg: var(--st-color-neutral-subtle);
-  --st-fg: var(--st-color-neutral-ink);
-  --st-surface: var(--st-color-neutral-surface);
-  --st-surfaceMuted: var(--st-color-neutral-subtle);
-  --st-border: var(--st-color-neutral-border);
+  /* ===== Light Mode — Semantic Tokens ===== */
+  --st-bg:           #FAF7F2;
+  --st-fg:           #0D1B2E;
+  --st-surface:      #FFFFFF;
+  --st-surfaceMuted: #FAF7F2;
+  --st-border:       #DDD0A8;
 
-  --st-primary: var(--st-color-brand-blue);
-  --st-primaryFg: #FFFFFF;
-  --st-secondary: var(--st-color-neutral-slate);
-  --st-secondaryFg: #FFFFFF;
-  --st-accent: var(--st-color-brand-navy);
-  --st-accentFg: #FFFFFF;
+  /* Primary — Kingdom Gold */
+  --st-primary:       #E8B847;
+  --st-primaryFg:     #0D1B2E;
+  --st-fg-on-primary: #0D1B2E;
+  --st-primary-hover: #C49A2E;
+  --st-surface-hover: rgba(232, 184, 71, 0.08);
 
-  --st-success: var(--st-color-brand-emerald);
-  --st-successFg: #FFFFFF;
-  --st-warning: var(--st-color-brand-amber);
-  --st-warningFg: var(--st-color-neutral-ink);
-  --st-danger: var(--st-color-brand-red);
-  --st-dangerFg: #FFFFFF;
+  /* Secondary — Navy Mid */
+  --st-secondary:    #1A2F4A;
+  --st-secondaryFg:  #F5EED8;
 
-  --st-link: var(--st-color-brand-blue);
-  --st-focusRing: var(--st-color-brand-blue);
+  /* Accent — Navy */
+  --st-accent:    #0D1B2E;
+  --st-accentFg:  #F5EED8;
 
-  --st-muted: var(--st-color-neutral-muted);
-  --st-mutedFg: var(--st-color-neutral-slate);
+  /* Status */
+  --st-success:    #16A34A;
+  --st-successFg:  #FFFFFF;
+  --st-warning:    #F59E0B;
+  --st-warningFg:  #0D1B2E;
+  --st-danger:     #DC2626;
+  --st-dangerFg:   #FFFFFF;
 
-  /* ===== Legacy shadcn/ui compatibility ===== */
-  --background: 210 20% 98%;
-  --foreground: 215 28% 9%;
-  --card: 0 0% 100%;
-  --card-foreground: 215 28% 9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 28% 9%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 215 25% 27%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 215 16% 47%;
-  --muted-foreground: 215 25% 27%;
-  --accent: 213 33% 18%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 72% 51%;
+  --st-link:       #C49A2E;
+  --st-focusRing:  #E8B847;
+
+  --st-muted:    #6B7A8D;
+  --st-mutedFg:  #3D4F66;
+
+  /* ===== Sidebar — Always Dark Navy (both modes) ===== */
+  --st-sidebar-bg:        #0D1B2E;
+  --st-sidebar-fg:        #F5EED8;
+  --st-sidebar-muted:     rgba(245, 238, 216, 0.45);
+  --st-sidebar-border:    #1A2F4A;
+  --st-sidebar-hover:     rgba(232, 184, 71, 0.1);
+  --st-sidebar-active:    #E8B847;
+  --st-sidebar-active-fg: #0D1B2E;
+
+  /* ===== Legacy shadcn/ui compatibility — Light ===== */
+  /* HSL format: H S% L% (no comma) */
+  --background:             42 50% 96%;    /* #FAF7F2 warm off-white */
+  --foreground:             215 56% 12%;   /* #0D1B2E navy */
+  --card:                   0 0% 100%;     /* white */
+  --card-foreground:        215 56% 12%;   /* navy */
+  --popover:                0 0% 100%;
+  --popover-foreground:     215 56% 12%;
+  --primary:                42 78% 59%;    /* #E8B847 kingdom gold */
+  --primary-foreground:     215 56% 12%;   /* navy text on gold — WCAG AAA */
+  --secondary:              214 48% 20%;   /* #1A2F4A navy mid */
+  --secondary-foreground:   46 59% 90%;    /* parchment */
+  --muted:                  42 15% 88%;    /* warm light muted */
+  --muted-foreground:       215 25% 35%;   /* dark muted text */
+  --accent:                 214 48% 20%;   /* navy mid */
+  --accent-foreground:      46 59% 90%;    /* parchment */
+  --destructive:            0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 217 91% 60%;
-  --radius: 0.625rem;
+  --border:                 42 38% 84%;    /* warm golden border */
+  --input:                  42 38% 84%;
+  --ring:                   42 78% 59%;    /* gold focus ring */
+  --radius:                 0.625rem;
 }
 
-/* ===== Dark Theme ===== */
+/* ===== Dark Mode ===== */
 .dark {
-  /* Dark Mode Neutral Colors */
-  --st-color-neutral-ink: #F8FAFC;
-  --st-color-neutral-slate: #CBD5E1;
-  --st-color-neutral-muted: #94A3B8;
-  --st-color-neutral-border: #334155;
-  --st-color-neutral-surface: #1E293B;
-  --st-color-neutral-subtle: #0F172A;
+  /* Neutral Colors — Dark Mode */
+  --st-color-neutral-ink:     #F5EED8;
+  --st-color-neutral-slate:   #C9B88A;
+  --st-color-neutral-muted:   #8A7A5C;
+  --st-color-neutral-border:  #1A2F4A;
+  --st-color-neutral-surface: #0D1B2E;
+  --st-color-neutral-subtle:  #060F1A;
 
-  /* Dark Mode Semantic Tokens */
-  --st-bg: #0F172A;
-  --st-fg: #F8FAFC;
-  --st-surface: #1E293B;
-  --st-surfaceMuted: #1E293B;
-  --st-border: #334155;
+  /* Semantic Tokens — Dark Mode */
+  --st-bg:           #060F1A;
+  --st-fg:           #F5EED8;
+  --st-surface:      #0D1B2E;
+  --st-surfaceMuted: #0D1B2E;
+  --st-border:       #1A2F4A;
 
-  --st-primary: #3B82F6;
-  --st-primaryFg: #FFFFFF;
-  --st-secondary: #CBD5E1;
-  --st-secondaryFg: #0F172A;
-  --st-accent: #60A5FA;
-  --st-accentFg: #0F172A;
+  /* Primary stays Kingdom Gold in dark mode */
+  --st-primary:       #E8B847;
+  --st-primaryFg:     #0D1B2E;
+  --st-fg-on-primary: #0D1B2E;
+  --st-primary-hover: #C49A2E;
+  --st-surface-hover: rgba(232, 184, 71, 0.1);
 
-  --st-success: #22C55E;
-  --st-successFg: #0F172A;
-  --st-warning: #FBBF24;
-  --st-warningFg: #0F172A;
-  --st-danger: #EF4444;
-  --st-dangerFg: #FFFFFF;
+  --st-secondary:    #C9B88A;
+  --st-secondaryFg:  #060F1A;
 
-  --st-link: #60A5FA;
-  --st-focusRing: #3B82F6;
+  --st-accent:    #E8B847;
+  --st-accentFg:  #0D1B2E;
 
-  --st-muted: #94A3B8;
-  --st-mutedFg: #CBD5E1;
+  --st-success:    #22C55E;
+  --st-successFg:  #060F1A;
+  --st-warning:    #E8B847;
+  --st-warningFg:  #060F1A;
+  --st-danger:     #EF4444;
+  --st-dangerFg:   #FFFFFF;
 
-  /* ===== Legacy shadcn/ui compatibility (dark) ===== */
-  --background: 222 47% 5%;
-  --foreground: 210 40% 98%;
-  --card: 217 33% 17%;
-  --card-foreground: 210 40% 98%;
-  --popover: 217 33% 17%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 213 27% 84%;
-  --secondary-foreground: 222 47% 5%;
-  --muted: 215 20% 65%;
-  --muted-foreground: 213 27% 84%;
-  --accent: 217 89% 68%;
-  --accent-foreground: 222 47% 5%;
-  --destructive: 0 84% 60%;
+  --st-link:       #E8B847;
+  --st-focusRing:  #E8B847;
+
+  --st-muted:    #8A7A5C;
+  --st-mutedFg:  #C9B88A;
+
+  /* Sidebar stays dark in dark mode too (slightly deeper) */
+  --st-sidebar-bg:        #060F1A;
+  --st-sidebar-fg:        #F5EED8;
+  --st-sidebar-muted:     rgba(245, 238, 216, 0.4);
+  --st-sidebar-border:    #0D1B2E;
+  --st-sidebar-hover:     rgba(232, 184, 71, 0.12);
+  --st-sidebar-active:    #E8B847;
+  --st-sidebar-active-fg: #0D1B2E;
+
+  /* shadcn/ui compatibility — Dark Mode */
+  --background:             213 63% 6%;    /* #060F1A deep navy */
+  --foreground:             46 59% 90%;    /* #F5EED8 parchment */
+  --card:                   215 56% 12%;   /* #0D1B2E navy */
+  --card-foreground:        46 59% 90%;    /* parchment */
+  --popover:                215 56% 12%;
+  --popover-foreground:     46 59% 90%;
+  --primary:                42 78% 59%;    /* gold — same as light */
+  --primary-foreground:     215 56% 12%;   /* navy on gold */
+  --secondary:              42 30% 62%;    /* warm muted gold */
+  --secondary-foreground:   213 63% 6%;
+  --muted:                  214 48% 15%;   /* dark muted surface */
+  --muted-foreground:       42 30% 65%;    /* warm muted text */
+  --accent:                 42 78% 59%;    /* gold accent */
+  --accent-foreground:      215 56% 12%;   /* navy on gold */
+  --destructive:            0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 217 91% 60%;
+  --border:                 214 48% 20%;   /* #1A2F4A navy mid */
+  --input:                  214 48% 20%;
+  --ring:                   42 78% 59%;    /* gold ring */
 }
-

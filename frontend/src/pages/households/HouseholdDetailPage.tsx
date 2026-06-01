@@ -126,7 +126,7 @@ function HouseholdDetailPage() {
                 size="sm"
                 onClick={handleUpdateName}
                 disabled={updateMutation.isPending}
-                className="bg-[var(--st-primary)] text-white"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)]"
               >
                 Save
               </Button>
@@ -177,7 +177,7 @@ function HouseholdDetailPage() {
           <Button
             size="sm"
             onClick={() => setShowAddMember(!showAddMember)}
-            className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+            className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
           >
             {showAddMember ? 'Cancel' : 'Add Member'}
           </Button>
@@ -223,7 +223,7 @@ function HouseholdDetailPage() {
                   <Button
                     onClick={handleLinkMember}
                     disabled={!selectedMemberId || linkMutation.isPending}
-                    className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                    className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
                   >
                     Add to Household
                   </Button>

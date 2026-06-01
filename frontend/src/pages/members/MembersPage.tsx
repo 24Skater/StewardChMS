@@ -187,7 +187,7 @@ function MembersPage() {
             </Button>
           </Link>
           <Link to="/members/new">
-            <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
               Add Member
             </Button>
           </Link>
@@ -203,7 +203,7 @@ function MembersPage() {
             onChange={(e) => setSearchInput(e.target.value)}
             className="max-w-md border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-fg)] placeholder-[var(--st-muted)]"
           />
-          <Button type="submit" className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button type="submit" className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
             Search
           </Button>
         </form>

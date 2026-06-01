@@ -211,7 +211,7 @@ function ScheduleDetailPage() {
                   size="sm"
                   onClick={handleSaveRotation}
                   disabled={updateRotationMutation.isPending}
-                  className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                  className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
                 >
                   {updateRotationMutation.isPending ? 'Saving...' : 'Save Rotation'}
                 </Button>
@@ -290,7 +290,7 @@ function ScheduleDetailPage() {
               <Button
                 onClick={handleCreatePeriod}
                 disabled={createPeriodMutation.isPending}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 {createPeriodMutation.isPending ? 'Creating...' : 'Create'}
               </Button>

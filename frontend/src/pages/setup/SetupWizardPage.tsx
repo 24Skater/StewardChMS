@@ -278,7 +278,7 @@ function SetupWizardPage() {
                       step.number < currentStep
                         ? 'bg-[var(--st-success)] text-white'
                         : step.number === currentStep
-                        ? 'bg-[var(--st-primary)] text-white'
+                        ? 'bg-[var(--st-primary)] text-[var(--st-primaryFg)]'
                         : 'bg-[var(--st-surfaceMuted)] text-[var(--st-muted)]'
                     }`}
                   >
@@ -362,7 +362,7 @@ function SetupWizardPage() {
                 <Button
                   type="submit"
                   disabled={step1Mutation.isPending}
-                  className="w-full bg-[var(--st-primary)] hover:opacity-90 text-white"
+                  className="w-full bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                 >
                   {step1Mutation.isPending ? 'Creating Account...' : 'Continue'}
                 </Button>
@@ -495,7 +495,7 @@ function SetupWizardPage() {
                   <Button
                     type="submit"
                     disabled={step2Mutation.isPending}
-                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                   >
                     {step2Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>
@@ -554,7 +554,7 @@ function SetupWizardPage() {
                   <Button
                     type="submit"
                     disabled={step3Mutation.isPending}
-                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                   >
                     {step3Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>
@@ -678,7 +678,7 @@ function SetupWizardPage() {
                   <Button
                     type="submit"
                     disabled={step4Mutation.isPending}
-                    className="flex-1 bg-[var(--st-primary)] hover:opacity-90 text-white"
+                    className="flex-1 bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                   >
                     {step4Mutation.isPending ? 'Saving...' : 'Continue'}
                   </Button>

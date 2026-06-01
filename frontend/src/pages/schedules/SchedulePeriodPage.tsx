@@ -245,7 +245,7 @@ function SchedulePeriodPage() {
           <Button
             onClick={handlePublish}
             disabled={isPending}
-            className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+            className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
           >
             {publishMutation.isPending ? 'Publishing...' : 'Publish Period'}
           </Button>
@@ -315,7 +315,7 @@ function SchedulePeriodPage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmPublish}
-              className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+              className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
             >
               Publish
             </AlertDialogAction>

@@ -186,14 +186,14 @@ function GroupsPage() {
         <Button
           variant={activeTab === 'ministries' ? 'default' : 'outline'}
           onClick={() => setActiveTab('ministries')}
-          className={activeTab === 'ministries' ? 'bg-[var(--st-primary)] text-white' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
+          className={activeTab === 'ministries' ? 'bg-[var(--st-primary)] text-[var(--st-primaryFg)]' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
         >
           Ministries
         </Button>
         <Button
           variant={activeTab === 'groups' ? 'default' : 'outline'}
           onClick={() => setActiveTab('groups')}
-          className={activeTab === 'groups' ? 'bg-[var(--st-primary)] text-white' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
+          className={activeTab === 'groups' ? 'bg-[var(--st-primary)] text-[var(--st-primaryFg)]' : 'border-[var(--st-border)] text-[var(--st-mutedFg)]'}
         >
           Groups
         </Button>
@@ -217,7 +217,7 @@ function GroupsPage() {
               }
             }}>
               <DialogTrigger asChild>
-                <Button className="bg-[var(--st-primary)] hover:opacity-90 text-white">
+                <Button className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]">
                   + Add Ministry
                 </Button>
               </DialogTrigger>
@@ -277,7 +277,7 @@ function GroupsPage() {
                     <Button
                       type="submit"
                       disabled={createMinistryMutation.isPending || updateMinistryMutation.isPending}
-                      className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                      className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                     >
                       {editingMinistry ? 'Update' : 'Create'}
                     </Button>
@@ -373,7 +373,7 @@ function GroupsPage() {
                 }
               }}>
                 <DialogTrigger asChild>
-                  <Button className="bg-[var(--st-primary)] hover:opacity-90 text-white">
+                  <Button className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]">
                     + Add Group
                   </Button>
                 </DialogTrigger>
@@ -483,7 +483,7 @@ function GroupsPage() {
                       <Button
                         type="submit"
                         disabled={createGroupMutation.isPending || updateGroupMutation.isPending}
-                        className="bg-[var(--st-primary)] hover:opacity-90 text-white"
+                        className="bg-[var(--st-primary)] hover:bg-[var(--st-primary-hover)] text-[var(--st-primaryFg)]"
                       >
                         {editingGroup ? 'Update' : 'Create'}
                       </Button>

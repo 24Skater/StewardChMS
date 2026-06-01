@@ -100,7 +100,7 @@ export default function EventsPage() {
             {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
           <Link to="/events/new">
-            <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
               Create Event
             </Button>
           </Link>

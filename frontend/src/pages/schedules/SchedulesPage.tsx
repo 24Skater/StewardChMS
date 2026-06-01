@@ -26,7 +26,7 @@ function SchedulesPage() {
           <p className="mt-1 text-[var(--st-muted)]">Manage rotation schedules for ministries</p>
         </div>
         <Link to="/schedules/new">
-          <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+          <Button className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
             New Calendar
           </Button>
         </Link>

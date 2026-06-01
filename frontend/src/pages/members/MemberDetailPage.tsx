@@ -72,7 +72,7 @@ function MemberDetailPage() {
         </div>
         <div className="flex gap-3">
           <Link to={`/members/${member.id}/edit`}>
-            <Button className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+            <Button className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
               Edit Member
             </Button>
           </Link>

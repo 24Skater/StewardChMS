@@ -1,6 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { useTheme } from '@/hooks/useTheme'
 import { useLogout } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
@@ -80,7 +79,6 @@ const navSections: NavSection[] = [
 
 export function AppLayout() {
   const { user } = useAuth()
-  const { resolvedTheme } = useTheme()
   const logoutMutation = useLogout()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -89,26 +87,24 @@ export function AppLayout() {
     logoutMutation.mutate()
   }
 
-  // Choose logo based on theme
-  const logoSrc = resolvedTheme === 'dark' ? '/steward-mark-light.svg' : '/steward-mark.svg'
-
   return (
     <div className="min-h-screen bg-[var(--st-bg)] flex">
-      {/* Sidebar */}
-      <aside 
-        className={`${sidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 border-r border-[var(--st-border)] bg-[var(--st-surface)]/50 backdrop-blur-sm flex flex-col fixed h-full z-40`}
+      {/* Sidebar — always dark navy regardless of app theme */}
+      <aside
+        className={`${sidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 border-r border-[var(--st-sidebar-border)] bg-[var(--st-sidebar-bg)] flex flex-col fixed h-full z-40`}
       >
-        {/* Logo */}
-        <div className="p-4 border-b border-[var(--st-border)]">
+        {/* Logo — gold mark on dark navy */}
+        <div className="p-4 border-b border-[var(--st-sidebar-border)]">
           <Link to="/dashboard" className="flex items-center gap-3">
-            <img 
-              src={logoSrc}
-              alt="Steward" 
-              className="h-10 w-10 flex-shrink-0"
+            <img
+              src="/steward-mark.svg"
+              alt="Steward"
+              className="h-10 flex-shrink-0"
+              style={{ width: 'auto' }}
             />
             {sidebarOpen && (
-              <span className="text-lg font-semibold text-[var(--st-fg)] whitespace-nowrap">
-                Steward <span className="text-[var(--st-muted)]">·</span> ChMS
+              <span className="text-lg font-semibold text-[var(--st-sidebar-fg)] whitespace-nowrap tracking-wide">
+                Steward <span className="text-[var(--st-sidebar-muted)]">·</span> ChMS
               </span>
             )}
           </Link>
@@ -119,23 +115,23 @@ export function AppLayout() {
           {navSections.map((section) => (
             <div key={section.title}>
               {sidebarOpen && (
-                <h3 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--st-muted)]">
+                <h3 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--st-sidebar-muted)]">
                   {section.title}
                 </h3>
               )}
               <div className="space-y-1">
                 {section.items.map((item) => {
-                  const isActive = location.pathname === item.href || 
+                  const isActive = location.pathname === item.href ||
                     (item.href !== '/dashboard' && location.pathname.startsWith(item.href))
-                  
+
                   return (
                     <Link
                       key={item.href}
                       to={item.href}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                        isActive 
-                          ? 'bg-[var(--st-primary)] text-[var(--st-fg-on-primary)]' 
-                          : 'text-[var(--st-muted)] hover:bg-[var(--st-surface-hover)] hover:text-[var(--st-fg)]'
+                        isActive
+                          ? 'bg-[var(--st-sidebar-active)] text-[var(--st-sidebar-active-fg)] font-semibold'
+                          : 'text-[var(--st-sidebar-muted)] hover:bg-[var(--st-sidebar-hover)] hover:text-[var(--st-sidebar-fg)]'
                       }`}
                       title={!sidebarOpen ? item.label : undefined}
                     >
@@ -152,7 +148,7 @@ export function AppLayout() {
         {/* Collapse Toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-4 border-t border-[var(--st-border)] text-[var(--st-muted)] hover:text-[var(--st-fg)] transition-colors flex items-center justify-center"
+          className="p-4 border-t border-[var(--st-sidebar-border)] text-[var(--st-sidebar-muted)] hover:text-[var(--st-sidebar-fg)] transition-colors flex items-center justify-center"
         >
           {sidebarOpen ? '◀' : '▶'}
         </button>

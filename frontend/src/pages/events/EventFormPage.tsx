@@ -345,7 +345,7 @@ export default function EventFormPage() {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 {isSubmitting ? 'Saving...' : isEditing ? 'Update Event' : 'Create Event'}
               </Button>

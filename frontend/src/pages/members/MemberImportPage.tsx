@@ -177,7 +177,7 @@ function MemberImportPage() {
             <div className="mt-4 flex gap-3">
               <Button
                 onClick={() => navigate('/members')}
-                className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
               >
                 View Members
               </Button>
@@ -244,7 +244,7 @@ function MemberImportPage() {
                     id="csv-upload"
                   />
                   <label htmlFor="csv-upload">
-                    <Button asChild className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]">
+                    <Button asChild className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]">
                       <span>Choose File</span>
                     </Button>
                   </label>
@@ -309,7 +309,7 @@ function MemberImportPage() {
                   <Button
                     onClick={handleImport}
                     disabled={importMutation.isPending}
-                    className="bg-[var(--st-primary)] text-white hover:bg-[var(--st-primary-hover)]"
+                    className="bg-[var(--st-primary)] text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
                   >
                     {importMutation.isPending ? 'Importing...' : `Import ${parsedData.length} Members`}
                   </Button>
