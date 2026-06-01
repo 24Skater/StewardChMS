@@ -414,6 +414,9 @@ router.post('/forgot-password', loginRateLimiter, async (req: Request, res: Resp
       `Hi ${user.name || 'there'},\n\nYou requested a password reset for your Steward account.\n\nReset link (expires in 1 hour):\n${resetUrl}\n\nIf you didn't request this, you can safely ignore this email.\n\n– The Steward Team`
     )
 
+    // Dev-mode helper: always print the reset URL clearly even if email fails
+    console.log(`[RESET LINK] ► ${resetUrl}`)
+
     await createAuditLog({
       actorUserId: user.id,
       action: 'PASSWORD_RESET_REQUESTED',

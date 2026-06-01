@@ -14,9 +14,10 @@ export class EmailStubProvider implements MessageProvider {
 
     // Log the email for debugging
     console.log('[STUB EMAIL] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.log(`   To: ${to}`)
+    console.log(`   To:      ${to}`)
     console.log(`   Subject: ${subject || '(no subject)'}`)
-    console.log(`   Body: ${body.substring(0, 100)}${body.length > 100 ? '...' : ''}`)
+    console.log('')
+    body.split('\n').forEach(line => console.log(`   ${line}`))
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
     // Simulate occasional failures for testing (1% chance)
