@@ -148,6 +148,14 @@ export async function getMe(): Promise<UserSummary> {
   return apiRequest<UserSummary>('/auth/me')
 }
 
+export async function forgotPassword(email: string): Promise<{ message: string }> {
+  return apiRequest('/auth/forgot-password', { method: 'POST', body: { email } })
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  return apiRequest('/auth/reset-password', { method: 'POST', body: { token, newPassword } })
+}
+
 // ============================================
 // Member API Functions
 // ============================================

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -53,8 +53,7 @@ function LoginPage() {
     }
   }
 
-  // Choose logo based on theme
-  const logoSrc = resolvedTheme === 'dark' ? '/steward-mark-light.svg' : '/steward-mark.svg'
+  const logoSrc = resolvedTheme === 'dark' ? '/steward-mark.svg' : '/steward-mark-light.svg'
 
   return (
     <div className="min-h-screen bg-[var(--st-bg)]">
@@ -123,12 +122,17 @@ function LoginPage() {
 
             {/* Password Field */}
             <div className="mb-6">
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-[var(--st-mutedFg)]"
-              >
-                Password
-              </label>
+              <div className="mb-2 flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-[var(--st-mutedFg)]">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-[var(--st-primary)] hover:opacity-80"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 {...register('password')}
                 type="password"

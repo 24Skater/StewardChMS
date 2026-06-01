@@ -67,6 +67,8 @@ import ScheduleKioskPage from './pages/schedules/ScheduleKioskPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
 import { IconTestPage } from './pages/IconTestPage'
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
+import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 
 function App() {
   return (
@@ -74,6 +76,8 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       {import.meta.env.DEV && (
         <Route path="/icon-test" element={<IconTestPage />} />
       )}
