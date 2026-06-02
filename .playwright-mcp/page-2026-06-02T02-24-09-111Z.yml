@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - button "Switch to light mode" [ref=e5] [cursor=pointer]:
+    - img [ref=e6]
+    - img
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - img "Steward" [ref=e12]
+      - heading "Steward · ChMS" [level=1] [ref=e13]
+      - paragraph [ref=e14]: Reset your password
+    - generic [ref=e16]:
+      - paragraph [ref=e17]: Enter your account email and we'll send you a link to reset your password.
+      - generic [ref=e18]:
+        - generic [ref=e19]: Email address
+        - textbox "Email address" [active] [ref=e20]:
+          - /placeholder: you@example.com
+      - button "Send reset link" [ref=e21] [cursor=pointer]
+    - paragraph [ref=e22]:
+      - text: Remember your password?
+      - link "Sign in" [ref=e23] [cursor=pointer]:
+        - /url: /login

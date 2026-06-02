@@ -1,0 +1,236 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "Steward Steward · ChMS" [ref=e6] [cursor=pointer]:
+      - /url: /dashboard
+      - img "Steward" [ref=e7]
+      - generic [ref=e8]: Steward · ChMS
+    - navigation [ref=e9]:
+      - generic [ref=e10]:
+        - heading "Main" [level=3] [ref=e11]
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - generic [ref=e19]: Dashboard
+      - generic [ref=e20]:
+        - heading "People & Groups" [level=3] [ref=e21]
+        - generic [ref=e22]:
+          - link "Members" [ref=e23] [cursor=pointer]:
+            - /url: /members
+            - img [ref=e24]
+            - generic [ref=e29]: Members
+          - link "Households" [ref=e30] [cursor=pointer]:
+            - /url: /households
+            - img [ref=e31]
+            - generic [ref=e34]: Households
+          - link "Groups" [ref=e35] [cursor=pointer]:
+            - /url: /groups
+            - img [ref=e36]
+            - generic [ref=e38]: Groups
+      - generic [ref=e39]:
+        - heading "Events & Worship" [level=3] [ref=e40]
+        - generic [ref=e41]:
+          - link "Events" [ref=e42] [cursor=pointer]:
+            - /url: /events
+            - img [ref=e43]
+            - generic [ref=e45]: Events
+          - link "Schedules" [ref=e46] [cursor=pointer]:
+            - /url: /schedules
+            - img [ref=e47]
+            - generic [ref=e49]: Schedules
+          - link "Kids Check-In" [ref=e50] [cursor=pointer]:
+            - /url: /kids-checkin
+            - img [ref=e51]
+            - generic [ref=e56]: Kids Check-In
+          - link "Songs" [ref=e57] [cursor=pointer]:
+            - /url: /songs
+            - img [ref=e58]
+            - generic [ref=e62]: Songs
+      - generic [ref=e63]:
+        - heading "Communication" [level=3] [ref=e64]
+        - link "Messages" [ref=e66] [cursor=pointer]:
+          - /url: /communications
+          - img [ref=e67]
+          - generic [ref=e69]: Messages
+      - generic [ref=e70]:
+        - heading "Giving & Finance" [level=3] [ref=e71]
+        - generic [ref=e72]:
+          - link "Donations" [ref=e73] [cursor=pointer]:
+            - /url: /giving
+            - img [ref=e74]
+            - generic [ref=e76]: Donations
+          - link "Pledges" [ref=e77] [cursor=pointer]:
+            - /url: /pledges
+            - img [ref=e78]
+            - generic [ref=e83]: Pledges
+          - link "Funds" [ref=e84] [cursor=pointer]:
+            - /url: /funds
+            - img [ref=e85]
+            - generic [ref=e88]: Funds
+          - link "Expenses" [ref=e89] [cursor=pointer]:
+            - /url: /expenses
+            - img [ref=e90]
+            - generic [ref=e93]: Expenses
+          - link "Invoices" [ref=e94] [cursor=pointer]:
+            - /url: /invoices
+            - img [ref=e95]
+            - generic [ref=e98]: Invoices
+          - link "Purchase Orders" [ref=e99] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e100]
+            - generic [ref=e103]: Purchase Orders
+          - link "Vendors" [ref=e104] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e105]
+            - generic [ref=e109]: Vendors
+      - generic [ref=e110]:
+        - heading "Sales & Inventory" [level=3] [ref=e111]
+        - generic [ref=e112]:
+          - link "Products" [ref=e113] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e114]
+            - generic [ref=e118]: Products
+          - link "Inventory" [ref=e119] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e120]
+            - generic [ref=e124]: Inventory
+          - link "Sales" [ref=e125] [cursor=pointer]:
+            - /url: /sales
+            - img [ref=e126]
+            - generic [ref=e128]: Sales
+      - generic [ref=e129]:
+        - heading "System" [level=3] [ref=e130]
+        - generic [ref=e131]:
+          - link "Reports" [ref=e132] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e133]
+            - generic [ref=e134]: Reports
+          - link "Settings" [ref=e135] [cursor=pointer]:
+            - /url: /admin/settings
+            - img [ref=e136]
+            - generic [ref=e139]: Settings
+    - button "◀" [ref=e140] [cursor=pointer]
+  - generic [ref=e141]:
+    - banner [ref=e142]:
+      - generic [ref=e144]:
+        - button "Switch to light mode" [ref=e145] [cursor=pointer]:
+          - img [ref=e146]
+          - img
+        - generic [ref=e148]: Emerson
+        - button "Sign out" [ref=e149] [cursor=pointer]
+    - main [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - heading "Products" [level=1] [ref=e153]
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - checkbox "Show inactive" [ref=e156]
+              - text: Show inactive
+            - button "Add Product" [ref=e157] [cursor=pointer]:
+              - img
+              - text: Add Product
+        - table [ref=e160]:
+          - rowgroup [ref=e161]:
+            - row "Name SKU Description Price Status" [ref=e162]:
+              - columnheader "Name" [ref=e163]
+              - columnheader "SKU" [ref=e164]
+              - columnheader "Description" [ref=e165]
+              - columnheader "Price" [ref=e166]
+              - columnheader "Status" [ref=e167]
+              - columnheader [ref=e168]
+          - rowgroup [ref=e169]:
+            - row "\"Growing in Faith\" Bible Study Workbook BOOK-003 12-week Bible study workbook for small groups $10.00 Active" [ref=e170]:
+              - cell "\"Growing in Faith\" Bible Study Workbook" [ref=e171]
+              - cell "BOOK-003" [ref=e172]
+              - cell "12-week Bible study workbook for small groups" [ref=e173]
+              - cell "$10.00" [ref=e174]
+              - cell "Active" [ref=e175]
+              - cell [ref=e176]:
+                - generic [ref=e177]:
+                  - button [ref=e178] [cursor=pointer]:
+                    - img
+                  - button [ref=e179] [cursor=pointer]:
+                    - img
+            - row "2026 Church Directory DIR-2026 Printed church membership directory $5.00 Active" [ref=e180]:
+              - cell "2026 Church Directory" [ref=e181]
+              - cell "DIR-2026" [ref=e182]
+              - cell "Printed church membership directory" [ref=e183]
+              - cell "$5.00" [ref=e184]
+              - cell "Active" [ref=e185]
+              - cell [ref=e186]:
+                - generic [ref=e187]:
+                  - button [ref=e188] [cursor=pointer]:
+                    - img
+                  - button [ref=e189] [cursor=pointer]:
+                    - img
+            - row "Church Coffee Mug MUG-001 Ceramic mug with church logo $12.00 Active" [ref=e190]:
+              - cell "Church Coffee Mug" [ref=e191]
+              - cell "MUG-001" [ref=e192]
+              - cell "Ceramic mug with church logo" [ref=e193]
+              - cell "$12.00" [ref=e194]
+              - cell "Active" [ref=e195]
+              - cell [ref=e196]:
+                - generic [ref=e197]:
+                  - button [ref=e198] [cursor=pointer]:
+                    - img
+                  - button [ref=e199] [cursor=pointer]:
+                    - img
+            - row "Church Cookbook — \"Recipes for the Table\" BOOK-001 Community cookbook compiled from congregation recipes $18.00 Active" [ref=e200]:
+              - cell "Church Cookbook — \"Recipes for the Table\"" [ref=e201]
+              - cell "BOOK-001" [ref=e202]
+              - cell "Community cookbook compiled from congregation recipes" [ref=e203]
+              - cell "$18.00" [ref=e204]
+              - cell "Active" [ref=e205]
+              - cell [ref=e206]:
+                - generic [ref=e207]:
+                  - button [ref=e208] [cursor=pointer]:
+                    - img
+                  - button [ref=e209] [cursor=pointer]:
+                    - img
+            - row "Devotional Journal BOOK-002 90-day devotional journal with guided scripture readings $15.00 Active" [ref=e210]:
+              - cell "Devotional Journal" [ref=e211]
+              - cell "BOOK-002" [ref=e212]
+              - cell "90-day devotional journal with guided scripture readings" [ref=e213]
+              - cell "$15.00" [ref=e214]
+              - cell "Active" [ref=e215]
+              - cell [ref=e216]:
+                - generic [ref=e217]:
+                  - button [ref=e218] [cursor=pointer]:
+                    - img
+                  - button [ref=e219] [cursor=pointer]:
+                    - img
+            - row "Kids VBS T-Shirt (2026) SHIRT-VBS-001 VBS 2026 \"Heroes of the Faith\" T-Shirt (Youth sizes) $14.00 Active" [ref=e220]:
+              - cell "Kids VBS T-Shirt (2026)" [ref=e221]
+              - cell "SHIRT-VBS-001" [ref=e222]
+              - cell "VBS 2026 \"Heroes of the Faith\" T-Shirt (Youth sizes)" [ref=e223]
+              - cell "$14.00" [ref=e224]
+              - cell "Active" [ref=e225]
+              - cell [ref=e226]:
+                - generic [ref=e227]:
+                  - button [ref=e228] [cursor=pointer]:
+                    - img
+                  - button [ref=e229] [cursor=pointer]:
+                    - img
+            - row "Offering Envelope Box (100ct) ENV-001 Box of 100 numbered giving envelopes $8.00 Active" [ref=e230]:
+              - cell "Offering Envelope Box (100ct)" [ref=e231]
+              - cell "ENV-001" [ref=e232]
+              - cell "Box of 100 numbered giving envelopes" [ref=e233]
+              - cell "$8.00" [ref=e234]
+              - cell "Active" [ref=e235]
+              - cell [ref=e236]:
+                - generic [ref=e237]:
+                  - button [ref=e238] [cursor=pointer]:
+                    - img
+                  - button [ref=e239] [cursor=pointer]:
+                    - img
+            - row "Youth Retreat T-Shirt (2026) SHIRT-YTH-001 Official 2026 Youth Retreat T-Shirt $22.00 Active" [ref=e240]:
+              - cell "Youth Retreat T-Shirt (2026)" [ref=e241]
+              - cell "SHIRT-YTH-001" [ref=e242]
+              - cell "Official 2026 Youth Retreat T-Shirt" [ref=e243]
+              - cell "$22.00" [ref=e244]
+              - cell "Active" [ref=e245]
+              - cell [ref=e246]:
+                - generic [ref=e247]:
+                  - button [ref=e248] [cursor=pointer]:
+                    - img
+                  - button [ref=e249] [cursor=pointer]:
+                    - img

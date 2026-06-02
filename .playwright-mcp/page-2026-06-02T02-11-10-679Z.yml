@@ -1,0 +1,186 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "Steward Steward · ChMS" [ref=e6] [cursor=pointer]:
+      - /url: /dashboard
+      - img "Steward" [ref=e7]
+      - generic [ref=e8]: Steward · ChMS
+    - navigation [ref=e9]:
+      - generic [ref=e10]:
+        - heading "Main" [level=3] [ref=e11]
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - generic [ref=e19]: Dashboard
+      - generic [ref=e20]:
+        - heading "People & Groups" [level=3] [ref=e21]
+        - generic [ref=e22]:
+          - link "Members" [ref=e23] [cursor=pointer]:
+            - /url: /members
+            - img [ref=e24]
+            - generic [ref=e29]: Members
+          - link "Households" [ref=e30] [cursor=pointer]:
+            - /url: /households
+            - img [ref=e31]
+            - generic [ref=e34]: Households
+          - link "Groups" [ref=e35] [cursor=pointer]:
+            - /url: /groups
+            - img [ref=e36]
+            - generic [ref=e38]: Groups
+      - generic [ref=e39]:
+        - heading "Events & Worship" [level=3] [ref=e40]
+        - generic [ref=e41]:
+          - link "Events" [ref=e42] [cursor=pointer]:
+            - /url: /events
+            - img [ref=e43]
+            - generic [ref=e45]: Events
+          - link "Schedules" [ref=e46] [cursor=pointer]:
+            - /url: /schedules
+            - img [ref=e47]
+            - generic [ref=e49]: Schedules
+          - link "Kids Check-In" [ref=e50] [cursor=pointer]:
+            - /url: /kids-checkin
+            - img [ref=e51]
+            - generic [ref=e56]: Kids Check-In
+          - link "Songs" [ref=e57] [cursor=pointer]:
+            - /url: /songs
+            - img [ref=e58]
+            - generic [ref=e62]: Songs
+      - generic [ref=e63]:
+        - heading "Communication" [level=3] [ref=e64]
+        - link "Messages" [ref=e66] [cursor=pointer]:
+          - /url: /communications
+          - img [ref=e67]
+          - generic [ref=e69]: Messages
+      - generic [ref=e70]:
+        - heading "Giving & Finance" [level=3] [ref=e71]
+        - generic [ref=e72]:
+          - link "Donations" [ref=e73] [cursor=pointer]:
+            - /url: /giving
+            - img [ref=e74]
+            - generic [ref=e76]: Donations
+          - link "Pledges" [ref=e77] [cursor=pointer]:
+            - /url: /pledges
+            - img [ref=e78]
+            - generic [ref=e83]: Pledges
+          - link "Funds" [ref=e84] [cursor=pointer]:
+            - /url: /funds
+            - img [ref=e85]
+            - generic [ref=e88]: Funds
+          - link "Expenses" [ref=e89] [cursor=pointer]:
+            - /url: /expenses
+            - img [ref=e90]
+            - generic [ref=e93]: Expenses
+          - link "Invoices" [ref=e94] [cursor=pointer]:
+            - /url: /invoices
+            - img [ref=e95]
+            - generic [ref=e98]: Invoices
+          - link "Purchase Orders" [ref=e99] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e100]
+            - generic [ref=e103]: Purchase Orders
+          - link "Vendors" [ref=e104] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e105]
+            - generic [ref=e109]: Vendors
+      - generic [ref=e110]:
+        - heading "Sales & Inventory" [level=3] [ref=e111]
+        - generic [ref=e112]:
+          - link "Products" [ref=e113] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e114]
+            - generic [ref=e118]: Products
+          - link "Inventory" [ref=e119] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e120]
+            - generic [ref=e124]: Inventory
+          - link "Sales" [ref=e125] [cursor=pointer]:
+            - /url: /sales
+            - img [ref=e126]
+            - generic [ref=e128]: Sales
+      - generic [ref=e129]:
+        - heading "System" [level=3] [ref=e130]
+        - generic [ref=e131]:
+          - link "Reports" [ref=e132] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e133]
+            - generic [ref=e134]: Reports
+          - link "Settings" [ref=e135] [cursor=pointer]:
+            - /url: /admin/settings
+            - img [ref=e136]
+            - generic [ref=e139]: Settings
+    - button "◀" [ref=e140] [cursor=pointer]
+  - generic [ref=e141]:
+    - banner [ref=e142]:
+      - generic [ref=e144]:
+        - button "Switch to light mode" [ref=e145] [cursor=pointer]:
+          - img [ref=e146]
+          - img
+        - generic [ref=e148]: Emerson
+        - button "Sign out" [ref=e149] [cursor=pointer]
+    - main [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - heading "Communications" [level=1] [ref=e153]
+          - generic [ref=e154]:
+            - link "Manage Templates" [ref=e155] [cursor=pointer]:
+              - /url: /communications/templates
+              - button "Manage Templates" [ref=e156]
+            - link "Compose Message" [ref=e157] [cursor=pointer]:
+              - /url: /communications/new
+              - button "Compose Message" [ref=e158]
+        - combobox [ref=e160] [cursor=pointer]:
+          - generic: All channels
+          - img [ref=e161]
+        - table [ref=e164]:
+          - rowgroup [ref=e165]:
+            - row "Date Channel Subject / Preview Recipients Sent By Actions" [ref=e166]:
+              - columnheader "Date" [ref=e167]
+              - columnheader "Channel" [ref=e168]
+              - columnheader "Subject / Preview" [ref=e169]
+              - columnheader "Recipients" [ref=e170]
+              - columnheader "Sent By" [ref=e171]
+              - columnheader "Actions" [ref=e172]
+          - rowgroup [ref=e173]:
+            - row "5/28/2026 11:10 PM SMS VBS 2026 \"Heroes of the Faith\" starts in 2 weeks! Register your kids at the welc... 12 recipients Emerson View" [ref=e174]:
+              - cell "5/28/2026 11:10 PM" [ref=e175]
+              - cell "SMS" [ref=e176]:
+                - generic [ref=e177]: SMS
+              - cell "VBS 2026 \"Heroes of the Faith\" starts in 2 weeks! Register your kids at the welc..." [ref=e178]:
+                - generic [ref=e179]: VBS 2026 "Heroes of the Faith" starts in 2 weeks! Register your kids at the welc...
+              - cell "12 recipients" [ref=e180]:
+                - generic [ref=e181]: 12 recipients
+              - cell "Emerson" [ref=e182]
+              - cell "View" [ref=e183]:
+                - link "View" [ref=e184] [cursor=pointer]:
+                  - /url: /communications/cmpqcggbs00kk1kqdu0va901j
+                  - button "View" [ref=e185]
+            - row "5/28/2026 11:10 PM Email Annual Spring Fundraiser Dinner — Thank You! Dear Friends, Thank you for your incredible gener... 10 recipients Emerson View" [ref=e186]:
+              - cell "5/28/2026 11:10 PM" [ref=e187]
+              - cell "Email" [ref=e188]:
+                - generic [ref=e189]: Email
+              - cell "Annual Spring Fundraiser Dinner — Thank You! Dear Friends, Thank you for your incredible gener..." [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e192]: Annual Spring Fundraiser Dinner — Thank You!
+                  - generic [ref=e193]: Dear Friends, Thank you for your incredible gener...
+              - cell "10 recipients" [ref=e194]:
+                - generic [ref=e195]: 10 recipients
+              - cell "Emerson" [ref=e196]
+              - cell "View" [ref=e197]:
+                - link "View" [ref=e198] [cursor=pointer]:
+                  - /url: /communications/cmpqcggb500jy1kqdi3jq591n
+                  - button "View" [ref=e199]
+            - row "5/28/2026 11:10 PM Email Welcome to Grace Community Church! Dear Kevin and Amanda, Welcome to our church fami... 2 recipients Emerson View" [ref=e200]:
+              - cell "5/28/2026 11:10 PM" [ref=e201]
+              - cell "Email" [ref=e202]:
+                - generic [ref=e203]: Email
+              - cell "Welcome to Grace Community Church! Dear Kevin and Amanda, Welcome to our church fami..." [ref=e204]:
+                - generic [ref=e205]:
+                  - generic [ref=e206]: Welcome to Grace Community Church!
+                  - generic [ref=e207]: Dear Kevin and Amanda, Welcome to our church fami...
+              - cell "2 recipients" [ref=e208]:
+                - generic [ref=e209]: 2 recipients
+              - cell "Emerson" [ref=e210]
+              - cell "View" [ref=e211]:
+                - link "View" [ref=e212] [cursor=pointer]:
+                  - /url: /communications/cmpqcggav00js1kqdm5u5a18i
+                  - button "View" [ref=e213]

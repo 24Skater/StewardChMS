@@ -1,0 +1,395 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "Steward Steward · ChMS" [ref=e6] [cursor=pointer]:
+      - /url: /dashboard
+      - img "Steward" [ref=e7]
+      - generic [ref=e8]: Steward · ChMS
+    - navigation [ref=e9]:
+      - generic [ref=e10]:
+        - heading "Main" [level=3] [ref=e11]
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - generic [ref=e19]: Dashboard
+      - generic [ref=e20]:
+        - heading "People & Groups" [level=3] [ref=e21]
+        - generic [ref=e22]:
+          - link "Members" [ref=e23] [cursor=pointer]:
+            - /url: /members
+            - img [ref=e24]
+            - generic [ref=e29]: Members
+          - link "Households" [ref=e30] [cursor=pointer]:
+            - /url: /households
+            - img [ref=e31]
+            - generic [ref=e34]: Households
+          - link "Groups" [ref=e35] [cursor=pointer]:
+            - /url: /groups
+            - img [ref=e36]
+            - generic [ref=e38]: Groups
+      - generic [ref=e39]:
+        - heading "Events & Worship" [level=3] [ref=e40]
+        - generic [ref=e41]:
+          - link "Events" [ref=e42] [cursor=pointer]:
+            - /url: /events
+            - img [ref=e43]
+            - generic [ref=e45]: Events
+          - link "Schedules" [ref=e46] [cursor=pointer]:
+            - /url: /schedules
+            - img [ref=e47]
+            - generic [ref=e49]: Schedules
+          - link "Kids Check-In" [ref=e50] [cursor=pointer]:
+            - /url: /kids-checkin
+            - img [ref=e51]
+            - generic [ref=e56]: Kids Check-In
+          - link "Songs" [ref=e57] [cursor=pointer]:
+            - /url: /songs
+            - img [ref=e58]
+            - generic [ref=e62]: Songs
+      - generic [ref=e63]:
+        - heading "Communication" [level=3] [ref=e64]
+        - link "Messages" [ref=e66] [cursor=pointer]:
+          - /url: /communications
+          - img [ref=e67]
+          - generic [ref=e69]: Messages
+      - generic [ref=e70]:
+        - heading "Giving & Finance" [level=3] [ref=e71]
+        - generic [ref=e72]:
+          - link "Donations" [ref=e73] [cursor=pointer]:
+            - /url: /giving
+            - img [ref=e74]
+            - generic [ref=e76]: Donations
+          - link "Pledges" [ref=e77] [cursor=pointer]:
+            - /url: /pledges
+            - img [ref=e78]
+            - generic [ref=e83]: Pledges
+          - link "Funds" [ref=e84] [cursor=pointer]:
+            - /url: /funds
+            - img [ref=e85]
+            - generic [ref=e88]: Funds
+          - link "Expenses" [ref=e89] [cursor=pointer]:
+            - /url: /expenses
+            - img [ref=e90]
+            - generic [ref=e93]: Expenses
+          - link "Invoices" [ref=e94] [cursor=pointer]:
+            - /url: /invoices
+            - img [ref=e95]
+            - generic [ref=e98]: Invoices
+          - link "Purchase Orders" [ref=e99] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e100]
+            - generic [ref=e103]: Purchase Orders
+          - link "Vendors" [ref=e104] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e105]
+            - generic [ref=e109]: Vendors
+      - generic [ref=e110]:
+        - heading "Sales & Inventory" [level=3] [ref=e111]
+        - generic [ref=e112]:
+          - link "Products" [ref=e113] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e114]
+            - generic [ref=e118]: Products
+          - link "Inventory" [ref=e119] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e120]
+            - generic [ref=e124]: Inventory
+          - link "Sales" [ref=e125] [cursor=pointer]:
+            - /url: /sales
+            - img [ref=e126]
+            - generic [ref=e128]: Sales
+      - generic [ref=e129]:
+        - heading "System" [level=3] [ref=e130]
+        - generic [ref=e131]:
+          - link "Reports" [ref=e132] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e133]
+            - generic [ref=e134]: Reports
+          - link "Settings" [ref=e135] [cursor=pointer]:
+            - /url: /admin/settings
+            - img [ref=e136]
+            - generic [ref=e139]: Settings
+    - button "◀" [ref=e140] [cursor=pointer]
+  - generic [ref=e141]:
+    - banner [ref=e142]:
+      - generic [ref=e144]:
+        - button "Switch to light mode" [ref=e145] [cursor=pointer]:
+          - img [ref=e146]
+          - img
+        - generic [ref=e148]: Emerson
+        - button "Sign out" [ref=e149] [cursor=pointer]
+    - main [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - heading "Donations" [level=1] [ref=e153]
+          - generic [ref=e154]:
+            - button "Export CSV" [ref=e155] [cursor=pointer]
+            - link "Add Donation" [ref=e156] [cursor=pointer]:
+              - /url: /giving/new
+              - button "Add Donation" [ref=e157]
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - text: From Date
+            - textbox [ref=e160]
+          - generic [ref=e161]:
+            - text: To Date
+            - textbox [ref=e162]
+          - generic [ref=e163]:
+            - text: Fund
+            - combobox [ref=e164] [cursor=pointer]:
+              - generic: All Funds
+              - img [ref=e165]
+          - button "Clear Filters" [ref=e168] [cursor=pointer]
+        - table [ref=e171]:
+          - rowgroup [ref=e172]:
+            - row "Date Donor Amount Method Fund Actions" [ref=e173]:
+              - columnheader "Date" [ref=e174]
+              - columnheader "Donor" [ref=e175]
+              - columnheader "Amount" [ref=e176]
+              - columnheader "Method" [ref=e177]
+              - columnheader "Fund" [ref=e178]
+              - columnheader "Actions" [ref=e179]
+          - rowgroup [ref=e180]:
+            - row "5/21/2026 Kevin Wilson $20.00 cash General Fund Edit Delete" [ref=e181]:
+              - cell "5/21/2026" [ref=e182]
+              - cell "Kevin Wilson" [ref=e183]
+              - cell "$20.00" [ref=e184]
+              - cell "cash" [ref=e185]
+              - cell "General Fund" [ref=e186]
+              - cell "Edit Delete" [ref=e187]:
+                - generic [ref=e188]:
+                  - link "Edit" [ref=e189] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4h00eb1kqdllzqww98/edit
+                    - button "Edit" [ref=e190]
+                  - button "Delete" [ref=e191] [cursor=pointer]
+            - row "5/21/2026 Robert Brown $500.00 check General Fund Edit Delete" [ref=e192]:
+              - cell "5/21/2026" [ref=e193]
+              - cell "Robert Brown" [ref=e194]
+              - cell "$500.00" [ref=e195]
+              - cell "check" [ref=e196]
+              - cell "General Fund" [ref=e197]
+              - cell "Edit Delete" [ref=e198]:
+                - generic [ref=e199]:
+                  - link "Edit" [ref=e200] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3r00dn1kqdofl7s9zd/edit
+                    - button "Edit" [ref=e201]
+                  - button "Delete" [ref=e202] [cursor=pointer]
+            - row "5/21/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e203]:
+              - cell "5/21/2026" [ref=e204]
+              - cell "James Johnson" [ref=e205]
+              - cell "$250.00" [ref=e206]
+              - cell "check" [ref=e207]
+              - cell "General Fund" [ref=e208]
+              - cell "Edit Delete" [ref=e209]:
+                - generic [ref=e210]:
+                  - link "Edit" [ref=e211] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3g00db1kqdd9hmkp37/edit
+                    - button "Edit" [ref=e212]
+                  - button "Delete" [ref=e213] [cursor=pointer]
+            - row "5/18/2026 Grace Chen $60.00 check General Fund Edit Delete" [ref=e214]:
+              - cell "5/18/2026" [ref=e215]
+              - cell "Grace Chen" [ref=e216]
+              - cell "$60.00" [ref=e217]
+              - cell "check" [ref=e218]
+              - cell "General Fund" [ref=e219]
+              - cell "Edit Delete" [ref=e220]:
+                - generic [ref=e221]:
+                  - link "Edit" [ref=e222] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4f00e91kqdoooil37f/edit
+                    - button "Edit" [ref=e223]
+                  - button "Delete" [ref=e224] [cursor=pointer]
+            - row "5/14/2026 Jessica Taylor $25.00 cash Youth Ministry Fund Edit Delete" [ref=e225]:
+              - cell "5/14/2026" [ref=e226]
+              - cell "Jessica Taylor" [ref=e227]
+              - cell "$25.00" [ref=e228]
+              - cell "cash" [ref=e229]
+              - cell "Youth Ministry Fund" [ref=e230]
+              - cell "Edit Delete" [ref=e231]:
+                - generic [ref=e232]:
+                  - link "Edit" [ref=e233] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4d00e71kqduqc7szwa/edit
+                    - button "Edit" [ref=e234]
+                  - button "Delete" [ref=e235] [cursor=pointer]
+            - row "5/14/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e236]:
+              - cell "5/14/2026" [ref=e237]
+              - cell "James Johnson" [ref=e238]
+              - cell "$250.00" [ref=e239]
+              - cell "check" [ref=e240]
+              - cell "General Fund" [ref=e241]
+              - cell "Edit Delete" [ref=e242]:
+                - generic [ref=e243]:
+                  - link "Edit" [ref=e244] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3e00d91kqdiyaf3snw/edit
+                    - button "Edit" [ref=e245]
+                  - button "Delete" [ref=e246] [cursor=pointer]
+            - row "5/13/2026 Carlos Martinez $100.00 cash Missions & Outreach Fund Edit Delete" [ref=e247]:
+              - cell "5/13/2026" [ref=e248]
+              - cell "Carlos Martinez" [ref=e249]
+              - cell "$100.00" [ref=e250]
+              - cell "cash" [ref=e251]
+              - cell "Missions & Outreach Fund" [ref=e252]
+              - cell "Edit Delete" [ref=e253]:
+                - generic [ref=e254]:
+                  - link "Edit" [ref=e255] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3v00dr1kqd64w7l7ix/edit
+                    - button "Edit" [ref=e256]
+                  - button "Delete" [ref=e257] [cursor=pointer]
+            - row "5/8/2026 David Williams $200.00 card General Fund Edit Delete" [ref=e258]:
+              - cell "5/8/2026" [ref=e259]
+              - cell "David Williams" [ref=e260]
+              - cell "$200.00" [ref=e261]
+              - cell "card" [ref=e262]
+              - cell "General Fund" [ref=e263]
+              - cell "Edit Delete" [ref=e264]:
+                - generic [ref=e265]:
+                  - link "Edit" [ref=e266] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3y00dv1kqdnscex7w9/edit
+                    - button "Edit" [ref=e267]
+                  - button "Delete" [ref=e268] [cursor=pointer]
+            - row "5/7/2026 Anonymous Donor $500.00 cash Building Fund Edit Delete" [ref=e269]:
+              - cell "5/7/2026" [ref=e270]
+              - cell "Anonymous Donor" [ref=e271]
+              - cell "$500.00" [ref=e272]
+              - cell "cash" [ref=e273]
+              - cell "Building Fund" [ref=e274]
+              - cell "Edit Delete" [ref=e275]:
+                - generic [ref=e276]:
+                  - link "Edit" [ref=e277] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4800e31kqdvep05170/edit
+                    - button "Edit" [ref=e278]
+                  - button "Delete" [ref=e279] [cursor=pointer]
+            - row "5/7/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e280]:
+              - cell "5/7/2026" [ref=e281]
+              - cell "James Johnson" [ref=e282]
+              - cell "$250.00" [ref=e283]
+              - cell "check" [ref=e284]
+              - cell "General Fund" [ref=e285]
+              - cell "Edit Delete" [ref=e286]:
+                - generic [ref=e287]:
+                  - link "Edit" [ref=e288] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3c00d71kqdei867m0i/edit
+                    - button "Edit" [ref=e289]
+                  - button "Delete" [ref=e290] [cursor=pointer]
+            - row "5/4/2026 Michael Smith $150.00 online General Fund Edit Delete" [ref=e291]:
+              - cell "5/4/2026" [ref=e292]
+              - cell "Michael Smith" [ref=e293]
+              - cell "$150.00" [ref=e294]
+              - cell "online" [ref=e295]
+              - cell "General Fund" [ref=e296]
+              - cell "Edit Delete" [ref=e297]:
+                - generic [ref=e298]:
+                  - link "Edit" [ref=e299] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3l00dh1kqdtcya5uq5/edit
+                    - button "Edit" [ref=e300]
+                  - button "Delete" [ref=e301] [cursor=pointer]
+            - row "4/30/2026 Christopher Taylor $75.00 online General Fund Edit Delete" [ref=e302]:
+              - cell "4/30/2026" [ref=e303]
+              - cell "Christopher Taylor" [ref=e304]
+              - cell "$75.00" [ref=e305]
+              - cell "online" [ref=e306]
+              - cell "General Fund" [ref=e307]
+              - cell "Edit Delete" [ref=e308]:
+                - generic [ref=e309]:
+                  - link "Edit" [ref=e310] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4b00e51kqdjeav87lg/edit
+                    - button "Edit" [ref=e311]
+                  - button "Delete" [ref=e312] [cursor=pointer]
+            - row "4/30/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e313]:
+              - cell "4/30/2026" [ref=e314]
+              - cell "James Johnson" [ref=e315]
+              - cell "$250.00" [ref=e316]
+              - cell "check" [ref=e317]
+              - cell "General Fund" [ref=e318]
+              - cell "Edit Delete" [ref=e319]:
+                - generic [ref=e320]:
+                  - link "Edit" [ref=e321] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3a00d51kqdociw863r/edit
+                    - button "Edit" [ref=e322]
+                  - button "Delete" [ref=e323] [cursor=pointer]
+            - row "4/28/2026 Sarah Johnson $50.00 cash Youth Ministry Fund Edit Delete" [ref=e324]:
+              - cell "4/28/2026" [ref=e325]
+              - cell "Sarah Johnson" [ref=e326]
+              - cell "$50.00" [ref=e327]
+              - cell "cash" [ref=e328]
+              - cell "Youth Ministry Fund" [ref=e329]
+              - cell "Edit Delete" [ref=e330]:
+                - generic [ref=e331]:
+                  - link "Edit" [ref=e332] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4000dx1kqdx34ye4z9/edit
+                    - button "Edit" [ref=e333]
+                  - button "Delete" [ref=e334] [cursor=pointer]
+            - row "4/28/2026 Robert Brown $1000.00 check Building Fund Edit Delete" [ref=e335]:
+              - cell "4/28/2026" [ref=e336]
+              - cell "Robert Brown" [ref=e337]
+              - cell "$1000.00" [ref=e338]
+              - cell "check" [ref=e339]
+              - cell "Building Fund" [ref=e340]
+              - cell "Edit Delete" [ref=e341]:
+                - generic [ref=e342]:
+                  - link "Edit" [ref=e343] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3q00dl1kqdl5l5s1hq/edit
+                    - button "Edit" [ref=e344]
+                  - button "Delete" [ref=e345] [cursor=pointer]
+            - row "4/23/2026 Patricia Brown $120.00 check General Fund Edit Delete" [ref=e346]:
+              - cell "4/23/2026" [ref=e347]
+              - cell "Patricia Brown" [ref=e348]
+              - cell "$120.00" [ref=e349]
+              - cell "check" [ref=e350]
+              - cell "General Fund" [ref=e351]
+              - cell "Edit Delete" [ref=e352]:
+                - generic [ref=e353]:
+                  - link "Edit" [ref=e354] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4500e11kqd2k1h55h0/edit
+                    - button "Edit" [ref=e355]
+                  - button "Delete" [ref=e356] [cursor=pointer]
+            - row "4/23/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e357]:
+              - cell "4/23/2026" [ref=e358]
+              - cell "James Johnson" [ref=e359]
+              - cell "$250.00" [ref=e360]
+              - cell "check" [ref=e361]
+              - cell "General Fund" [ref=e362]
+              - cell "Edit Delete" [ref=e363]:
+                - generic [ref=e364]:
+                  - link "Edit" [ref=e365] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3800d31kqdd6v978ku/edit
+                    - button "Edit" [ref=e366]
+                  - button "Delete" [ref=e367] [cursor=pointer]
+            - row "4/18/2026 Jennifer Smith $80.00 online General Fund Edit Delete" [ref=e368]:
+              - cell "4/18/2026" [ref=e369]
+              - cell "Jennifer Smith" [ref=e370]
+              - cell "$80.00" [ref=e371]
+              - cell "online" [ref=e372]
+              - cell "General Fund" [ref=e373]
+              - cell "Edit Delete" [ref=e374]:
+                - generic [ref=e375]:
+                  - link "Edit" [ref=e376] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg4200dz1kqdp5tjugvy/edit
+                    - button "Edit" [ref=e377]
+                  - button "Delete" [ref=e378] [cursor=pointer]
+            - row "4/16/2026 James Johnson $250.00 check General Fund Edit Delete" [ref=e379]:
+              - cell "4/16/2026" [ref=e380]
+              - cell "James Johnson" [ref=e381]
+              - cell "$250.00" [ref=e382]
+              - cell "check" [ref=e383]
+              - cell "General Fund" [ref=e384]
+              - cell "Edit Delete" [ref=e385]:
+                - generic [ref=e386]:
+                  - link "Edit" [ref=e387] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3600d11kqd85xev3gw/edit
+                    - button "Edit" [ref=e388]
+                  - button "Delete" [ref=e389] [cursor=pointer]
+            - row "4/13/2026 Carlos Martinez $100.00 cash Missions & Outreach Fund Edit Delete" [ref=e390]:
+              - cell "4/13/2026" [ref=e391]
+              - cell "Carlos Martinez" [ref=e392]
+              - cell "$100.00" [ref=e393]
+              - cell "cash" [ref=e394]
+              - cell "Missions & Outreach Fund" [ref=e395]
+              - cell "Edit Delete" [ref=e396]:
+                - generic [ref=e397]:
+                  - link "Edit" [ref=e398] [cursor=pointer]:
+                    - /url: /giving/cmpqcgg3t00dp1kqdhcwwl5tb/edit
+                    - button "Edit" [ref=e399]
+                  - button "Delete" [ref=e400] [cursor=pointer]
+        - generic [ref=e401]:
+          - button "Previous" [disabled]
+          - generic [ref=e402]: Page 1 of 2
+          - button "Next" [ref=e403] [cursor=pointer]

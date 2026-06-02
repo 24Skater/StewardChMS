@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - button "Switch to light mode" [ref=e5] [cursor=pointer]:
+    - img [ref=e6]
+    - img
+  - generic [ref=e8]:
+    - img "Steward" [ref=e10]
+    - heading "Steward · ChMS" [level=1] [ref=e11]
+    - paragraph [ref=e12]: Modern Church Management System
+    - blockquote [ref=e13]:
+      - paragraph [ref=e14]: "\"Moreover it is required in stewards, that a man be found faithful.\""
+      - contentinfo [ref=e15]: — 1 Corinthians 4:2 (KJV)
+    - link "Go to Dashboard" [ref=e17] [cursor=pointer]:
+      - /url: /dashboard
+      - img [ref=e18]
+      - text: Go to Dashboard
+    - generic [ref=e24]:
+      - generic [ref=e25]: "API Status:"
+      - generic [ref=e26]: Online
+    - contentinfo [ref=e28]:
+      - paragraph [ref=e29]: Part of the Steward Ecosystem

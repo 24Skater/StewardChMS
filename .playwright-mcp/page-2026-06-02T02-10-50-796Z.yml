@@ -1,0 +1,294 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - link "Steward Steward · ChMS" [ref=e6] [cursor=pointer]:
+      - /url: /dashboard
+      - img "Steward" [ref=e7]
+      - generic [ref=e8]: Steward · ChMS
+    - navigation [ref=e9]:
+      - generic [ref=e10]:
+        - heading "Main" [level=3] [ref=e11]
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - generic [ref=e19]: Dashboard
+      - generic [ref=e20]:
+        - heading "People & Groups" [level=3] [ref=e21]
+        - generic [ref=e22]:
+          - link "Members" [ref=e23] [cursor=pointer]:
+            - /url: /members
+            - img [ref=e24]
+            - generic [ref=e29]: Members
+          - link "Households" [ref=e30] [cursor=pointer]:
+            - /url: /households
+            - img [ref=e31]
+            - generic [ref=e34]: Households
+          - link "Groups" [ref=e35] [cursor=pointer]:
+            - /url: /groups
+            - img [ref=e36]
+            - generic [ref=e38]: Groups
+      - generic [ref=e39]:
+        - heading "Events & Worship" [level=3] [ref=e40]
+        - generic [ref=e41]:
+          - link "Events" [ref=e42] [cursor=pointer]:
+            - /url: /events
+            - img [ref=e43]
+            - generic [ref=e45]: Events
+          - link "Schedules" [ref=e46] [cursor=pointer]:
+            - /url: /schedules
+            - img [ref=e47]
+            - generic [ref=e49]: Schedules
+          - link "Kids Check-In" [ref=e50] [cursor=pointer]:
+            - /url: /kids-checkin
+            - img [ref=e51]
+            - generic [ref=e56]: Kids Check-In
+          - link "Songs" [ref=e57] [cursor=pointer]:
+            - /url: /songs
+            - img [ref=e58]
+            - generic [ref=e62]: Songs
+      - generic [ref=e63]:
+        - heading "Communication" [level=3] [ref=e64]
+        - link "Messages" [ref=e66] [cursor=pointer]:
+          - /url: /communications
+          - img [ref=e67]
+          - generic [ref=e69]: Messages
+      - generic [ref=e70]:
+        - heading "Giving & Finance" [level=3] [ref=e71]
+        - generic [ref=e72]:
+          - link "Donations" [ref=e73] [cursor=pointer]:
+            - /url: /giving
+            - img [ref=e74]
+            - generic [ref=e76]: Donations
+          - link "Pledges" [ref=e77] [cursor=pointer]:
+            - /url: /pledges
+            - img [ref=e78]
+            - generic [ref=e83]: Pledges
+          - link "Funds" [ref=e84] [cursor=pointer]:
+            - /url: /funds
+            - img [ref=e85]
+            - generic [ref=e88]: Funds
+          - link "Expenses" [ref=e89] [cursor=pointer]:
+            - /url: /expenses
+            - img [ref=e90]
+            - generic [ref=e93]: Expenses
+          - link "Invoices" [ref=e94] [cursor=pointer]:
+            - /url: /invoices
+            - img [ref=e95]
+            - generic [ref=e98]: Invoices
+          - link "Purchase Orders" [ref=e99] [cursor=pointer]:
+            - /url: /purchase-orders
+            - img [ref=e100]
+            - generic [ref=e103]: Purchase Orders
+          - link "Vendors" [ref=e104] [cursor=pointer]:
+            - /url: /vendors
+            - img [ref=e105]
+            - generic [ref=e109]: Vendors
+      - generic [ref=e110]:
+        - heading "Sales & Inventory" [level=3] [ref=e111]
+        - generic [ref=e112]:
+          - link "Products" [ref=e113] [cursor=pointer]:
+            - /url: /products
+            - img [ref=e114]
+            - generic [ref=e118]: Products
+          - link "Inventory" [ref=e119] [cursor=pointer]:
+            - /url: /inventory
+            - img [ref=e120]
+            - generic [ref=e124]: Inventory
+          - link "Sales" [ref=e125] [cursor=pointer]:
+            - /url: /sales
+            - img [ref=e126]
+            - generic [ref=e128]: Sales
+      - generic [ref=e129]:
+        - heading "System" [level=3] [ref=e130]
+        - generic [ref=e131]:
+          - link "Reports" [ref=e132] [cursor=pointer]:
+            - /url: /reports
+            - img [ref=e133]
+            - generic [ref=e134]: Reports
+          - link "Settings" [ref=e135] [cursor=pointer]:
+            - /url: /admin/settings
+            - img [ref=e136]
+            - generic [ref=e139]: Settings
+    - button "◀" [ref=e140] [cursor=pointer]
+  - generic [ref=e141]:
+    - banner [ref=e142]:
+      - generic [ref=e144]:
+        - button "Switch to light mode" [ref=e145] [cursor=pointer]:
+          - img [ref=e146]
+          - img
+        - generic [ref=e148]: Emerson
+        - button "Sign out" [ref=e149] [cursor=pointer]
+    - main [ref=e150]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - heading "Song Library" [level=1] [ref=e153]
+          - link "Add Song" [ref=e154] [cursor=pointer]:
+            - /url: /songs/new
+            - button "Add Song" [ref=e155]
+        - generic [ref=e156]:
+          - heading "Search" [level=3] [ref=e158]
+          - textbox "Search by title or artist..." [ref=e161]
+        - table [ref=e164]:
+          - rowgroup [ref=e165]:
+            - row "Title Artist Key BPM Actions" [ref=e166]:
+              - columnheader "Title" [ref=e167]
+              - columnheader "Artist" [ref=e168]
+              - columnheader "Key" [ref=e169]
+              - columnheader "BPM" [ref=e170]
+              - columnheader "Actions" [ref=e171]
+          - rowgroup [ref=e172]:
+            - row "10,000 Reasons (Bless the Lord) Matt Redman G 73 Edit Delete" [ref=e173]:
+              - cell "10,000 Reasons (Bless the Lord)" [ref=e174]:
+                - link "10,000 Reasons (Bless the Lord)" [ref=e175] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004i1kqd8a28894g/edit
+              - cell "Matt Redman" [ref=e176]
+              - cell "G" [ref=e177]
+              - cell "73" [ref=e178]
+              - cell "Edit Delete" [ref=e179]:
+                - generic [ref=e180]:
+                  - link "Edit" [ref=e181] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004i1kqd8a28894g/edit
+                    - button "Edit" [ref=e182]
+                  - button "Delete" [ref=e183] [cursor=pointer]
+            - row "Amazing Grace (My Chains Are Gone) Chris Tomlin G 68 Edit Delete" [ref=e184]:
+              - cell "Amazing Grace (My Chains Are Gone)" [ref=e185]:
+                - link "Amazing Grace (My Chains Are Gone)" [ref=e186] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004j1kqdxf2q8gxb/edit
+              - cell "Chris Tomlin" [ref=e187]
+              - cell "G" [ref=e188]
+              - cell "68" [ref=e189]
+              - cell "Edit Delete" [ref=e190]:
+                - generic [ref=e191]:
+                  - link "Edit" [ref=e192] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004j1kqdxf2q8gxb/edit
+                    - button "Edit" [ref=e193]
+                  - button "Delete" [ref=e194] [cursor=pointer]
+            - row "Blessed Be Your Name Matt Redman A 118 Edit Delete" [ref=e195]:
+              - cell "Blessed Be Your Name" [ref=e196]:
+                - link "Blessed Be Your Name" [ref=e197] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004q1kqdi1hvlhy5/edit
+              - cell "Matt Redman" [ref=e198]
+              - cell "A" [ref=e199]
+              - cell "118" [ref=e200]
+              - cell "Edit Delete" [ref=e201]:
+                - generic [ref=e202]:
+                  - link "Edit" [ref=e203] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004q1kqdi1hvlhy5/edit
+                    - button "Edit" [ref=e204]
+                  - button "Delete" [ref=e205] [cursor=pointer]
+            - row "Build My Life Pat Barrett E 72 Edit Delete" [ref=e206]:
+              - cell "Build My Life" [ref=e207]:
+                - link "Build My Life" [ref=e208] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004n1kqdli5d86er/edit
+              - cell "Pat Barrett" [ref=e209]
+              - cell "E" [ref=e210]
+              - cell "72" [ref=e211]
+              - cell "Edit Delete" [ref=e212]:
+                - generic [ref=e213]:
+                  - link "Edit" [ref=e214] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004n1kqdli5d86er/edit
+                    - button "Edit" [ref=e215]
+                  - button "Delete" [ref=e216] [cursor=pointer]
+            - row "Goodness of God Bethel Music E 73 Edit Delete" [ref=e217]:
+              - cell "Goodness of God" [ref=e218]:
+                - link "Goodness of God" [ref=e219] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004p1kqdbrfnjkuv/edit
+              - cell "Bethel Music" [ref=e220]
+              - cell "E" [ref=e221]
+              - cell "73" [ref=e222]
+              - cell "Edit Delete" [ref=e223]:
+                - generic [ref=e224]:
+                  - link "Edit" [ref=e225] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004p1kqdbrfnjkuv/edit
+                    - button "Edit" [ref=e226]
+                  - button "Delete" [ref=e227] [cursor=pointer]
+            - row "Great Is Thy Faithfulness Thomas Chisholm D 72 Edit Delete" [ref=e228]:
+              - cell "Great Is Thy Faithfulness" [ref=e229]:
+                - link "Great Is Thy Faithfulness" [ref=e230] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004h1kqdtgilojqu/edit
+              - cell "Thomas Chisholm" [ref=e231]
+              - cell "D" [ref=e232]
+              - cell "72" [ref=e233]
+              - cell "Edit Delete" [ref=e234]:
+                - generic [ref=e235]:
+                  - link "Edit" [ref=e236] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004h1kqdtgilojqu/edit
+                    - button "Edit" [ref=e237]
+                  - button "Delete" [ref=e238] [cursor=pointer]
+            - row "Holy Spirit Francesca Battistelli G 72 Edit Delete" [ref=e239]:
+              - cell "Holy Spirit" [ref=e240]:
+                - link "Holy Spirit" [ref=e241] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004m1kqdox16gc5z/edit
+              - cell "Francesca Battistelli" [ref=e242]
+              - cell "G" [ref=e243]
+              - cell "72" [ref=e244]
+              - cell "Edit Delete" [ref=e245]:
+                - generic [ref=e246]:
+                  - link "Edit" [ref=e247] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004m1kqdox16gc5z/edit
+                    - button "Edit" [ref=e248]
+                  - button "Delete" [ref=e249] [cursor=pointer]
+            - row "How Great Is Our God Chris Tomlin C 68 Edit Delete" [ref=e250]:
+              - cell "How Great Is Our God" [ref=e251]:
+                - link "How Great Is Our God" [ref=e252] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004f1kqdfzpjrip9/edit
+              - cell "Chris Tomlin" [ref=e253]
+              - cell "C" [ref=e254]
+              - cell "68" [ref=e255]
+              - cell "Edit Delete" [ref=e256]:
+                - generic [ref=e257]:
+                  - link "Edit" [ref=e258] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004f1kqdfzpjrip9/edit
+                    - button "Edit" [ref=e259]
+                  - button "Delete" [ref=e260] [cursor=pointer]
+            - row "In Christ Alone Keith & Kristyn Getty A 76 Edit Delete" [ref=e261]:
+              - cell "In Christ Alone" [ref=e262]:
+                - link "In Christ Alone" [ref=e263] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004k1kqd2y3fhsqc/edit
+              - cell "Keith & Kristyn Getty" [ref=e264]
+              - cell "A" [ref=e265]
+              - cell "76" [ref=e266]
+              - cell "Edit Delete" [ref=e267]:
+                - generic [ref=e268]:
+                  - link "Edit" [ref=e269] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004k1kqd2y3fhsqc/edit
+                    - button "Edit" [ref=e270]
+                  - button "Delete" [ref=e271] [cursor=pointer]
+            - row "Lord I Need You Matt Maher C 80 Edit Delete" [ref=e272]:
+              - cell "Lord I Need You" [ref=e273]:
+                - link "Lord I Need You" [ref=e274] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004o1kqdndyv51tm/edit
+              - cell "Matt Maher" [ref=e275]
+              - cell "C" [ref=e276]
+              - cell "80" [ref=e277]
+              - cell "Edit Delete" [ref=e278]:
+                - generic [ref=e279]:
+                  - link "Edit" [ref=e280] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004o1kqdndyv51tm/edit
+                    - button "Edit" [ref=e281]
+                  - button "Delete" [ref=e282] [cursor=pointer]
+            - row "Oceans (Where Feet May Fail) Hillsong United D 72 Edit Delete" [ref=e283]:
+              - cell "Oceans (Where Feet May Fail)" [ref=e284]:
+                - link "Oceans (Where Feet May Fail)" [ref=e285] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004g1kqdd6obpjg1/edit
+              - cell "Hillsong United" [ref=e286]
+              - cell "D" [ref=e287]
+              - cell "72" [ref=e288]
+              - cell "Edit Delete" [ref=e289]:
+                - generic [ref=e290]:
+                  - link "Edit" [ref=e291] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004g1kqdd6obpjg1/edit
+                    - button "Edit" [ref=e292]
+                  - button "Delete" [ref=e293] [cursor=pointer]
+            - row "Way Maker Sinach E 84 Edit Delete" [ref=e294]:
+              - cell "Way Maker" [ref=e295]:
+                - link "Way Maker" [ref=e296] [cursor=pointer]:
+                  - /url: /songs/cmpqcgftx004l1kqd7tv3fg7p/edit
+              - cell "Sinach" [ref=e297]
+              - cell "E" [ref=e298]
+              - cell "84" [ref=e299]
+              - cell "Edit Delete" [ref=e300]:
+                - generic [ref=e301]:
+                  - link "Edit" [ref=e302] [cursor=pointer]:
+                    - /url: /songs/cmpqcgftx004l1kqd7tv3fg7p/edit
+                    - button "Edit" [ref=e303]
+                  - button "Delete" [ref=e304] [cursor=pointer]
