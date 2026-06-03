@@ -22,6 +22,7 @@ build/
 .env.test.local
 .env.production.local
 docker.env
+docker.env.demo
 
 # Logs
 logs

@@ -1,0 +1,11 @@
+# Railway configuration for the demo-reset cron service.
+# The db, backend, and frontend services are configured in the Railway dashboard
+# pointing to their existing Dockerfiles.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "backend/Dockerfile.demo-reset"
+
+[deploy]
+cronSchedule = "0 1 * * *"
+restartPolicyType = "NEVER"
