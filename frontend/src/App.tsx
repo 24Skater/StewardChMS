@@ -66,13 +66,16 @@ import SchedulePeriodPage from './pages/schedules/SchedulePeriodPage'
 import ScheduleKioskPage from './pages/schedules/ScheduleKioskPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
+import { DemoBanner } from './components/layout/DemoBanner'
 import { IconTestPage } from './pages/IconTestPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import ResetPasswordPage from './pages/auth/ResetPasswordPage'
 
 function App() {
   return (
-    <Routes>
+    <>
+      <DemoBanner />
+      <Routes>
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -174,6 +177,7 @@ function App() {
         <Route path="/schedules/:id/periods/:periodId" element={<SchedulePeriodPage />} />
       </Route>
     </Routes>
+    </>
   )
 }
 
