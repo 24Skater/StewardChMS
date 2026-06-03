@@ -3,7 +3,8 @@ export function DemoBanner() {
 
   return (
     <div
-      role="banner"
+      role="note"
+      aria-label="Demo environment notice"
       style={{
         position: 'fixed',
         top: 0,

@@ -10,7 +10,7 @@ describe('DemoBanner', () => {
   it('renders the banner when VITE_DEMO_MODE is true', () => {
     vi.stubEnv('VITE_DEMO_MODE', 'true')
     render(<DemoBanner />)
-    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.getByRole('note')).toBeInTheDocument()
     expect(screen.getByText(/Demo environment/i)).toBeInTheDocument()
   })
 
