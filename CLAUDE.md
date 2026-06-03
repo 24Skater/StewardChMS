@@ -138,3 +138,22 @@ Key brand facts:
 - Token blacklist is in-memory — won't survive restarts (needs Redis or DB table for production)
 - Messaging providers are stubs — `email-stub.ts` and `sms-stub.ts` only log to console
 - Frontend stores auth token in `localStorage` as fallback — backend httpOnly cookie is the intended path
+
+## Demo Environment
+
+A public demo deployment lives on Railway (`demo` environment, same repo). It uses identical Docker images with different env vars and resets nightly at 1 AM UTC via a cron service.
+
+**Key files:**
+
+- `railway.toml` — Railway cron config for the `demo-reset` service
+- `backend/Dockerfile.demo-reset` — cron job image
+- `backend/prisma/seed-demo.ts` — demo seeder (already has `--reset` support)
+- `frontend/src/components/layout/DemoBanner.tsx` — banner gated by `VITE_DEMO_MODE=true`
+- `docker.env.demo.example` — env var reference (copy, never commit filled version)
+
+**Rules:**
+
+- Never set `VITE_DEMO_MODE=true` in production
+- Never modify `clearDemoData()` or the `--reset` flag without testing a full reset cycle
+- Demo admin credentials (`admin@demo.steward.app` / `Demo1234!`) are intentionally shown in the banner — do not rotate without updating the banner text
+- Full details in memory: `C:\Users\ramos\.claude\projects\c--Users-ramos-GitHub-StewardChMS\memory\demo-deployment.md`
