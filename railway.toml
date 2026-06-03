@@ -1,4 +1,5 @@
 # Railway configuration for the demo-reset cron service.
+# IMPORTANT: Link this file ONLY to the demo-reset service in the Railway dashboard.
 # The db, backend, and frontend services are configured in the Railway dashboard
 # pointing to their existing Dockerfiles.
 
