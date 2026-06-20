@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { apiRequest } from '@/lib/api'
+import { kioskRequest, getKioskToken, activateKiosk, setKioskToken } from '@/lib/api'
 import { Sun, Moon } from 'lucide-react'
 import { useKioskTheme } from '@/hooks/useKioskTheme'
 
@@ -72,6 +72,9 @@ function Label({ data }: { data: CheckInLabel }) {
 }
 
 export default function KioskModePage() {
+  const [kioskReady, setKioskReady] = useState(false)
+  const [activating, setActivating] = useState(false)
+  const [activationError, setActivationError] = useState('')
   const [step, setStep] = useState<'phone' | 'select-child' | 'select-event' | 'confirm' | 'complete' | 'checkout'>('phone')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [children, setChildren] = useState<Child[]>([])
@@ -92,6 +95,26 @@ export default function KioskModePage() {
     documentTitle: 'Check-in Label',
   })
 
+  // Check kiosk token on mount
+  useEffect(() => {
+    setKioskReady(!!getKioskToken())
+  }, [])
+
+  const handleActivate = async () => {
+    setActivating(true)
+    setActivationError('')
+    try {
+      const result = await activateKiosk()
+      setKioskToken(result.token)
+      setKioskReady(true)
+      loadOccurrences()
+    } catch {
+      setActivationError('Please log in as staff first, then activate.')
+    } finally {
+      setActivating(false)
+    }
+  }
+
   // Auto-reset after 60 seconds of inactivity
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -102,14 +125,16 @@ export default function KioskModePage() {
     return () => clearTimeout(timer)
   }, [step, phoneNumber, selectedChild, selectedOccurrence])
 
-  // Load occurrences on mount
+  // Load occurrences once kiosk is activated
   useEffect(() => {
-    loadOccurrences()
-  }, [])
+    if (kioskReady) {
+      loadOccurrences()
+    }
+  }, [kioskReady])
 
   const loadOccurrences = async () => {
     try {
-      const data = await apiRequest<Occurrence[]>('/kids-checkin/occurrences', { auth: false })
+      const data = await kioskRequest<Occurrence[]>('/kids-checkin/occurrences')
       setOccurrences(data)
     } catch (err) {
       console.error('Failed to load occurrences:', err)
@@ -138,7 +163,7 @@ export default function KioskModePage() {
 
     try {
       // Search for children by phone number (via household)
-      const response = await apiRequest<{ children: Child[] }>(`/kids-checkin/lookup?phone=${encodeURIComponent(phoneNumber)}`, { auth: false })
+      const response = await kioskRequest<{ children: Child[] }>(`/kids-checkin/lookup?phone=${encodeURIComponent(phoneNumber)}`)
       if (response.children.length === 0) {
         setError('No children found for this phone number. Please see a volunteer.')
         setLoading(false)
@@ -147,14 +172,7 @@ export default function KioskModePage() {
       setChildren(response.children)
       setStep('select-child')
     } catch {
-      // Fallback: fetch all children (for demo purposes when lookup endpoint doesn't exist)
-      try {
-        const allChildren = await apiRequest<Child[]>('/kids-checkin/children', { auth: false })
-        setChildren(allChildren.slice(0, 5)) // Limit for demo
-        setStep('select-child')
-      } catch {
-        setError('Unable to find children. Please see a volunteer.')
-      }
+      setError('Unable to find children. Please see a volunteer.')
     } finally {
       setLoading(false)
     }
@@ -184,13 +202,12 @@ export default function KioskModePage() {
     setError('')
 
     try {
-      const response = await apiRequest<{ label: CheckInLabel }>('/kids-checkin/checkin', {
+      const response = await kioskRequest<{ label: CheckInLabel }>('/kids-checkin/checkin', {
         method: 'POST',
         body: {
           memberId: selectedChild.id,
           occurrenceId: selectedOccurrence.id,
         },
-        auth: false,
       })
       setLabelData(response.label)
       setStep('complete')
@@ -212,10 +229,9 @@ export default function KioskModePage() {
     setError('')
 
     try {
-      await apiRequest('/kids-checkin/checkout', {
+      await kioskRequest('/kids-checkin/checkout', {
         method: 'POST',
         body: { securityCode: checkoutCode },
-        auth: false,
       })
       // Show success briefly then reset
       setError('')
@@ -226,6 +242,37 @@ export default function KioskModePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!kioskReady) {
+    return (
+      <div data-testid="kiosk-root" className={`relative ${isDark ? 'dark' : ''}`}>
+        <div className="min-h-screen bg-gradient-to-br from-[var(--st-primary)] via-purple-600 to-[var(--st-color-success)] flex items-center justify-center p-4">
+          <Card className="w-full max-w-md shadow-2xl bg-[var(--st-surface)] border-[var(--st-border)]">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-[var(--st-fg)]">Kiosk Not Activated</CardTitle>
+              <CardDescription className="text-[var(--st-muted)]">
+                A staff member must activate this kiosk.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {activationError && (
+                <div className="bg-[var(--st-color-danger)]/10 text-[var(--st-color-danger)] p-3 rounded-lg text-center border border-[var(--st-color-danger)]/30">
+                  {activationError}
+                </div>
+              )}
+              <Button
+                className="w-full h-14 text-lg bg-[var(--st-primary)] text-[var(--st-fg-on-primary)] hover:bg-[var(--st-primary-hover)]"
+                onClick={handleActivate}
+                disabled={activating}
+              >
+                {activating ? 'Activating...' : 'Activate Kiosk'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (

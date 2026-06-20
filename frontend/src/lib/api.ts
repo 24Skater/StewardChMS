@@ -96,6 +96,44 @@ export async function apiRequest<T>(
 }
 
 // ============================================
+// Kiosk Token Management
+// ============================================
+
+const KIOSK_TOKEN_KEY = 'kiosk_token'
+
+export function getKioskToken(): string | null {
+  return localStorage.getItem(KIOSK_TOKEN_KEY)
+}
+
+export function setKioskToken(token: string): void {
+  localStorage.setItem(KIOSK_TOKEN_KEY, token)
+}
+
+export function removeKioskToken(): void {
+  localStorage.removeItem(KIOSK_TOKEN_KEY)
+}
+
+export async function kioskRequest<T>(endpoint: string, options: Omit<RequestOptions, 'auth'> = {}): Promise<T> {
+  const token = getKioskToken()
+  return apiRequest<T>(endpoint, {
+    ...options,
+    auth: false,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  })
+}
+
+export async function activateKiosk(): Promise<{ token: string; expiresAt: string }> {
+  return apiRequest('/kiosk/activate', { method: 'POST' })
+}
+
+export async function getKioskStatus(): Promise<{ active: boolean; roles: string[] }> {
+  return kioskRequest('/kiosk/status')
+}
+
+// ============================================
 // Auth API Functions
 // ============================================
 

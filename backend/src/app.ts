@@ -37,6 +37,7 @@ import ministriesRouter from './routes/ministries.js'
 import groupsRouter from './routes/groups.js'
 // Kids Check-in
 import kidsCheckinRouter from './routes/kids-checkin.js'
+import kioskRouter from './routes/kiosk.js'
 // Online Giving
 import onlineGivingRouter from './routes/online-giving.js'
 // Ministry Scheduling (Phase 7)
@@ -107,6 +108,9 @@ app.use('/api/groups', groupsRouter)
 
 // Kids Check-in
 app.use('/api/kids-checkin', kidsCheckinRouter)
+
+// Kiosk token management
+app.use('/api/kiosk', kioskRouter)
 
 // Online Giving (public routes + admin routes)
 app.use('/api/online-giving', onlineGivingRouter)
