@@ -1,65 +1,26 @@
 /**
- * Steward · Congregation (ChMS) — Design Token Overrides
+ * Steward · Congregation (ChMS) — App-Level Token Extensions
  *
  * Runs AFTER @steward-apps/tokens/dist/tokens.css and themes/chms.css.
- * Contains only values that ChMS overrides from the published base:
- *   - Deeper navy palette (ChMS uses #0D1B2E not #1B2A41)
- *   - Warm golden borders instead of cool gray
- *   - Gold focus ring + links (vs blue in base)
- *   - Hover states (not in published package)
- *   - Sidebar tokens (not in published package)
- *   - Legacy shadcn/ui HSL compatibility variables
+ * Contains ONLY values not provided by the published @steward-apps/tokens package:
+ *   - Primitive color aliases (ChMS-specific raw values)
+ *   - shadcn/ui HSL compatibility variables (app-internal)
+ *   - Dark mode overrides (not yet in published package)
  */
 
 :root {
-  /* ===== ChMS Navy Palette (deeper than base system) ===== */
+  /* ===== ChMS Navy Palette — primitive aliases ===== */
   --st-color-brand-navy-deep:  #060F1A;
   --st-color-brand-navy:       #0D1B2E;
   --st-color-brand-navy-mid:   #1A2F4A;
   --st-color-brand-parchment:  #F5EED8;
 
-  /* ===== Neutral overrides — warm golden instead of cool gray ===== */
+  /* ===== Neutral primitive overrides — warm golden ===== */
   --st-color-neutral-ink:      #0D1B2E;
   --st-color-neutral-slate:    #3D4F66;
   --st-color-neutral-muted:    #6B7A8D;
   --st-color-neutral-border:   #DDD0A8;
   --st-color-neutral-subtle:   #FAF7F2;
-
-  /* ===== Semantic overrides ===== */
-  --st-fg:           #0D1B2E;
-  --fg:              #0D1B2E;
-  --st-border:       #DDD0A8;
-  --border:          #DDD0A8;
-  --st-secondary:    #1A2F4A;
-  --secondary:       #1A2F4A;
-  --st-secondaryFg:  #F5EED8;
-  --secondary-fg:    #F5EED8;
-  --st-accent:       #0D1B2E;
-  --accent:          #0D1B2E;
-  --st-accentFg:     #F5EED8;
-  --accent-fg:       #F5EED8;
-  --st-link:         #C49A2E;
-  --link:            #C49A2E;
-  --st-focusRing:    #E8B847;
-  --focus-ring:      #E8B847;
-  --st-muted:        #6B7A8D;
-  --muted:           #6B7A8D;
-  --st-mutedFg:      #3D4F66;
-  --muted-fg:        #3D4F66;
-
-  /* ===== Hover states (not in published package) ===== */
-  --st-fg-on-primary: #0D1B2E;
-  --st-primary-hover: #C49A2E;
-  --st-surface-hover: rgba(232, 184, 71, 0.08);
-
-  /* ===== Sidebar — Always Dark Navy (both modes) ===== */
-  --st-sidebar-bg:        #0D1B2E;
-  --st-sidebar-fg:        #F5EED8;
-  --st-sidebar-muted:     rgba(245, 238, 216, 0.45);
-  --st-sidebar-border:    #1A2F4A;
-  --st-sidebar-hover:     rgba(232, 184, 71, 0.1);
-  --st-sidebar-active:    #E8B847;
-  --st-sidebar-active-fg: #0D1B2E;
 
   /* ===== Legacy shadcn/ui compatibility — Light ===== */
   --background:             42 50% 96%;

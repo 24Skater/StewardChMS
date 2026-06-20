@@ -58,7 +58,7 @@ function ForgotPasswordPage() {
               <img src={logoSrc} alt="Steward" className="mx-auto h-16 w-auto" />
             </div>
             <h1 className="text-2xl font-bold text-[var(--st-fg)]">
-              Steward <span className="text-[var(--st-muted)]">·</span> ChMS
+              Steward <span className="text-[var(--st-muted)]">·</span> Congregation
             </h1>
             <p className="mt-1 text-sm text-[var(--st-muted)]">Reset your password</p>
           </div>

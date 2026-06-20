@@ -85,7 +85,7 @@ function HomePage() {
 
         {/* Main heading - Using Steward naming convention */}
         <h1 className="mb-2 text-center text-5xl font-semibold tracking-tight text-[var(--st-fg)] md:text-6xl">
-          Steward <span className="text-[var(--st-muted)]">·</span> ChMS
+          Steward <span className="text-[var(--st-muted)]">·</span> Congregation
         </h1>
 
         {/* Tagline */}

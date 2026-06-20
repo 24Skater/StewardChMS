@@ -104,7 +104,7 @@ export function AppLayout() {
             />
             {sidebarOpen && (
               <span className="text-lg font-semibold text-[var(--st-sidebar-fg)] whitespace-nowrap tracking-wide">
-                Steward <span className="text-[var(--st-sidebar-muted)]">·</span> ChMS
+                Steward <span className="text-[var(--st-sidebar-muted)]">·</span> Congregation
               </span>
             )}
           </Link>

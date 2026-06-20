@@ -256,7 +256,7 @@ function SetupWizardPage() {
           <div className="mb-8 text-center">
             <img src={logoSrc} alt="Steward" className="mx-auto h-16 w-16 mb-4" />
             <h1 className="text-2xl font-bold text-[var(--st-fg)]">
-              Steward <span className="text-[var(--st-muted)]">·</span> ChMS Setup
+              Steward <span className="text-[var(--st-muted)]">·</span> Congregation Setup
             </h1>
             <p className="mt-1 text-sm text-[var(--st-muted)]">
               Let's get your church management system ready
@@ -763,7 +763,7 @@ function SetupWizardPage() {
 
                 <div className="p-4 rounded-lg bg-[var(--st-success)]/10 border border-[var(--st-success)]/30">
                   <p className="text-sm text-[var(--st-success)]">
-                    You're all set! Click "Complete Setup" to finish and start using StewardChMS.
+                    You're all set! Click "Complete Setup" to finish and start using Steward · Congregation.
                   </p>
                 </div>
 
