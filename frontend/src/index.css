@@ -1,13 +1,14 @@
 /**
- * Steward UI Global Styles
- * https://github.com/24Skater/steward-brand
+ * Steward · Congregation (ChMS)
+ * Token layer: published base → ChMS product theme → ChMS-specific overrides
  */
 
+@import "@steward-apps/tokens/css";
+@import "@steward-apps/tokens/themes/chms";
 @import "./styles/steward-tokens.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   *,
@@ -29,13 +30,11 @@
     color: var(--st-fg);
   }
 
-  /* Focus visible styles */
   :focus-visible {
     outline: 2px solid var(--st-focusRing);
     outline-offset: 2px;
   }
 
-  /* Selection styles */
   ::selection {
     background-color: var(--st-primary);
     color: var(--st-primaryFg);
@@ -43,7 +42,6 @@
 }
 
 @layer components {
-  /* Typography presets */
   .text-display {
     font-size: var(--st-font-size-display);
     line-height: var(--st-line-height-display);
@@ -87,7 +85,6 @@
 }
 
 @layer utilities {
-  /* Animation utilities */
   .animate-in {
     animation: animate-in 0.2s ease-out;
   }

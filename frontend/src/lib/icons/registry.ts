@@ -11,10 +11,26 @@ import {
   User, Phone, MapPin, CalendarDays, X, ChevronLeft, RefreshCw,
   Upload, Copy, Printer, Tag, Star, Bell, LogOut, Eye, EyeOff,
 } from 'lucide-react'
-import { KidsCheckinIconOutlined, KidsCheckinIconFilled } from './custom/KidsCheckinIcon'
-import { MinistryIconOutlined, MinistryIconFilled } from './custom/MinistryIcon'
-import { WorshipIconOutlined, WorshipIconFilled } from './custom/WorshipIcon'
-import { GivingIconOutlined, GivingIconFilled } from './custom/GivingIcon'
+import { type IconProps, KidsCheckinIcon, MinistryIcon, WorshipIcon, GivingIcon } from '@steward-apps/icons'
+import { KidsCheckinIconFilled } from './custom/KidsCheckinIcon'
+import { MinistryIconFilled } from './custom/MinistryIcon'
+import { WorshipIconFilled } from './custom/WorshipIcon'
+import { GivingIconFilled } from './custom/GivingIcon'
+
+function fromNpm(Icon: FC<IconProps>): IconVariant {
+  return ({ size, className, 'aria-hidden': ariaHidden, 'aria-label': ariaLabel }) =>
+    React.createElement(Icon, {
+      size,
+      className,
+      'aria-label': ariaLabel,
+      'aria-hidden': typeof ariaHidden === 'string' ? (ariaHidden === 'true') : ariaHidden,
+    })
+}
+
+const KidsCheckinIconOutlined = fromNpm(KidsCheckinIcon)
+const MinistryIconOutlined = fromNpm(MinistryIcon)
+const WorshipIconOutlined = fromNpm(WorshipIcon)
+const GivingIconOutlined = fromNpm(GivingIcon)
 
 export type IconVariantProps = {
   size?: number
