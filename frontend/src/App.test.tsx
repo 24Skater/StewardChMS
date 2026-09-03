@@ -56,7 +56,12 @@ describe('App', () => {
   it('renders the homepage with app title', async () => {
     renderWithProviders(<App />)
     await waitFor(() => {
-      expect(screen.getByText(/Steward.*ChMS/)).toBeInTheDocument()
+      // Queried by role rather than text: the heading is "Steward · Congregation"
+      // with the separator in its own <span>, so getByText cannot match across it.
+      // The accessible name concatenates the children.
+      expect(
+        screen.getByRole('heading', { name: /Steward\s*·\s*Congregation/i })
+      ).toBeInTheDocument()
     })
   })
 
