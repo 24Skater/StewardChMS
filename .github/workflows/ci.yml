@@ -7,6 +7,13 @@ on:
     branches: [main]
 
 jobs:
+  boundaries:
+    name: Platform Boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/ci/check-platform-boundaries.sh
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

@@ -155,5 +155,5 @@ A public demo deployment lives on Railway (`demo` environment, same repo). It us
 
 - Never set `VITE_DEMO_MODE=true` in production
 - Never modify `clearDemoData()` or the `--reset` flag without testing a full reset cycle
-- Demo admin credentials (`admin@demo.steward.app` / `Demo1234!`) are intentionally shown in the banner — do not rotate without updating the banner text
+- Demo admin credentials are intentionally shown in the banner. The banner reads `VITE_DEMO_ADMIN_EMAIL` / `VITE_DEMO_ADMIN_PASSWORD`, so rotate them by changing the env vars on both services (`ADMIN_EMAIL`/`ADMIN_PASSWORD` on the backend, the `VITE_*` pair on the frontend) — never by editing the banner text
 - Full details in memory: `C:\Users\ramos\.claude\projects\c--Users-ramos-GitHub-StewardChMS\memory\demo-deployment.md`
