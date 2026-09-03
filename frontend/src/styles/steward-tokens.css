@@ -1,138 +1,52 @@
 /**
- * Steward Design System — Brand Token System
- * Identity: Cross Key · Kingdom Authority
- * Palette: Deep Navy + Kingdom Gold + Parchment
+ * Steward · Congregation (ChMS) — App-Level Token Extensions
+ *
+ * Runs AFTER @steward-apps/tokens/dist/tokens.css and themes/chms.css.
+ * Contains ONLY values not provided by the published @steward-apps/tokens package:
+ *   - Primitive color aliases (ChMS-specific raw values)
+ *   - shadcn/ui HSL compatibility variables (app-internal)
+ *   - Dark mode overrides (not yet in published package)
  */
 
 :root {
-  /* ===== Brand Color Palette ===== */
+  /* ===== ChMS Navy Palette — primitive aliases ===== */
   --st-color-brand-navy-deep:  #060F1A;
   --st-color-brand-navy:       #0D1B2E;
   --st-color-brand-navy-mid:   #1A2F4A;
-  --st-color-brand-gold:       #E8B847;
-  --st-color-brand-gold-dark:  #C49A2E;
   --st-color-brand-parchment:  #F5EED8;
-  --st-color-brand-emerald:    #16A34A;
-  --st-color-brand-amber:      #F59E0B;
-  --st-color-brand-red:        #DC2626;
 
-  /* ===== Neutral Colors — Light Mode ===== */
+  /* ===== Neutral primitive overrides — warm golden ===== */
   --st-color-neutral-ink:      #0D1B2E;
   --st-color-neutral-slate:    #3D4F66;
   --st-color-neutral-muted:    #6B7A8D;
   --st-color-neutral-border:   #DDD0A8;
-  --st-color-neutral-surface:  #FFFFFF;
   --st-color-neutral-subtle:   #FAF7F2;
 
-  /* ===== Typography ===== */
-  --st-font-sans:  'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --st-font-mono:  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-  --st-font-size-display:  36px;
-  --st-font-size-h1:       30px;
-  --st-font-size-h2:       24px;
-  --st-font-size-h3:       20px;
-  --st-font-size-body:     16px;
-  --st-font-size-small:    14px;
-  --st-font-size-caption:  12px;
-
-  --st-line-height-display:  44px;
-  --st-line-height-h1:       38px;
-  --st-line-height-h2:       32px;
-  --st-line-height-h3:       28px;
-  --st-line-height-body:     24px;
-  --st-line-height-small:    20px;
-  --st-line-height-caption:  16px;
-
-  --st-font-weight-regular:   400;
-  --st-font-weight-medium:    500;
-  --st-font-weight-semibold:  600;
-  --st-font-weight-bold:      700;
-
-  /* ===== Border Radius ===== */
-  --st-radius-none:  0px;
-  --st-radius-sm:    6px;
-  --st-radius-md:    10px;
-  --st-radius-lg:    16px;
-  --st-radius-full:  9999px;
-
-  /* ===== Shadows ===== */
-  --st-shadow-sm:  0px 1px 2px rgba(13, 27, 46, 0.08);
-  --st-shadow-md:  0px 4px 6px -1px rgba(13, 27, 46, 0.12);
-  --st-shadow-lg:  0px 10px 15px -3px rgba(13, 27, 46, 0.15);
-
-  /* ===== Light Mode — Semantic Tokens ===== */
-  --st-bg:           #FAF7F2;
-  --st-fg:           #0D1B2E;
-  --st-surface:      #FFFFFF;
-  --st-surfaceMuted: #FAF7F2;
-  --st-border:       #DDD0A8;
-
-  /* Primary — Kingdom Gold */
-  --st-primary:       #E8B847;
-  --st-primaryFg:     #0D1B2E;
-  --st-fg-on-primary: #0D1B2E;
-  --st-primary-hover: #C49A2E;
-  --st-surface-hover: rgba(232, 184, 71, 0.08);
-
-  /* Secondary — Navy Mid */
-  --st-secondary:    #1A2F4A;
-  --st-secondaryFg:  #F5EED8;
-
-  /* Accent — Navy */
-  --st-accent:    #0D1B2E;
-  --st-accentFg:  #F5EED8;
-
-  /* Status */
-  --st-success:    #16A34A;
-  --st-successFg:  #FFFFFF;
-  --st-warning:    #F59E0B;
-  --st-warningFg:  #0D1B2E;
-  --st-danger:     #DC2626;
-  --st-dangerFg:   #FFFFFF;
-
-  --st-link:       #C49A2E;
-  --st-focusRing:  #E8B847;
-
-  --st-muted:    #6B7A8D;
-  --st-mutedFg:  #3D4F66;
-
-  /* ===== Sidebar — Always Dark Navy (both modes) ===== */
-  --st-sidebar-bg:        #0D1B2E;
-  --st-sidebar-fg:        #F5EED8;
-  --st-sidebar-muted:     rgba(245, 238, 216, 0.45);
-  --st-sidebar-border:    #1A2F4A;
-  --st-sidebar-hover:     rgba(232, 184, 71, 0.1);
-  --st-sidebar-active:    #E8B847;
-  --st-sidebar-active-fg: #0D1B2E;
-
   /* ===== Legacy shadcn/ui compatibility — Light ===== */
-  /* HSL format: H S% L% (no comma) */
-  --background:             42 50% 96%;    /* #FAF7F2 warm off-white */
-  --foreground:             215 56% 12%;   /* #0D1B2E navy */
-  --card:                   0 0% 100%;     /* white */
-  --card-foreground:        215 56% 12%;   /* navy */
+  --background:             42 50% 96%;
+  --foreground:             215 56% 12%;
+  --card:                   0 0% 100%;
+  --card-foreground:        215 56% 12%;
   --popover:                0 0% 100%;
   --popover-foreground:     215 56% 12%;
-  --primary:                42 78% 59%;    /* #E8B847 kingdom gold */
-  --primary-foreground:     215 56% 12%;   /* navy text on gold — WCAG AAA */
-  --secondary:              214 48% 20%;   /* #1A2F4A navy mid */
-  --secondary-foreground:   46 59% 90%;    /* parchment */
-  --muted:                  42 15% 88%;    /* warm light muted */
-  --muted-foreground:       215 25% 35%;   /* dark muted text */
-  --accent:                 214 48% 20%;   /* navy mid */
-  --accent-foreground:      46 59% 90%;    /* parchment */
+  --primary:                42 78% 59%;
+  --primary-foreground:     215 56% 12%;
+  --secondary:              214 48% 20%;
+  --secondary-foreground:   46 59% 90%;
+  --muted:                  42 15% 88%;
+  --muted-foreground:       215 25% 35%;
+  --accent:                 214 48% 20%;
+  --accent-foreground:      46 59% 90%;
   --destructive:            0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border:                 42 38% 84%;    /* warm golden border */
+  --border:                 42 38% 84%;
   --input:                  42 38% 84%;
-  --ring:                   42 78% 59%;    /* gold focus ring */
+  --ring:                   42 78% 59%;
   --radius:                 0.625rem;
 }
 
 /* ===== Dark Mode ===== */
 .dark {
-  /* Neutral Colors — Dark Mode */
   --st-color-neutral-ink:     #F5EED8;
   --st-color-neutral-slate:   #C9B88A;
   --st-color-neutral-muted:   #8A7A5C;
@@ -140,40 +54,52 @@
   --st-color-neutral-surface: #0D1B2E;
   --st-color-neutral-subtle:  #060F1A;
 
-  /* Semantic Tokens — Dark Mode */
   --st-bg:           #060F1A;
+  --bg:              #060F1A;
   --st-fg:           #F5EED8;
+  --fg:              #F5EED8;
   --st-surface:      #0D1B2E;
+  --surface:         #0D1B2E;
   --st-surfaceMuted: #0D1B2E;
+  --surface-muted:   #0D1B2E;
   --st-border:       #1A2F4A;
-
-  /* Primary stays Kingdom Gold in dark mode */
-  --st-primary:       #E8B847;
-  --st-primaryFg:     #0D1B2E;
-  --st-fg-on-primary: #0D1B2E;
-  --st-primary-hover: #C49A2E;
-  --st-surface-hover: rgba(232, 184, 71, 0.1);
+  --border:          #1A2F4A;
 
   --st-secondary:    #C9B88A;
+  --secondary:       #C9B88A;
   --st-secondaryFg:  #060F1A;
+  --secondary-fg:    #060F1A;
 
   --st-accent:    #E8B847;
+  --accent:       #E8B847;
   --st-accentFg:  #0D1B2E;
+  --accent-fg:    #0D1B2E;
 
   --st-success:    #22C55E;
+  --success:       #22C55E;
   --st-successFg:  #060F1A;
+  --success-fg:    #060F1A;
   --st-warning:    #E8B847;
+  --warning:       #E8B847;
   --st-warningFg:  #060F1A;
+  --warning-fg:    #060F1A;
   --st-danger:     #EF4444;
+  --danger:        #EF4444;
   --st-dangerFg:   #FFFFFF;
+  --danger-fg:     #FFFFFF;
 
   --st-link:       #E8B847;
+  --link:          #E8B847;
   --st-focusRing:  #E8B847;
+  --focus-ring:    #E8B847;
 
   --st-muted:    #8A7A5C;
+  --muted:       #8A7A5C;
   --st-mutedFg:  #C9B88A;
+  --muted-fg:    #C9B88A;
 
-  /* Sidebar stays dark in dark mode too (slightly deeper) */
+  --st-surface-hover: rgba(232, 184, 71, 0.1);
+
   --st-sidebar-bg:        #060F1A;
   --st-sidebar-fg:        #F5EED8;
   --st-sidebar-muted:     rgba(245, 238, 216, 0.4);
@@ -182,24 +108,24 @@
   --st-sidebar-active:    #E8B847;
   --st-sidebar-active-fg: #0D1B2E;
 
-  /* shadcn/ui compatibility — Dark Mode */
-  --background:             213 63% 6%;    /* #060F1A deep navy */
-  --foreground:             46 59% 90%;    /* #F5EED8 parchment */
-  --card:                   215 56% 12%;   /* #0D1B2E navy */
-  --card-foreground:        46 59% 90%;    /* parchment */
+  /* shadcn/ui compatibility — Dark */
+  --background:             213 63% 6%;
+  --foreground:             46 59% 90%;
+  --card:                   215 56% 12%;
+  --card-foreground:        46 59% 90%;
   --popover:                215 56% 12%;
   --popover-foreground:     46 59% 90%;
-  --primary:                42 78% 59%;    /* gold — same as light */
-  --primary-foreground:     215 56% 12%;   /* navy on gold */
-  --secondary:              42 30% 62%;    /* warm muted gold */
+  --primary:                42 78% 59%;
+  --primary-foreground:     215 56% 12%;
+  --secondary:              42 30% 62%;
   --secondary-foreground:   213 63% 6%;
-  --muted:                  214 48% 15%;   /* dark muted surface */
-  --muted-foreground:       42 30% 65%;    /* warm muted text */
-  --accent:                 42 78% 59%;    /* gold accent */
-  --accent-foreground:      215 56% 12%;   /* navy on gold */
+  --muted:                  214 48% 15%;
+  --muted-foreground:       42 30% 65%;
+  --accent:                 42 78% 59%;
+  --accent-foreground:      215 56% 12%;
   --destructive:            0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --border:                 214 48% 20%;   /* #1A2F4A navy mid */
+  --border:                 214 48% 20%;
   --input:                  214 48% 20%;
-  --ring:                   42 78% 59%;    /* gold ring */
+  --ring:                   42 78% 59%;
 }

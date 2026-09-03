@@ -38,6 +38,107 @@ function generateSecurityCode(): string {
 }
 
 // ============================================
+// GET /api/kids-checkin/lookup?phone=
+// Look up children by household phone number
+// ============================================
+
+const lookupSchema = z.object({
+  phone: z
+    .string()
+    .min(1, 'Phone is required')
+    .transform((val) => val.replace(/\D/g, ''))
+    .refine((val) => val.length >= 10, {
+      message: 'Phone must have at least 10 digits',
+    }),
+})
+
+router.get('/lookup', requirePermission('checkin.view'), async (req: Request, res: Response) => {
+  try {
+    const parseResult = lookupSchema.safeParse(req.query)
+    if (!parseResult.success) {
+      res.status(400).json({
+        error: 'Validation failed',
+        details: parseResult.error.flatten().fieldErrors,
+      })
+      return
+    }
+
+    // Use last 10 digits for matching
+    const digits = parseResult.data.phone
+    const last10 = digits.slice(-10)
+
+    // Find households where any member's phone (digits-only) ends with last10
+    const households = await prisma.household.findMany({
+      where: {
+        members: {
+          some: {
+            member: {
+              phone: {
+                not: null,
+              },
+            },
+          },
+        },
+      },
+      include: {
+        members: {
+          include: {
+            member: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+                isChild: true,
+                allergies: true,
+                medicalNotes: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Filter in-memory: households with at least one member whose phone matches
+    const matchingHouseholds = households.filter((hh) =>
+      hh.members.some((hm) => {
+        if (!hm.member.phone) return false
+        const memberDigits = hm.member.phone.replace(/\D/g, '')
+        return memberDigits.slice(-10) === last10
+      })
+    )
+
+    // Collect unique children from matching households
+    const childrenMap = new Map<string, {
+      id: string
+      firstName: string
+      lastName: string
+      allergies: string | null
+      medicalNotes: string | null
+    }>()
+
+    for (const hh of matchingHouseholds) {
+      for (const hm of hh.members) {
+        if (hm.member.isChild && !childrenMap.has(hm.member.id)) {
+          childrenMap.set(hm.member.id, {
+            id: hm.member.id,
+            firstName: hm.member.firstName,
+            lastName: hm.member.lastName,
+            allergies: hm.member.allergies,
+            medicalNotes: hm.member.medicalNotes,
+          })
+        }
+      }
+    }
+
+    res.json({ children: Array.from(childrenMap.values()) })
+  } catch (error) {
+    console.error('Lookup error:', error)
+    res.status(500).json({ error: 'Failed to look up children' })
+  }
+})
+
+// ============================================
 // GET /api/kids-checkin/children
 // Get all children for check-in
 // ============================================

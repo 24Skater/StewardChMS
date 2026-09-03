@@ -1,0 +1,30 @@
+# Demo-reset cron job — runs seed-demo.ts --reset and exits
+FROM node:20-slim
+
+# Install OpenSSL for Prisma
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy workspace package files
+COPY package.json package-lock.json ./
+COPY shared/package.json ./shared/
+COPY backend/package.json ./backend/
+
+# Install all dependencies (including dev for tsx)
+RUN npm ci
+
+# Copy source files
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+
+# Build shared package
+WORKDIR /app/shared
+RUN npm run build
+
+# Generate Prisma client
+WORKDIR /app/backend
+RUN npx prisma generate
+
+# Run migrations and reset demo data
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx prisma/seed-demo.ts --reset"]

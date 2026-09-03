@@ -2,7 +2,7 @@
  * Tailwind CSS Configuration
  * Using Steward Design System preset
  */
-import stewardPreset from 'steward-brand/packages/ui/tailwind/tailwind.preset.js';
+import stewardPreset from '@steward-apps/ui/tailwind.preset';
 
 /** @type {import('tailwindcss').Config} */
 export default {

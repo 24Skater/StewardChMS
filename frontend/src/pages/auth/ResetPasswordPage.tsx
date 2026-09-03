@@ -93,7 +93,7 @@ function ResetPasswordPage() {
           <div className="mb-8 text-center">
             <div className="mx-auto mb-4">{logoEl}</div>
             <h1 className="text-2xl font-bold text-[var(--st-fg)]">
-              Steward <span className="text-[var(--st-muted)]">·</span> ChMS
+              Steward <span className="text-[var(--st-muted)]">·</span> Congregation
             </h1>
             <p className="mt-1 text-sm text-[var(--st-muted)]">Set a new password</p>
           </div>

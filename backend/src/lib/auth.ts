@@ -41,14 +41,16 @@ export interface TokenPair {
 
 /**
  * Signs a new JWT token with a unique ID for blacklisting support.
+ * @param payload - The JWT payload to sign.
+ * @param expiresIn - Optional expiry override (e.g. '90d'). Defaults to JWT_EXPIRES_IN env var.
  */
-export function signToken(payload: JwtPayload): TokenPair {
+export function signToken(payload: JwtPayload, expiresIn?: string): TokenPair {
   const jti = generateJti()
-  const expiresIn = JWT_EXPIRES_IN
+  const expiresIn_ = expiresIn ?? JWT_EXPIRES_IN
   
   // Parse expires in to calculate actual expiry date
   let expiresAt: Date
-  const match = expiresIn.match(/^(\d+)([dhms])$/)
+  const match = expiresIn_.match(/^(\d+)([dhms])$/)
   if (match) {
     const value = parseInt(match[1], 10)
     const unit = match[2]
@@ -67,7 +69,7 @@ export function signToken(payload: JwtPayload): TokenPair {
   const token = jwt.sign(
     { ...payload, jti },
     JWT_SECRET,
-    { expiresIn } as SignOptions
+    { expiresIn: expiresIn_ } as SignOptions
   )
 
   return { accessToken: token, expiresAt }
