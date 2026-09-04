@@ -31,11 +31,11 @@ function extractToken(req: Request): string | null {
  * Middleware that requires a valid JWT token.
  * Extracts user info and attaches to request.
  */
-export function requireAuth(
+export async function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   const token = extractToken(req)
 
   if (!token) {
@@ -43,7 +43,7 @@ export function requireAuth(
     return
   }
 
-  const payload = verifyToken(token)
+  const payload = await verifyToken(token)
 
   if (!payload) {
     res.status(401).json({ error: 'Invalid or expired token' })
@@ -88,15 +88,15 @@ export function requirePermission(permissionKey: string) {
 /**
  * Optional auth middleware - attaches user if token present, but doesn't require it
  */
-export function optionalAuth(
+export async function optionalAuth(
   req: Request,
   _res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   const token = extractToken(req)
 
   if (token) {
-    const payload = verifyToken(token)
+    const payload = await verifyToken(token)
     if (payload) {
       req.user = payload
     }

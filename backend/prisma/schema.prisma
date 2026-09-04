@@ -119,6 +119,28 @@ model User {
   @@map("users")
 }
 
+/// A token that has been logged out, until it would have expired anyway.
+///
+/// This used to be an array in one process's memory, which was correct on one
+/// process and wrong on two: a second instance never heard about the logout, so
+/// the "revoked" token kept working there for up to seven days. It is a table
+/// because Congregation already has a database and does not already have a
+/// Redis, and one more piece of infrastructure to run is a real cost for a
+/// self-hosted church.
+///
+/// Rows are deleted once `expiresAt` has passed. Keeping them would grow the
+/// table forever to prevent the reuse of tokens that no longer verify.
+model RevokedToken {
+  /// The token's `jti` claim. The token itself is never stored - it is a
+  /// credential, and this table would otherwise be a list of working ones.
+  jti       String   @id
+  expiresAt DateTime @map("expires_at")
+  revokedAt DateTime @default(now()) @map("revoked_at")
+
+  @@index([expiresAt])
+  @@map("revoked_tokens")
+}
+
 model PasswordResetToken {
   id        String    @id @default(cuid())
   userId    String    @map("user_id")

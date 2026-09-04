@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import prisma from './prisma.js'
 
 // ============================================
 // Environment Validation
@@ -158,49 +159,73 @@ export function generateJti(): string {
 }
 
 // ============================================
-// Token Blacklist (In-Memory for now)
+// Token Blacklist
 // ============================================
 
-// In production, this should use Redis or database
-const TOKEN_CLEANUP_INTERVAL = 60 * 60 * 1000 // 1 hour
+/**
+ * Logging out has to mean logged out on every instance.
+ *
+ * This used to be an array in one process's memory. That is correct on one
+ * process and wrong on two: the second instance never heard about the logout,
+ * so a "revoked" token kept working there until it expired on its own, up to
+ * seven days later. It also emptied on every restart and deploy.
+ *
+ * It is a table rather than a Redis key because Congregation already has a
+ * database and does not already have a Redis, and one more piece of
+ * infrastructure to run is a real cost for a church hosting its own copy.
+ *
+ * The check is one primary-key lookup on a small table, on authenticated
+ * requests only. There is deliberately no cache in front of it: a cache with
+ * any staleness at all means a logged-out token still works for that long,
+ * which is the exact thing this exists to prevent.
+ */
 
-interface BlacklistEntry {
-  jti: string
-  expiresAt: number
-}
-
-const blacklistWithExpiry: BlacklistEntry[] = []
+const REVOCATION_CLEANUP_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
 
 /**
  * Adds a token to the blacklist.
+ *
+ * Idempotent: logging out twice is not an error, and the second call must not
+ * move the recorded revocation time.
  */
-export function blacklistToken(jti: string, expiresAt: Date): void {
-  blacklistWithExpiry.push({
-    jti,
-    expiresAt: expiresAt.getTime(),
+export async function blacklistToken(jti: string, expiresAt: Date): Promise<void> {
+  await prisma.revokedToken.upsert({
+    where: { jti },
+    update: {},
+    create: { jti, expiresAt },
   })
 }
 
-/**
- * Checks if a token is blacklisted.
- */
-export function isTokenBlacklisted(jti: string): boolean {
-  return blacklistWithExpiry.some(entry => entry.jti === jti)
+/** Checks if a token is blacklisted. */
+export async function isTokenBlacklisted(jti: string): Promise<boolean> {
+  const revoked = await prisma.revokedToken.findUnique({
+    where: { jti },
+    select: { jti: true },
+  })
+  return revoked !== null
 }
 
 /**
- * Cleans up expired entries from the blacklist.
+ * Deletes entries for tokens that have expired anyway.
+ *
+ * A token past its own expiry fails verification before the blacklist is ever
+ * consulted, so keeping the row would grow the table forever to prevent nothing.
  */
-export function cleanupBlacklist(): void {
-  const now = Date.now()
-  const validEntries = blacklistWithExpiry.filter(entry => entry.expiresAt > now)
-  blacklistWithExpiry.length = 0
-  blacklistWithExpiry.push(...validEntries)
+export async function cleanupBlacklist(): Promise<number> {
+  const { count } = await prisma.revokedToken.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  })
+  return count
 }
 
-// Run cleanup periodically
+// Run cleanup periodically. Several instances doing this at once is harmless -
+// the delete is idempotent and takes no lock anyone is waiting on.
 if (process.env.NODE_ENV !== 'test') {
-  setInterval(cleanupBlacklist, TOKEN_CLEANUP_INTERVAL)
+  setInterval(() => {
+    cleanupBlacklist().catch((error) => {
+      console.error('Failed to clean up revoked tokens:', error)
+    })
+  }, REVOCATION_CLEANUP_INTERVAL_MS)
 }
 
 // ============================================

@@ -198,7 +198,7 @@ Iterate and display these as a bulleted list, not as individual field errors.
 
 - No `steward_session` cookie and no `Authorization` header present
 - Token present but signature is invalid, malformed, or expired
-- Token is on the in-memory blacklist (after logout or password change)
+- Token has been revoked (after logout or password change)
 - Account has `isActive = false` (checked during login and `requirePrimaryAdmin`)
 - Submitted current password is wrong on `POST /api/auth/change-password`
 

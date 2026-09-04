@@ -76,6 +76,7 @@ export const GLOBAL_MODELS = new Set([
   'org',
   'passwordresettoken',
   'permission',
+  'revokedtoken',
   'role',
   'rolepermission',
   'user',

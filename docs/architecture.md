@@ -249,7 +249,7 @@ Permissions array loaded at login, embedded in JWT. `requirePermission()` checks
 
 ### In-Memory Token Blacklist
 
-Logout adds jti (UUID) to in-memory array; `verifyToken()` checks it. Cleared on restart; use Redis or a DB table for production.
+Logout writes the token's jti (UUID) to `revoked_tokens`; `verifyToken()` checks it. Survives restarts, and is shared by every instance.
 
 ### Singleton Prisma Client
 

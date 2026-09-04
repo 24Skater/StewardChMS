@@ -26,33 +26,33 @@ function createMockNext(): NextFunction {
 }
 
 describe('requireAuth Middleware', () => {
-  it('rejects request without token (no cookie or header)', () => {
+  it('rejects request without token (no cookie or header)', async () => {
     const req = createMockReq()
     const res = createMockRes()
     const next = createMockNext()
 
-    requireAuth(req, res, next)
+    await requireAuth(req, res, next)
 
     expect(res.status).toHaveBeenCalledWith(401)
     expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' })
     expect(next).not.toHaveBeenCalled()
   })
 
-  it('rejects request with invalid token in header', () => {
+  it('rejects request with invalid token in header', async () => {
     const req = createMockReq({
       headers: { authorization: 'Bearer invalid.token.here' },
     })
     const res = createMockRes()
     const next = createMockNext()
 
-    requireAuth(req, res, next)
+    await requireAuth(req, res, next)
 
     expect(res.status).toHaveBeenCalledWith(401)
     expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' })
     expect(next).not.toHaveBeenCalled()
   })
 
-  it('allows request with valid token in header', () => {
+  it('allows request with valid token in header', async () => {
     const payload = {
       userId: 'user123',
       email: 'test@example.com',
@@ -67,7 +67,7 @@ describe('requireAuth Middleware', () => {
     const res = createMockRes()
     const next = createMockNext()
 
-    requireAuth(req, res, next)
+    await requireAuth(req, res, next)
 
     expect(next).toHaveBeenCalled()
     expect(req.user).toBeDefined()
@@ -75,7 +75,7 @@ describe('requireAuth Middleware', () => {
     expect(req.user?.email).toBe(payload.email)
   })
 
-  it('allows request with valid token in cookie', () => {
+  it('allows request with valid token in cookie', async () => {
     const payload = {
       userId: 'user456',
       email: 'cookie@example.com',
@@ -90,7 +90,7 @@ describe('requireAuth Middleware', () => {
     const res = createMockRes()
     const next = createMockNext()
 
-    requireAuth(req, res, next)
+    await requireAuth(req, res, next)
 
     expect(next).toHaveBeenCalled()
     expect(req.user).toBeDefined()
@@ -98,7 +98,7 @@ describe('requireAuth Middleware', () => {
     expect(req.user?.email).toBe(payload.email)
   })
 
-  it('prefers cookie over header when both present', () => {
+  it('prefers cookie over header when both present', async () => {
     const cookiePayload = {
       userId: 'cookie-user',
       email: 'cookie@example.com',
@@ -123,7 +123,7 @@ describe('requireAuth Middleware', () => {
     const res = createMockRes()
     const next = createMockNext()
 
-    requireAuth(req, res, next)
+    await requireAuth(req, res, next)
 
     expect(next).toHaveBeenCalled()
     expect(req.user?.userId).toBe('cookie-user') // Should use cookie

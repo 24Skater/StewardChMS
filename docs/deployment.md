@@ -327,7 +327,6 @@ server {
 ### Database
 
 - [ ] **Enable PostgreSQL backups** — the `postgres_data` volume is not automatically backed up. Schedule daily `pg_dump` exports stored off-host. See [Database Maintenance](#database-maintenance).
-- [ ] **Switch the token blacklist from in-memory to Redis or a database table** — see [Security Hardening](#security-hardening).
 
 ### Monitoring
 
@@ -628,48 +627,36 @@ HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800
 - `SameSite=Strict` prevents the session cookie from being sent in cross-site requests, mitigating CSRF.
 - The API also accepts `Authorization: Bearer <token>` headers as a fallback for non-browser API clients.
 
-### In-Memory Token Blacklist — Production Limitation
+### Token Revocation
 
-**Known limitation:** When a user logs out, the token's `jti` (unique ID) is added to an in-memory array in `backend/src/lib/security.ts`. This array is cleared on backend restart, meaning logged-out tokens remain valid until natural expiry (default: 7 days).
+When a user logs out, the token's `jti` (unique ID) is written to the
+`revoked_tokens` table, and `verifyToken()` checks that table on every
+authenticated request. So a logout is a logout on every instance, and it
+survives a restart.
 
-**Recommended fix for production:**
+This replaced an in-memory array, which was correct on one process and wrong on
+two: a second instance never heard about the logout, so the "revoked" token kept
+working there until it expired on its own, up to seven days later. It also
+emptied on every deploy.
 
-**Option A — Redis blacklist**
+A table rather than Redis, deliberately. Congregation already has a database and
+does not already have a Redis, and one more piece of infrastructure to run is a
+real cost for a church hosting its own copy. If you are already running Redis
+for other reasons, swapping the two functions in `backend/src/lib/security.ts`
+is a contained change — but do not add Redis for this alone.
 
-Install `ioredis` and replace the in-memory store in `backend/src/lib/security.ts`:
+**Two properties worth knowing before you tune anything:**
 
-```typescript
-import Redis from 'ioredis';
-const redis = new Redis(process.env.REDIS_URL);
+- **There is no cache in front of the lookup.** A cache with any staleness at
+  all means a logged-out token still works for that long, which is the exact
+  thing this exists to prevent. It is one primary-key lookup on a small table.
+- **A database failure does not sign everyone out.** If the table cannot be
+  read, a validly-signed token is honoured and the failure is logged. Refusing
+  every signed-in request during a blip is a worse outage than honouring a token
+  somebody logged out of minutes ago.
 
-export async function blacklistToken(jti: string, expiresAt: Date): Promise<void> {
-  const ttlSeconds = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
-  if (ttlSeconds > 0) {
-    await redis.set(`blacklist:${{jti}}`, '1', 'EX', ttlSeconds);
-  }
-}
-
-export async function isTokenBlacklisted(jti: string): Promise<boolean> {
-  return (await redis.exists(`blacklist:${{jti}}`)) === 1;
-}
-```
-
-Add `REDIS_URL` to your environment (e.g., `redis://localhost:6379`).
-
-**Option B — Database table**
-
-Add a migration with a `RevokedToken` model in `backend/prisma/schema.prisma`:
-
-```prisma
-model RevokedToken {
-  jti       String   @id
-  expiresAt DateTime
-
-  @@index([expiresAt])
-}
-```
-
-Replace `blacklistToken` and `isTokenBlacklisted` in `security.ts` with `prisma.revokedToken` calls. Add a periodic cleanup job to delete rows where `expiresAt < now()`.
+Rows are deleted an hour at a time once `expiresAt` has passed, because a token
+past its own expiry fails verification before the blacklist is ever consulted.
 
 ### Password Policy
 
