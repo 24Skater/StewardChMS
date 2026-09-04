@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from 'jsonwebtoken'
 import { createAuditLog } from '../lib/audit.js'
@@ -33,6 +34,7 @@ router.post('/adjust', requireAuth, requirePermission('inventory.edit'), async (
     // Create adjustment transaction
     const transaction = await prisma.inventoryTransaction.create({
       data: {
+        orgId: requireOrgId(),
         productId,
         type: 'adjustment',
         quantityDelta,

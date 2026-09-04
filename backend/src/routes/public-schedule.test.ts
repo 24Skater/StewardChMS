@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -15,6 +16,7 @@ const isDbAvailable = !!process.env.DATABASE_URL
 // ============================================
 
 const manageToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'public-sched-manage',
   email: 'public-sched-manage@test.example.com',
   roles: ['schedules-manager'],
@@ -54,7 +56,7 @@ describe('Public Schedule API', () => {
 
     // Ministry
     const ministry = await prisma.ministry.create({
-      data: { name: `Public Schedule Ministry ${Date.now()}` },
+      data: { orgId: TEST_ORG_ID, name: `Public Schedule Ministry ${Date.now()}` },
     })
     testMinistryId = ministry.id
 
@@ -73,6 +75,7 @@ describe('Public Schedule API', () => {
     // Member
     const member = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'John',
         lastName: 'Smith',
         email: `public-schedule-member-${Date.now()}@test.example.com`,

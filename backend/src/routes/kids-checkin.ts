@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import crypto from 'crypto'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 
 const router = Router()
@@ -355,7 +356,7 @@ router.post('/checkin', requirePermission('checkin.operate'), async (req: Reques
       let attempts = 0
       while (attempts < 10) {
         securityCode = generateSecurityCode()
-        const exists = await prisma.member.findUnique({
+        const exists = await prisma.member.findFirst({
           where: { securityCode },
         })
         if (!exists) break
@@ -372,6 +373,7 @@ router.post('/checkin', requirePermission('checkin.operate'), async (req: Reques
     // Create check-in
     const checkIn = await prisma.checkIn.create({
       data: {
+        orgId: requireOrgId(),
         memberId,
         eventOccurrenceId: occurrenceId,
         checkedInAt: new Date(),
@@ -435,7 +437,7 @@ router.post('/checkout', requirePermission('checkin.operate'), async (req: Reque
     const { securityCode } = parseResult.data
 
     // Find the member by security code
-    const member = await prisma.member.findUnique({
+    const member = await prisma.member.findFirst({
       where: { securityCode: securityCode.toUpperCase() },
     })
     if (!member) {

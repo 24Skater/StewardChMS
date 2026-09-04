@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -207,7 +208,7 @@ router.post('/', requireAuth, requirePermission('members.write'), async (req: Re
 
     // Check for duplicate email if provided
     if (data.email) {
-      const existing = await prisma.member.findUnique({
+      const existing = await prisma.member.findFirst({
         where: { email: data.email },
       })
       if (existing) {
@@ -218,6 +219,7 @@ router.post('/', requireAuth, requirePermission('members.write'), async (req: Re
 
     const member = await prisma.member.create({
       data: {
+        orgId: requireOrgId(),
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email ?? null,
@@ -284,7 +286,7 @@ router.put('/:id', requireAuth, requirePermission('members.write'), async (req: 
 
     // Check for duplicate email if changing
     if (data.email && data.email !== existing.email) {
-      const emailExists = await prisma.member.findUnique({
+      const emailExists = await prisma.member.findFirst({
         where: { email: data.email },
       })
       if (emailExists) {
@@ -426,7 +428,7 @@ router.post('/import', requireAuth, requirePermission('members.write'), async (r
 
       // Check for duplicate email
       if (email && email.length > 0) {
-        const existing = await prisma.member.findUnique({
+        const existing = await prisma.member.findFirst({
           where: { email },
         })
         if (existing) {
@@ -442,6 +444,7 @@ router.post('/import', requireAuth, requirePermission('members.write'), async (r
       try {
         await prisma.member.create({
           data: {
+            orgId: requireOrgId(),
             firstName: first_name,
             lastName: last_name,
             email: email && email.length > 0 ? email : null,

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import { hashPassword, verifyPassword, signToken, verifyToken } from './auth.js'
 
 describe('Password Hashing', () => {
@@ -46,6 +47,7 @@ describe('JWT Token', () => {
   const testPayload = {
     userId: 'user123',
     email: 'test@example.com',
+    orgId: TEST_ORG_ID,
     roles: ['admin'],
     permissions: ['admin.access'],
   }

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../app.js'
@@ -98,13 +99,15 @@ describeWithDb('Setup Routes', () => {
 
     await prisma.userRole.upsert({
       where: {
-        userId_roleId: {
+        orgId_userId_roleId: {
+          orgId: TEST_ORG_ID,
           userId: primaryAdmin.id,
           roleId: role.id,
         },
       },
       update: {},
       create: {
+        orgId: TEST_ORG_ID,
         userId: primaryAdmin.id,
         roleId: role.id,
       },
@@ -112,6 +115,7 @@ describeWithDb('Setup Routes', () => {
 
     // Generate token for primary admin
     const primaryTokenResult = signToken({
+      orgId: TEST_ORG_ID,
       userId: primaryAdmin.id,
       email: primaryAdmin.email,
       roles: ['admin'],
@@ -143,13 +147,15 @@ describeWithDb('Setup Routes', () => {
 
     await prisma.userRole.upsert({
       where: {
-        userId_roleId: {
+        orgId_userId_roleId: {
+          orgId: TEST_ORG_ID,
           userId: regularAdmin.id,
           roleId: role.id,
         },
       },
       update: {},
       create: {
+        orgId: TEST_ORG_ID,
         userId: regularAdmin.id,
         roleId: role.id,
       },
@@ -157,6 +163,7 @@ describeWithDb('Setup Routes', () => {
 
     // Generate token for regular admin
     const regularTokenResult = signToken({
+      orgId: TEST_ORG_ID,
       userId: regularAdmin.id,
       email: regularAdmin.email,
       roles: ['admin'],
@@ -188,13 +195,15 @@ describeWithDb('Setup Routes', () => {
 
     await prisma.userRole.upsert({
       where: {
-        userId_roleId: {
+        orgId_userId_roleId: {
+          orgId: TEST_ORG_ID,
           userId: seedAccount.id,
           roleId: role.id,
         },
       },
       update: {},
       create: {
+        orgId: TEST_ORG_ID,
         userId: seedAccount.id,
         roleId: role.id,
       },

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -71,6 +72,7 @@ router.post('/', requireAuth, requirePermission('worship.write'), async (req: Re
 
     const song = await prisma.song.create({
       data: {
+        orgId: requireOrgId(),
         title: data.title,
         artist: data.artist ?? null,
         defaultKey: data.defaultKey ?? null,

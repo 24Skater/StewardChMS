@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -148,6 +149,7 @@ router.post('/', requireAuth, requirePermission('giving.edit'), async (req, res)
 
     const pledge = await prisma.pledge.create({
       data: {
+        orgId: requireOrgId(),
         memberId,
         fundId: fundId ?? null,
         amountCents,

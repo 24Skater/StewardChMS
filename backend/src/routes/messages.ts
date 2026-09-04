@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { getProviderForChannel } from '../providers/messaging/index.js'
 import { createAuditLog } from '../lib/audit.js'
@@ -234,6 +235,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
     const message = await prisma.$transaction(async (tx: TransactionClient) => {
       const newMessage = await tx.message.create({
         data: {
+          orgId: requireOrgId(),
           channel: channel as MessageChannel,
           subject: subject ?? null,
           body,
@@ -244,6 +246,7 @@ router.post('/', requireAuth, requirePermission('communications.send'), async (r
       // Create recipients
       await tx.messageRecipient.createMany({
         data: validMembers.map((member: { id: string }) => ({
+          orgId: requireOrgId(),
           messageId: newMessage.id,
           memberId: member.id,
           deliveryStatus: 'pending' as DeliveryStatus,

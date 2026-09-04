@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -110,12 +111,13 @@ router.put('/:category/:key', async (req: Request, res: Response) => {
     const { value } = parseResult.data
 
     const setting = await prisma.setting.upsert({
-      where: { category_key: { category, key } },
+      where: { org_category_key: { orgId: requireOrgId(), category, key } },
       update: { 
         value: value as object,
         updatedBy: req.user?.userId,
       },
       create: { 
+        orgId: requireOrgId(),
         category, 
         key, 
         value: value as object,
@@ -159,12 +161,13 @@ router.put('/', async (req: Request, res: Response) => {
     const results = await Promise.all(
       settings.map((s) =>
         prisma.setting.upsert({
-          where: { category_key: { category: s.category, key: s.key } },
+          where: { org_category_key: { orgId: requireOrgId(), category: s.category, key: s.key } },
           update: { 
             value: s.value as object,
             updatedBy: req.user?.userId,
           },
           create: { 
+            orgId: requireOrgId(),
             category: s.category, 
             key: s.key, 
             value: s.value as object,
@@ -210,7 +213,7 @@ publicSettingsRouter.get('/public/branding', async (_req: Request, res: Response
 
     // Also get church name for header
     const churchName = await prisma.setting.findUnique({
-      where: { category_key: { category: 'church', key: 'name' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'church', key: 'name' } },
     })
     if (churchName) {
       result['church_name'] = churchName.value

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -15,6 +16,7 @@ const isDbAvailable = !!process.env.DATABASE_URL
 // ============================================
 
 const manageToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-periods-manage',
   email: 'sched-periods-manage@test.example.com',
   roles: ['schedules-manager'],
@@ -22,6 +24,7 @@ const manageToken = signToken({
 }).accessToken
 
 const viewOnlyToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-periods-view',
   email: 'sched-periods-view@test.example.com',
   roles: ['schedules-viewer'],
@@ -87,7 +90,7 @@ describe('Schedule Periods API', () => {
       create: { id: 'sched-periods-view', email: 'sched-periods-view@test.example.com', passwordHash: 'test-hash', isActive: true },
     })
     const ministry = await prisma.ministry.create({
-      data: { name: `Period Test Ministry ${Date.now()}` },
+      data: { orgId: TEST_ORG_ID, name: `Period Test Ministry ${Date.now()}` },
     })
     testMinistryId = ministry.id
     testCalendarId = await createCalendar(testMinistryId, 0) // Sunday calendar
@@ -228,6 +231,7 @@ describe('Schedule Periods API', () => {
       // Add a slot to the period
       const member = await prisma.member.create({
         data: {
+          orgId: TEST_ORG_ID,
           firstName: 'Notify',
           lastName: 'Test',
           email: `notify-test-${Date.now()}@test.example.com`,

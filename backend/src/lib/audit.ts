@@ -1,4 +1,5 @@
 import prisma from './prisma.js'
+import { requireOrgId } from './org-context.js'
 
 interface AuditLogData {
   actorUserId?: string | null
@@ -18,6 +19,7 @@ export async function createAuditLog(data: AuditLogData): Promise<void> {
   try {
     await prisma.auditLog.create({
       data: {
+        orgId: requireOrgId(),
         actorUserId: data.actorUserId,
         action: data.action,
         entityType: data.entityType,

@@ -3,7 +3,10 @@ import cors from 'cors'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import { validateEnvironment } from './lib/security.js'
+import { isAllowedOrigin } from './lib/platform-domain.js'
 import { apiRateLimiter } from './middleware/rateLimiter.js'
+import { resolveOrg } from './middleware/org.js'
+import internalRouter from './routes/internal.js'
 import healthRouter from './routes/health.js'
 import authRouter from './routes/auth.js'
 import membersRouter from './routes/members.js'
@@ -53,8 +56,18 @@ const app = express()
 
 // Security middleware
 app.use(helmet())
+// Each church's browser origin is its own tenant host, so the allowed set is
+// open-ended and has to be matched by shape. A self-hosted install still gets
+// exactly the single CORS_ORIGIN it always had.
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // A request with no Origin is not a cross-origin request — curl, a health
+    // probe, a same-origin form post. Refusing those breaks more than it saves.
+    if (!origin) return callback(null, true)
+    return isAllowedOrigin(origin)
+      ? callback(null, true)
+      : callback(new Error('Origin not allowed'))
+  },
   credentials: true,
 }))
 
@@ -70,6 +83,14 @@ app.use('/api', apiRateLimiter)
 
 // Routes
 app.use('/api/health', healthRouter)
+
+// The console calls this as a machine, and tells us which organization it
+// means. It is mounted above resolveOrg deliberately: provisioning is the call
+// that brings a hostname into existence, so it cannot be resolved by one.
+app.use('/api/internal', internalRouter)
+
+// Everything below here belongs to exactly one church, decided by the hostname.
+app.use(resolveOrg)
 app.use('/api/auth', authRouter)
 app.use('/api/members', membersRouter)
 app.use('/api/households', householdsRouter)

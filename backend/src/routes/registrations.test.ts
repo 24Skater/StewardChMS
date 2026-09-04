@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -47,7 +48,7 @@ describe('Registrations and Check-ins API', () => {
     }
 
     await prisma.userRole.create({
-      data: { userId: testUser.id, roleId: role.id },
+      data: { orgId: TEST_ORG_ID, userId: testUser.id, roleId: role.id },
     })
 
     // Generate auth token with roles and permissions
@@ -55,6 +56,7 @@ describe('Registrations and Check-ins API', () => {
       { 
         userId: testUser.id, 
         email: testUser.email,
+        orgId: TEST_ORG_ID,
         roles: ['registrations-test-role'],
         permissions: ['events.read', 'events.write', 'members.read']
       },
@@ -65,6 +67,7 @@ describe('Registrations and Check-ins API', () => {
     // Create test event and occurrence
     const event = await prisma.event.create({
       data: {
+        orgId: TEST_ORG_ID,
         title: 'Test Event for Registration',
         isRecurring: false,
         startDatetime: new Date(Date.now() + 86400000),
@@ -74,6 +77,7 @@ describe('Registrations and Check-ins API', () => {
 
     const occurrence = await prisma.eventOccurrence.create({
       data: {
+        orgId: TEST_ORG_ID,
         eventId: event.id,
         startsAt: new Date(Date.now() + 86400000),
         status: 'scheduled',
@@ -84,6 +88,7 @@ describe('Registrations and Check-ins API', () => {
     // Create test member
     const member = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Test',
         lastName: 'Member',
         email: 'testmember-reg@test.com',

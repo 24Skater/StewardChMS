@@ -11,6 +11,86 @@ datasource db {
 }
 
 // ============================================
+// Tenancy (Phase 1 — the platform)
+// ============================================
+
+/// One church. `id` is the console's `orgId` — the same value in every Steward
+/// application, minted by the console and never generated here. That is why it
+/// has no `@default`: a row this app invented would be an organization the
+/// platform has never heard of.
+model Org {
+  id        String    @id
+  slug      String    @unique
+  name      String
+  status    OrgStatus @default(active)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  memberships             Membership[]
+  userRoles               UserRole[]
+  members                 Member[]
+  households              Household[]
+  householdMembers        HouseholdMember[]
+  events                  Event[]
+  eventOccurrences        EventOccurrence[]
+  registrations           Registration[]
+  checkIns                CheckIn[]
+  songs                   Song[]
+  worshipPlans            WorshipPlan[]
+  worshipPlanItems        WorshipPlanItem[]
+  messages                Message[]
+  messageRecipients       MessageRecipient[]
+  messageTemplates        MessageTemplate[]
+  optInPreferences        OptInPreference[]
+  funds                   Fund[]
+  donations               Donation[]
+  pledges                 Pledge[]
+  vendors                 Vendor[]
+  expenses                Expense[]
+  invoices                Invoice[]
+  purchaseOrders          PurchaseOrder[]
+  products                Product[]
+  inventoryTransactions   InventoryTransaction[]
+  sales                   Sale[]
+  settings                Setting[]
+  ministries              Ministry[]
+  groups                  Group[]
+  groupMembers            GroupMember[]
+  groupLeaders            GroupLeader[]
+  ministryCalendars       MinistryCalendar[]
+  calendarRotationMembers CalendarRotationMember[]
+  schedulePeriods         SchedulePeriod[]
+  scheduleSlots           ScheduleSlot[]
+  slotAssignments         SlotAssignment[]
+  auditLogs               AuditLog[]
+
+  @@map("orgs")
+}
+
+enum OrgStatus {
+  active
+  suspended
+}
+
+/// A person's link to one church. `User` is deliberately global — one human has
+/// one login across every church they serve — so everything church-shaped about
+/// them (their roles, whether they are its owner) hangs off this row instead.
+model Membership {
+  id        String   @id @default(cuid())
+  orgId     String   @map("org_id")
+  userId    String   @map("user_id")
+  isOwner   Boolean  @default(false) @map("is_owner")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  org  Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+// ============================================
 // Auth + RBAC Models (Phase 1)
 // ============================================
 
@@ -26,14 +106,15 @@ model User {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  userRoles            UserRole[]
-  auditLogs            AuditLog[]          @relation("ActorAuditLogs")
-  messages             Message[]
-  purchaseOrders       PurchaseOrder[]
-  sales                Sale[]
-  createdCalendars     MinistryCalendar[]  @relation("CalendarCreatedBy")
-  assignedSlots        SlotAssignment[]    @relation("AssignedBy")
-  passwordResetTokens  PasswordResetToken[]
+  userRoles           UserRole[]
+  auditLogs           AuditLog[]           @relation("ActorAuditLogs")
+  messages            Message[]
+  purchaseOrders      PurchaseOrder[]
+  sales               Sale[]
+  createdCalendars    MinistryCalendar[]   @relation("CalendarCreatedBy")
+  assignedSlots       SlotAssignment[]     @relation("AssignedBy")
+  passwordResetTokens PasswordResetToken[]
+  memberships         Membership[]
 
   @@map("users")
 }
@@ -78,13 +159,18 @@ model Permission {
 }
 
 model UserRole {
+  orgId  String @map("org_id")
   userId String @map("user_id")
   roleId String @map("role_id")
 
+  org  Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@id([userId, roleId])
+  // A role grant is per organization: the same person may be an administrator
+  // of one church and a volunteer in another.
+  @@id([orgId, userId, roleId])
+  @@index([orgId])
   @@map("user_roles")
 }
 
@@ -101,6 +187,7 @@ model RolePermission {
 
 model AuditLog {
   id          String   @id @default(cuid())
+  orgId       String   @map("org_id")
   actorUserId String?  @map("actor_user_id")
   action      String
   entityType  String   @map("entity_type")
@@ -110,11 +197,13 @@ model AuditLog {
 
   // Relations
   actorUser User? @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+  org       Org   @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([actorUserId])
   @@index([entityType])
   @@index([action])
   @@index([createdAt])
+  @@index([orgId])
   @@map("audit_logs")
 }
 
@@ -124,9 +213,10 @@ model AuditLog {
 
 model Member {
   id              String       @id @default(cuid())
+  orgId           String       @map("org_id")
   firstName       String       @map("first_name")
   lastName        String       @map("last_name")
-  email           String?      @unique
+  email           String?
   phone           String?
   street          String?
   city            String?
@@ -134,11 +224,11 @@ model Member {
   zip             String?
   dateOfBirth     DateTime?    @map("date_of_birth")
   status          MemberStatus @default(active)
-  notes           String?      // Permission restricted (members.notes)
+  notes           String? // Permission restricted (members.notes)
   profilePhotoUrl String?      @map("profile_photo_url")
   // Kids Check-in fields
   isChild         Boolean      @default(false) @map("is_child")
-  securityCode    String?      @unique @map("security_code")
+  securityCode    String?      @map("security_code")
   allergies       String?
   medicalNotes    String?      @map("medical_notes")
   parentalNotes   String?      @map("parental_notes")
@@ -146,23 +236,27 @@ model Member {
   updatedAt       DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  householdMembers     HouseholdMember[]
-  registrations        Registration[]
-  checkIns             CheckIn[]
-  worshipPlanItems     WorshipPlanItem[]
-  messageRecipients    MessageRecipient[]
-  optInPreferences     OptInPreference[]
-  donations            Donation[]
-  pledges              Pledge[]
-  sales                Sale[]
-  groupMemberships     GroupMember[]
-  groupLeaderships     GroupLeader[]
-  rotationMemberships  CalendarRotationMember[]
-  slotAssignments      SlotAssignment[]
+  householdMembers    HouseholdMember[]
+  registrations       Registration[]
+  checkIns            CheckIn[]
+  worshipPlanItems    WorshipPlanItem[]
+  messageRecipients   MessageRecipient[]
+  optInPreferences    OptInPreference[]
+  donations           Donation[]
+  pledges             Pledge[]
+  sales               Sale[]
+  groupMemberships    GroupMember[]
+  groupLeaderships    GroupLeader[]
+  rotationMemberships CalendarRotationMember[]
+  slotAssignments     SlotAssignment[]
+  org                 Org                      @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, email])
+  @@unique([orgId, securityCode])
   @@index([lastName])
   @@index([email])
   @@index([status])
+  @@index([orgId])
   @@map("members")
 }
 
@@ -174,18 +268,22 @@ enum MemberStatus {
 
 model Household {
   id        String   @id @default(cuid())
+  orgId     String   @map("org_id")
   name      String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   members HouseholdMember[]
+  org     Org               @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@index([orgId])
   @@map("households")
 }
 
 model HouseholdMember {
   id               String           @id @default(cuid())
+  orgId            String           @map("org_id")
   householdId      String           @map("household_id")
   memberId         String           @map("member_id")
   relationshipType RelationshipType @map("relationship_type")
@@ -193,10 +291,12 @@ model HouseholdMember {
   // Relations
   household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
   member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  org       Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([householdId, memberId])
   @@index([householdId])
   @@index([memberId])
+  @@index([orgId])
   @@map("household_members")
 }
 
@@ -213,6 +313,7 @@ enum RelationshipType {
 
 model Event {
   id             String    @id @default(cuid())
+  orgId          String    @map("org_id")
   title          String
   description    String?
   location       String?
@@ -227,14 +328,17 @@ model Event {
 
   // Relations
   occurrences EventOccurrence[]
+  org         Org               @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([category])
   @@index([startDatetime])
+  @@index([orgId])
   @@map("events")
 }
 
 model EventOccurrence {
   id       String           @id @default(cuid())
+  orgId    String           @map("org_id")
   eventId  String           @map("event_id")
   startsAt DateTime         @map("starts_at")
   endsAt   DateTime?        @map("ends_at")
@@ -242,15 +346,17 @@ model EventOccurrence {
   notes    String?
 
   // Relations
-  event          Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  registrations  Registration[]
-  checkIns       CheckIn[]
-  worshipPlan    WorshipPlan?
-  scheduleSlots  ScheduleSlot[]
+  event         Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+  checkIns      CheckIn[]
+  worshipPlan   WorshipPlan?
+  scheduleSlots ScheduleSlot[]
+  org           Org            @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, startsAt])
   @@index([startsAt])
   @@index([eventId])
+  @@index([orgId])
   @@map("event_occurrences")
 }
 
@@ -261,6 +367,7 @@ enum OccurrenceStatus {
 
 model Registration {
   id                String             @id @default(cuid())
+  orgId             String             @map("org_id")
   eventOccurrenceId String             @map("event_occurrence_id")
   memberId          String?            @map("member_id")
   guestName         String?            @map("guest_name")
@@ -273,9 +380,11 @@ model Registration {
   // Relations
   occurrence EventOccurrence @relation(fields: [eventOccurrenceId], references: [id], onDelete: Cascade)
   member     Member?         @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  org        Org             @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([eventOccurrenceId])
   @@index([memberId])
+  @@index([orgId])
   @@map("registrations")
 }
 
@@ -286,6 +395,7 @@ enum RegistrationStatus {
 
 model CheckIn {
   id                String    @id @default(cuid())
+  orgId             String    @map("org_id")
   eventOccurrenceId String    @map("event_occurrence_id")
   memberId          String?   @map("member_id")
   guestName         String?   @map("guest_name")
@@ -296,9 +406,11 @@ model CheckIn {
   // Relations
   occurrence EventOccurrence @relation(fields: [eventOccurrenceId], references: [id], onDelete: Cascade)
   member     Member?         @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  org        Org             @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([eventOccurrenceId])
   @@index([memberId])
+  @@index([orgId])
   @@map("check_ins")
 }
 
@@ -308,6 +420,7 @@ model CheckIn {
 
 model Song {
   id         String   @id @default(cuid())
+  orgId      String   @map("org_id")
   title      String
   artist     String?
   defaultKey String?  @map("default_key")
@@ -318,13 +431,16 @@ model Song {
 
   // Relations
   worshipPlanItems WorshipPlanItem[]
+  org              Org               @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([title])
+  @@index([orgId])
   @@map("songs")
 }
 
 model WorshipPlan {
   id                String   @id @default(cuid())
+  orgId             String   @map("org_id")
   eventOccurrenceId String   @unique @map("event_occurrence_id")
   title             String?
   notes             String?
@@ -334,12 +450,15 @@ model WorshipPlan {
   // Relations
   occurrence EventOccurrence   @relation(fields: [eventOccurrenceId], references: [id], onDelete: Cascade)
   items      WorshipPlanItem[]
+  org        Org               @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@index([orgId])
   @@map("worship_plans")
 }
 
 model WorshipPlanItem {
   id               String  @id @default(cuid())
+  orgId            String  @map("org_id")
   worshipPlanId    String  @map("worship_plan_id")
   sortOrder        Int     @map("sort_order")
   itemType         String  @map("item_type")
@@ -353,9 +472,11 @@ model WorshipPlanItem {
   worshipPlan    WorshipPlan @relation(fields: [worshipPlanId], references: [id], onDelete: Cascade)
   song           Song?       @relation(fields: [songId], references: [id], onDelete: SetNull)
   assignedMember Member?     @relation(fields: [assignedMemberId], references: [id], onDelete: SetNull)
+  org            Org         @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([worshipPlanId])
   @@index([songId])
+  @@index([orgId])
   @@map("worship_plan_items")
 }
 
@@ -376,6 +497,7 @@ enum DeliveryStatus {
 
 model Message {
   id              String         @id @default(cuid())
+  orgId           String         @map("org_id")
   channel         MessageChannel
   subject         String?
   body            String
@@ -385,13 +507,16 @@ model Message {
   // Relations
   createdByUser User               @relation(fields: [createdByUserId], references: [id])
   recipients    MessageRecipient[]
+  org           Org                @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
+  @@index([orgId])
   @@map("messages")
 }
 
 model MessageRecipient {
   id             String         @id @default(cuid())
+  orgId          String         @map("org_id")
   messageId      String         @map("message_id")
   memberId       String?        @map("member_id")
   guestContact   Json?          @map("guest_contact")
@@ -402,26 +527,32 @@ model MessageRecipient {
   // Relations
   message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
   member  Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  org     Org     @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([messageId])
   @@index([deliveryStatus])
+  @@index([orgId])
   @@map("message_recipients")
 }
 
 model MessageTemplate {
   id        String         @id @default(cuid())
+  orgId     String         @map("org_id")
   name      String
   channel   MessageChannel
   subject   String?
   body      String
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @updatedAt @map("updated_at")
+  org       Org            @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@index([orgId])
   @@map("message_templates")
 }
 
 model OptInPreference {
   id        String         @id @default(cuid())
+  orgId     String         @map("org_id")
   memberId  String         @map("member_id")
   channel   MessageChannel
   isOptedIn Boolean        @default(true) @map("is_opted_in")
@@ -429,8 +560,10 @@ model OptInPreference {
 
   // Relations
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([memberId, channel])
+  @@index([orgId])
   @@map("opt_in_preferences")
 }
 
@@ -470,7 +603,8 @@ enum PurchaseOrderStatus {
 
 model Fund {
   id           String   @id @default(cuid())
-  name         String   @unique
+  orgId        String   @map("org_id")
+  name         String
   description  String?
   isRestricted Boolean  @default(false) @map("is_restricted")
   isActive     Boolean  @default(true) @map("is_active")
@@ -481,41 +615,48 @@ model Fund {
   donations Donation[]
   pledges   Pledge[]
   expenses  Expense[]
+  org       Org        @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, name])
+  @@index([orgId])
   @@map("funds")
 }
 
 model Donation {
-  id            String        @id @default(cuid())
-  memberId      String?       @map("member_id")
-  guestName     String?       @map("guest_name")
-  guestEmail    String?       @map("guest_email")
-  amountCents   Int           @map("amount_cents")
-  currency      String        @default("USD")
-  fundId        String?       @map("fund_id")
-  method        PaymentMethod
-  receivedAt    DateTime      @map("received_at")
-  note          String?
+  id                    String        @id @default(cuid())
+  orgId                 String        @map("org_id")
+  memberId              String?       @map("member_id")
+  guestName             String?       @map("guest_name")
+  guestEmail            String?       @map("guest_email")
+  amountCents           Int           @map("amount_cents")
+  currency              String        @default("USD")
+  fundId                String?       @map("fund_id")
+  method                PaymentMethod
+  receivedAt            DateTime      @map("received_at")
+  note                  String?
   // Stripe integration fields
-  stripePaymentIntentId String?  @unique @map("stripe_payment_intent_id")
-  stripeChargeId        String?  @unique @map("stripe_charge_id")
-  stripeStatus          String?  @map("stripe_status")
-  isOnline              Boolean  @default(false) @map("is_online")
-  createdAt     DateTime      @default(now()) @map("created_at")
+  stripePaymentIntentId String?       @unique @map("stripe_payment_intent_id")
+  stripeChargeId        String?       @unique @map("stripe_charge_id")
+  stripeStatus          String?       @map("stripe_status")
+  isOnline              Boolean       @default(false) @map("is_online")
+  createdAt             DateTime      @default(now()) @map("created_at")
 
   // Relations
   member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
   fund   Fund?   @relation(fields: [fundId], references: [id], onDelete: SetNull)
+  org    Org     @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([receivedAt])
   @@index([memberId])
   @@index([fundId])
   @@index([stripePaymentIntentId])
+  @@index([orgId])
   @@map("donations")
 }
 
 model Pledge {
   id          String       @id @default(cuid())
+  orgId       String       @map("org_id")
   memberId    String       @map("member_id")
   fundId      String?      @map("fund_id")
   amountCents Int          @map("amount_cents")
@@ -528,16 +669,19 @@ model Pledge {
   // Relations
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
   fund   Fund?  @relation(fields: [fundId], references: [id], onDelete: SetNull)
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([memberId])
   @@index([fundId])
+  @@index([orgId])
   @@map("pledges")
 }
 
 model Vendor {
   id        String   @id @default(cuid())
-  name      String   @unique
+  orgId     String   @map("org_id")
+  name      String
   email     String?
   phone     String?
   street    String?
@@ -551,12 +695,16 @@ model Vendor {
   expenses       Expense[]
   invoices       Invoice[]
   purchaseOrders PurchaseOrder[]
+  org            Org             @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, name])
+  @@index([orgId])
   @@map("vendors")
 }
 
 model Expense {
   id          String   @id @default(cuid())
+  orgId       String   @map("org_id")
   vendorId    String?  @map("vendor_id")
   fundId      String?  @map("fund_id")
   amountCents Int      @map("amount_cents")
@@ -569,16 +717,19 @@ model Expense {
   // Relations
   vendor Vendor? @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   fund   Fund?   @relation(fields: [fundId], references: [id], onDelete: SetNull)
+  org    Org     @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([expenseDate])
   @@index([vendorId])
   @@index([fundId])
+  @@index([orgId])
   @@map("expenses")
 }
 
 model Invoice {
   id            String        @id @default(cuid())
-  invoiceNumber String        @unique @map("invoice_number")
+  orgId         String        @map("org_id")
+  invoiceNumber String        @map("invoice_number")
   vendorId      String?       @map("vendor_id")
   billToName    String?       @map("bill_to_name")
   issueDate     DateTime      @map("issue_date")
@@ -594,9 +745,12 @@ model Invoice {
   // Relations
   vendor Vendor?       @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   items  InvoiceItem[]
+  org    Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, invoiceNumber])
   @@index([status])
   @@index([issueDate])
+  @@index([orgId])
   @@map("invoices")
 }
 
@@ -618,7 +772,8 @@ model InvoiceItem {
 
 model PurchaseOrder {
   id              String              @id @default(cuid())
-  poNumber        String              @unique @map("po_number")
+  orgId           String              @map("org_id")
+  poNumber        String              @map("po_number")
   vendorId        String?             @map("vendor_id")
   requestorUserId String?             @map("requestor_user_id")
   issueDate       DateTime            @map("issue_date")
@@ -634,9 +789,12 @@ model PurchaseOrder {
   vendor        Vendor?             @relation(fields: [vendorId], references: [id], onDelete: SetNull)
   requestorUser User?               @relation(fields: [requestorUserId], references: [id], onDelete: SetNull)
   items         PurchaseOrderItem[]
+  org           Org                 @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, poNumber])
   @@index([status])
   @@index([issueDate])
+  @@index([orgId])
   @@map("purchase_orders")
 }
 
@@ -674,9 +832,10 @@ enum SaleStatus {
 
 model Product {
   id          String   @id @default(cuid())
-  name        String   @unique
+  orgId       String   @map("org_id")
+  name        String
   description String?
-  sku         String?  @unique
+  sku         String?
   priceCents  Int      @map("price_cents")
   currency    String   @default("USD")
   isActive    Boolean  @default(true) @map("is_active")
@@ -686,13 +845,18 @@ model Product {
   // Relations
   inventoryTransactions InventoryTransaction[]
   saleItems             SaleItem[]
+  org                   Org                    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, name])
+  @@unique([orgId, sku])
   @@index([isActive])
+  @@index([orgId])
   @@map("products")
 }
 
 model InventoryTransaction {
   id            String                   @id @default(cuid())
+  orgId         String                   @map("org_id")
   productId     String                   @map("product_id")
   type          InventoryTransactionType
   quantityDelta Int                      @map("quantity_delta")
@@ -701,15 +865,18 @@ model InventoryTransaction {
 
   // Relations
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  org     Org     @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([createdAt])
+  @@index([orgId])
   @@map("inventory_transactions")
 }
 
 model Sale {
   id              String     @id @default(cuid())
-  saleNumber      String     @unique @map("sale_number")
+  orgId           String     @map("org_id")
+  saleNumber      String     @map("sale_number")
   memberId        String?    @map("member_id")
   guestName       String?    @map("guest_name")
   status          SaleStatus @default(completed)
@@ -724,11 +891,14 @@ model Sale {
   member        Member?    @relation(fields: [memberId], references: [id], onDelete: SetNull)
   createdByUser User       @relation(fields: [createdByUserId], references: [id])
   items         SaleItem[]
+  org           Org        @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, saleNumber])
   @@index([saleNumber])
   @@index([soldAt])
   @@index([status])
   @@index([createdByUserId])
+  @@index([orgId])
   @@map("sales")
 }
 
@@ -756,14 +926,17 @@ model SaleItem {
 
 model Setting {
   id        String   @id @default(cuid())
+  orgId     String   @map("org_id")
   category  String
   key       String
   value     Json
   updatedBy String?  @map("updated_by")
   updatedAt DateTime @updatedAt @map("updated_at")
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  @@unique([category, key])
+  @@unique([orgId, category, key], name: "org_category_key")
   @@index([category])
+  @@index([orgId])
   @@map("settings")
 }
 
@@ -773,7 +946,8 @@ model Setting {
 
 model Ministry {
   id          String   @id @default(cuid())
-  name        String   @unique
+  orgId       String   @map("org_id")
+  name        String
   description String?
   parentId    String?  @map("parent_id")
   isActive    Boolean  @default(true) @map("is_active")
@@ -785,13 +959,17 @@ model Ministry {
   children  Ministry[]         @relation("MinistryHierarchy")
   groups    Group[]
   calendars MinistryCalendar[]
+  org       Org                @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
+  @@unique([orgId, name])
   @@index([parentId])
+  @@index([orgId])
   @@map("ministries")
 }
 
 model Group {
   id          String   @id @default(cuid())
+  orgId       String   @map("org_id")
   name        String
   ministryId  String   @map("ministry_id")
   description String?
@@ -807,13 +985,16 @@ model Group {
   ministry Ministry      @relation(fields: [ministryId], references: [id], onDelete: Cascade)
   members  GroupMember[]
   leaders  GroupLeader[]
+  org      Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([ministryId])
+  @@index([orgId])
   @@map("groups")
 }
 
 model GroupMember {
   id       String   @id @default(cuid())
+  orgId    String   @map("org_id")
   groupId  String   @map("group_id")
   memberId String   @map("member_id")
   joinedAt DateTime @default(now()) @map("joined_at")
@@ -821,13 +1002,16 @@ model GroupMember {
   // Relations
   group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, memberId])
+  @@index([orgId])
   @@map("group_members")
 }
 
 model GroupLeader {
   id       String @id @default(cuid())
+  orgId    String @map("org_id")
   groupId  String @map("group_id")
   memberId String @map("member_id")
   role     String @default("leader")
@@ -835,8 +1019,10 @@ model GroupLeader {
   // Relations
   group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, memberId])
+  @@index([orgId])
   @@map("group_leaders")
 }
 
@@ -851,6 +1037,7 @@ enum SchedulePeriodStatus {
 
 model MinistryCalendar {
   id                     String   @id @default(cuid())
+  orgId                  String   @map("org_id")
   name                   String
   description            String?
   ministryId             String   @map("ministry_id")
@@ -868,14 +1055,17 @@ model MinistryCalendar {
   createdBy       User                     @relation("CalendarCreatedBy", fields: [createdById], references: [id])
   rotationMembers CalendarRotationMember[]
   periods         SchedulePeriod[]
+  org             Org                      @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([ministryId])
   @@index([shareToken])
+  @@index([orgId])
   @@map("ministry_calendars")
 }
 
 model CalendarRotationMember {
   id            String @id @default(cuid())
+  orgId         String @map("org_id")
   calendarId    String @map("calendar_id")
   memberId      String @map("member_id")
   rotationOrder Int    @map("rotation_order")
@@ -883,15 +1073,18 @@ model CalendarRotationMember {
   // Relations
   calendar MinistryCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   member   Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  org      Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([calendarId, memberId])
   @@unique([calendarId, rotationOrder])
   @@index([calendarId])
+  @@index([orgId])
   @@map("calendar_rotation_members")
 }
 
 model SchedulePeriod {
   id         String               @id @default(cuid())
+  orgId      String               @map("org_id")
   calendarId String               @map("calendar_id")
   year       Int
   month      Int
@@ -902,14 +1095,17 @@ model SchedulePeriod {
   // Relations
   calendar MinistryCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
   slots    ScheduleSlot[]
+  org      Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([calendarId, year, month])
   @@index([calendarId])
+  @@index([orgId])
   @@map("schedule_periods")
 }
 
 model ScheduleSlot {
   id                String   @id @default(cuid())
+  orgId             String   @map("org_id")
   periodId          String   @map("period_id")
   slotDate          DateTime @map("slot_date")
   label             String?
@@ -921,14 +1117,17 @@ model ScheduleSlot {
   period          SchedulePeriod   @relation(fields: [periodId], references: [id], onDelete: Cascade)
   eventOccurrence EventOccurrence? @relation(fields: [eventOccurrenceId], references: [id], onDelete: SetNull)
   assignment      SlotAssignment?
+  org             Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([periodId])
   @@index([slotDate])
+  @@index([orgId])
   @@map("schedule_slots")
 }
 
 model SlotAssignment {
   id             String    @id @default(cuid())
+  orgId          String    @map("org_id")
   slotId         String    @unique @map("slot_id")
   memberId       String    @map("member_id")
   assignedById   String    @map("assigned_by_id")
@@ -942,8 +1141,10 @@ model SlotAssignment {
   slot       ScheduleSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
   member     Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
   assignedBy User         @relation("AssignedBy", fields: [assignedById], references: [id])
+  org        Org          @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([memberId])
   @@index([slotId])
+  @@index([orgId])
   @@map("slot_assignments")
 }

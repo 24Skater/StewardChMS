@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -83,13 +84,14 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     const { name, email, phone, street, city, state, zip } = parsed.data
 
     // Check for duplicate name
-    const existing = await prisma.vendor.findUnique({ where: { name } })
+    const existing = await prisma.vendor.findFirst({ where: { name } })
     if (existing) {
       return res.status(409).json({ error: 'A vendor with this name already exists' })
     }
 
     const vendor = await prisma.vendor.create({
       data: {
+        orgId: requireOrgId(),
         name,
         email: email ?? null,
         phone: phone ?? null,
@@ -140,7 +142,7 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
 
     // Check for duplicate name if name is being changed
     if (name && name !== existing.name) {
-      const duplicate = await prisma.vendor.findUnique({ where: { name } })
+      const duplicate = await prisma.vendor.findFirst({ where: { name } })
       if (duplicate) {
         return res.status(409).json({ error: 'A vendor with this name already exists' })
       }

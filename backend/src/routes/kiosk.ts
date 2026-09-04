@@ -17,11 +17,22 @@ router.post(
   '/activate',
   requireAuth,
   requirePermission('checkin.operate'),
-  (_req: Request, res: Response) => {
+  (req: Request, res: Response) => {
+    // A kiosk token is long-lived and lives on a shared device in a hallway.
+    // It carries the organization of the staff member who activated it, so a
+    // device in one church's foyer cannot be walked over to another church's
+    // hostname and still work.
+    const orgId = req.user?.orgId ?? req.org?.orgId
+    if (!orgId) {
+      res.status(400).json({ error: 'No organization for this host' })
+      return
+    }
+
     const { accessToken, expiresAt } = signToken(
       {
         userId: 'kiosk',
         email: 'kiosk@internal',
+        orgId,
         roles: ['kiosk'],
         permissions: ['checkin.view', 'checkin.operate'],
       },

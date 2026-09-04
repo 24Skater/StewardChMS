@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 import { getEmailProvider } from '../providers/messaging/index.js'
@@ -127,6 +128,7 @@ router.post(
       const period = await prisma.$transaction(async tx => {
         const newPeriod = await tx.schedulePeriod.create({
           data: {
+            orgId: requireOrgId(),
             calendarId,
             year,
             month,
@@ -137,6 +139,7 @@ router.post(
         if (slotDates.length > 0) {
           await tx.scheduleSlot.createMany({
             data: slotDates.map(slotDate => ({
+              orgId: requireOrgId(),
               periodId: newPeriod.id,
               slotDate,
             })),

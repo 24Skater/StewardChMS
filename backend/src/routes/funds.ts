@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -79,13 +80,14 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
     const { name, description, isRestricted } = parsed.data
 
     // Check for duplicate name
-    const existing = await prisma.fund.findUnique({ where: { name } })
+    const existing = await prisma.fund.findFirst({ where: { name } })
     if (existing) {
       return res.status(409).json({ error: 'A fund with this name already exists' })
     }
 
     const fund = await prisma.fund.create({
       data: {
+        orgId: requireOrgId(),
         name,
         description: description ?? null,
         isRestricted: isRestricted ?? false,
@@ -132,7 +134,7 @@ router.put('/:id', requireAuth, requirePermission('accounting.edit'), async (req
 
     // Check for duplicate name if name is being changed
     if (name && name !== existing.name) {
-      const duplicate = await prisma.fund.findUnique({ where: { name } })
+      const duplicate = await prisma.fund.findFirst({ where: { name } })
       if (duplicate) {
         return res.status(409).json({ error: 'A fund with this name already exists' })
       }

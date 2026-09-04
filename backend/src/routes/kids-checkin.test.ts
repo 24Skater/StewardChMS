@@ -1,4 +1,5 @@
 import { describe, it, expect, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../app.js'
@@ -14,6 +15,7 @@ if (DATABASE_URL) {
 
 // Token with checkin.view permission
 const checkinToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-checkin-user',
   email: 'checkin@example.com',
   roles: ['staff'],
@@ -87,12 +89,13 @@ describeWithDb('GET /api/kids-checkin/lookup — DB integration', () => {
 
     // Arrange: create household with parent + child
     const household = await prisma.household.create({
-      data: { name: 'Test Lookup Family' },
+      data: { orgId: TEST_ORG_ID, name: 'Test Lookup Family' },
     })
     householdId = household.id
 
     const parent = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Test',
         lastName: 'Parent',
         phone: '(555) 999-0001',
@@ -104,6 +107,7 @@ describeWithDb('GET /api/kids-checkin/lookup — DB integration', () => {
 
     const child = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Test',
         lastName: 'Child',
         isChild: true,
@@ -115,10 +119,10 @@ describeWithDb('GET /api/kids-checkin/lookup — DB integration', () => {
     childMemberId = child.id
 
     await prisma.householdMember.create({
-      data: { householdId, memberId: parentMemberId, relationshipType: 'parent' },
+      data: { orgId: TEST_ORG_ID, householdId, memberId: parentMemberId, relationshipType: 'parent' },
     })
     await prisma.householdMember.create({
-      data: { householdId, memberId: childMemberId, relationshipType: 'child' },
+      data: { orgId: TEST_ORG_ID, householdId, memberId: childMemberId, relationshipType: 'child' },
     })
 
     // Act: look up by parent's phone (formatted)

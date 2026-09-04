@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { randomBytes } from 'node:crypto'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -94,6 +95,7 @@ router.post('/', requireAuth, requirePermission('schedules.manage'), async (req:
 
     const calendar = await prisma.ministryCalendar.create({
       data: {
+        orgId: requireOrgId(),
         name: data.name,
         description: data.description,
         ministryId: data.ministryId,
@@ -317,6 +319,7 @@ router.put('/:id/rotation', requireAuth, requirePermission('schedules.manage'), 
       prisma.calendarRotationMember.deleteMany({ where: { calendarId: id } }),
       prisma.calendarRotationMember.createMany({
         data: memberIds.map((memberId, index) => ({
+          orgId: requireOrgId(),
           calendarId: id,
           memberId,
           rotationOrder: index,

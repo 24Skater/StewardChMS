@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../app.js'
@@ -87,16 +88,28 @@ describeWithDb('Auth Routes', () => {
 
     await prisma.userRole.upsert({
       where: {
-        userId_roleId: {
+        orgId_userId_roleId: {
+          orgId: TEST_ORG_ID,
           userId: user.id,
           roleId: role.id,
         },
       },
       update: {},
       create: {
+        orgId: TEST_ORG_ID,
         userId: user.id,
         roleId: role.id,
       },
+    })
+
+    // Signing in requires belonging to the church being signed into. Without
+    // this the user exists, the password is right, and the answer is still
+    // "invalid email or password" — which is the correct answer, and the
+    // reason it has to be in the fixture.
+    await prisma.membership.upsert({
+      where: { orgId_userId: { orgId: TEST_ORG_ID, userId: user.id } },
+      update: {},
+      create: { orgId: TEST_ORG_ID, userId: user.id, isOwner: true },
     })
   })
 

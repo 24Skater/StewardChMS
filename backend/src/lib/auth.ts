@@ -28,6 +28,15 @@ export async function verifyPassword(
 export interface JwtPayload {
   userId: string
   email: string
+  /**
+   * The church this session belongs to.
+   *
+   * A token is issued for one organization and is worthless against another.
+   * `requireAuth` compares this against the organization the hostname resolved
+   * to, so a session for one church presented to another church's host is
+   * rejected rather than quietly honoured.
+   */
+  orgId: string
   roles: string[]
   permissions: string[]
   isPrimaryAdmin?: boolean // Highest authority admin flag
