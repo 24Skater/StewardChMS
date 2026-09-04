@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import Stripe from 'stripe'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 
 const router = Router()
@@ -46,15 +47,15 @@ router.get('/config', async (_req: Request, res: Response) => {
   try {
     // Get public Stripe key from settings
     const stripePublicKey = await prisma.setting.findUnique({
-      where: { category_key: { category: 'stripe', key: 'public_key' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'stripe', key: 'public_key' } },
     })
     
     const givingEnabled = await prisma.setting.findUnique({
-      where: { category_key: { category: 'giving', key: 'online_enabled' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'giving', key: 'online_enabled' } },
     })
 
     const churchName = await prisma.setting.findUnique({
-      where: { category_key: { category: 'branding', key: 'church_name' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'branding', key: 'church_name' } },
     })
 
     // Get active funds that accept online giving
@@ -125,7 +126,7 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
 
     // Get church name for description
     const churchNameSetting = await prisma.setting.findUnique({
-      where: { category_key: { category: 'branding', key: 'church_name' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'branding', key: 'church_name' } },
     })
     const churchName = (churchNameSetting?.value as string) || 'Church'
 
@@ -258,6 +259,7 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
 
   await prisma.donation.create({
     data: {
+      orgId: requireOrgId(),
       amountCents: paymentIntent.amount,
       currency: paymentIntent.currency.toUpperCase(),
       fundId: fundId || undefined,

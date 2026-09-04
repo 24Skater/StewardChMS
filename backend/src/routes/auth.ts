@@ -47,11 +47,25 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
 
     const { email, password } = parseResult.data
 
-    // Find user by email
+    const org = req.org
+    if (!org) {
+      // Sign-in is always into a church. Without one resolved there is nothing
+      // to sign in to, and issuing a token anyway would produce a session that
+      // no organization owns.
+      res.status(400).json({ error: 'No organization for this host' })
+      return
+    }
+
+    // The user row is global — one person, one login, however many churches
+    // they serve. The role grants are not: `userRoles` is filtered to this
+    // organization here because a nested include is invisible to the tenancy
+    // guard, which only ever sees the top-level model.
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
+        memberships: { where: { orgId: org.orgId }, select: { id: true } },
         userRoles: {
+          where: { orgId: org.orgId },
           include: {
             role: {
               include: {
@@ -93,6 +107,22 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
       return
     }
 
+    // A user who exists but does not belong to this church must be told the
+    // same thing as a user who does not exist. Anything else answers the
+    // question "does this person attend that church?" to anyone who asks.
+    if (user.memberships.length === 0) {
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'LOGIN_FAILED',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { reason: 'Not a member of this organization' },
+      })
+
+      res.status(401).json({ error: 'Invalid email or password' })
+      return
+    }
+
     // Verify password
     const isValidPassword = await verifyPassword(password, user.passwordHash)
     if (!isValidPassword) {
@@ -119,6 +149,7 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
     const { accessToken, expiresAt } = signToken({
       userId: user.id,
       email: user.email,
+      orgId: org.orgId,
       roles,
       permissions,
       isPrimaryAdmin: user.isPrimaryAdmin,

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 import { getEmailProvider } from '../providers/messaging/index.js'
@@ -73,6 +74,7 @@ router.post(
 
       const slot = await prisma.scheduleSlot.create({
         data: {
+          orgId: requireOrgId(),
           periodId,
           slotDate: new Date(slotDate),
           label,
@@ -245,6 +247,7 @@ router.post(
 
       const newAssignment = await prisma.slotAssignment.create({
         data: {
+          orgId: requireOrgId(),
           slotId: id,
           memberId,
           assignedById: req.user!.userId,

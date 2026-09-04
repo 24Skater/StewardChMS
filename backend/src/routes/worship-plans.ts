@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -118,6 +119,7 @@ router.post('/occurrences/:id/worship-plan', requireAuth, requirePermission('wor
         notes: data.notes ?? null,
       },
       create: {
+        orgId: requireOrgId(),
         eventOccurrenceId: occurrenceId,
         title: data.title ?? null,
         notes: data.notes ?? null,
@@ -330,6 +332,7 @@ router.post('/worship-plans/:id/items', requireAuth, requirePermission('worship.
 
     const item = await prisma.worshipPlanItem.create({
       data: {
+        orgId: requireOrgId(),
         worshipPlanId: planId,
         sortOrder: data.sortOrder,
         itemType: data.itemType,

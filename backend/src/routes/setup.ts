@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
+import { randomUUID } from 'node:crypto'
 import prisma from '../lib/prisma.js'
+import { OrgContext, requireOrgId, runInOrg, withoutOrgScope } from '../lib/org-context.js'
 import { hashPassword, signToken, COOKIE_OPTIONS, COOKIE_NAME } from '../lib/auth.js'
 import { validatePassword, generateSecureToken } from '../lib/security.js'
 import { createAuditLog } from '../lib/audit.js'
@@ -52,7 +54,7 @@ const setupStep4Schema = z.object({
 // GET /api/setup/status
 // Check if setup is needed
 // ============================================
-router.get('/status', async (_req: Request, res: Response) => {
+router.get('/status', async (req: Request, res: Response) => {
   try {
     // Check if a primary admin exists
     const primaryAdmin = await prisma.user.findFirst({
@@ -63,11 +65,18 @@ router.get('/status', async (_req: Request, res: Response) => {
     const nonSeedUserCount = await prisma.user.count({
       where: { isSeedAccount: false },
     })
-    
-    // Check if setup has been completed
-    const setupComplete = await prisma.setting.findUnique({
-      where: { category_key: { category: 'system', key: 'setup_complete' } },
-    })
+
+    // Before step 1 there is no organization at all, so there is nowhere for a
+    // settings row to live. That state is exactly "needs setup" — asking the
+    // database about it would only produce a tenancy error saying the same
+    // thing less clearly.
+    const setupComplete = req.org
+      ? await prisma.setting.findUnique({
+          where: {
+            org_category_key: { orgId: req.org.orgId, category: 'system', key: 'setup_complete' },
+          },
+        })
+      : null
 
     res.json({
       needsSetup: !primaryAdmin || !setupComplete,
@@ -130,6 +139,22 @@ router.post('/step1', async (req: Request, res: Response) => {
       return
     }
 
+    // The organization has to exist before anything that belongs to it does.
+    //
+    // On the platform this step never runs — the console provisions the
+    // organization through POST /api/internal/provision and invites the owner.
+    // This is the self-hosted path: one church, one organization, created here
+    // because there is no console to create it.
+    const org: OrgContext =
+      req.org ??
+      (await withoutOrgScope(async () => {
+        const created = await prisma.org.create({
+          data: { id: randomUUID(), slug: 'default', name: name || 'Steward Congregation' },
+          select: { id: true, slug: true },
+        })
+        return { orgId: created.id, slug: created.slug }
+      }))
+
     // Create admin role if it doesn't exist
     let adminRole = await prisma.role.findUnique({ where: { name: 'admin' } })
     if (!adminRole) {
@@ -159,37 +184,44 @@ router.post('/step1', async (req: Request, res: Response) => {
       })
     }
 
-    // Create admin user as PRIMARY ADMIN
+    // Create admin user as PRIMARY ADMIN.
+    //
+    // The user row is global — one person, one login — so it is created outside
+    // any organization. Their membership and their role grant are not: both
+    // belong to the church created above, and are written inside it so the
+    // guard stamps them rather than the caller having to remember to.
     const passwordHash = await hashPassword(password)
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash,
-        isActive: true,
-        isPrimaryAdmin: true, // This is the primary admin - highest authority
-        isSeedAccount: false,
-        userRoles: {
-          create: {
-            roleId: adminRole.id,
-          },
+    const user = await withoutOrgScope(() =>
+      prisma.user.create({
+        data: {
+          email,
+          name,
+          passwordHash,
+          isActive: true,
+          isPrimaryAdmin: true, // This is the primary admin - highest authority
+          isSeedAccount: false,
         },
-      },
-      include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                rolePermissions: {
-                  include: {
-                    permission: true,
-                  },
+      })
+    )
+
+    const userRoles = await runInOrg(org, async () => {
+      await prisma.membership.create({ data: { orgId: requireOrgId(), userId: user.id, isOwner: true } })
+      await prisma.userRole.create({ data: { orgId: requireOrgId(), userId: user.id, roleId: adminRole.id } })
+
+      return prisma.userRole.findMany({
+        where: { userId: user.id },
+        include: {
+          role: {
+            include: {
+              rolePermissions: {
+                include: {
+                  permission: true,
                 },
               },
             },
           },
         },
-      },
+      })
     })
 
     // Ensure seed account is disabled (if it exists)
@@ -201,21 +233,21 @@ router.post('/step1', async (req: Request, res: Response) => {
     // Generate JWT secret and store it
     const jwtSecret = generateSecureToken(64)
     await prisma.setting.upsert({
-      where: { category_key: { category: 'security', key: 'jwt_secret' } },
+      where: { org_category_key: { orgId: org.orgId, category: 'security', key: 'jwt_secret' } },
       update: { value: jwtSecret, updatedBy: user.id },
-      create: { category: 'security', key: 'jwt_secret', value: jwtSecret, updatedBy: user.id },
+      create: { orgId: requireOrgId(), category: 'security', key: 'jwt_secret', value: jwtSecret, updatedBy: user.id },
     })
 
     // Mark step 1 complete
     await prisma.setting.upsert({
-      where: { category_key: { category: 'setup', key: 'step1_complete' } },
+      where: { org_category_key: { orgId: org.orgId, category: 'setup', key: 'step1_complete' } },
       update: { value: true, updatedBy: user.id },
-      create: { category: 'setup', key: 'step1_complete', value: true, updatedBy: user.id },
+      create: { orgId: requireOrgId(), category: 'setup', key: 'step1_complete', value: true, updatedBy: user.id },
     })
 
     // Generate token for the new user
-    const roles: string[] = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name)
-    const permKeys = user.userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
+    const roles: string[] = userRoles.map((ur: { role: { name: string } }) => ur.role.name)
+    const permKeys = userRoles.flatMap((ur: { role: { rolePermissions: Array<{ permission: { key: string } }> } }) =>
       ur.role.rolePermissions.map((rp: { permission: { key: string } }) => rp.permission.key)
     )
     const userPermissions: string[] = Array.from(new Set(permKeys))
@@ -223,6 +255,7 @@ router.post('/step1', async (req: Request, res: Response) => {
     const { accessToken, expiresAt } = signToken({
       userId: user.id,
       email: user.email,
+      orgId: org.orgId,
       roles,
       permissions: userPermissions,
       isPrimaryAdmin: user.isPrimaryAdmin,
@@ -274,6 +307,7 @@ router.post('/step2', async (req: Request, res: Response) => {
     }
 
     const data = parseResult.data
+    const orgId = requireOrgId()
 
     // Store church profile settings
     const settings = [
@@ -290,17 +324,24 @@ router.post('/step2', async (req: Request, res: Response) => {
 
     for (const setting of settings) {
       await prisma.setting.upsert({
-        where: { category_key: { category: setting.category, key: setting.key } },
+        where: { org_category_key: { orgId: requireOrgId(), category: setting.category, key: setting.key } },
         update: { value: setting.value },
-        create: setting,
+        create: { ...setting, orgId: requireOrgId() },
       })
     }
 
+    // The organization's own name follows the church's. Step 1 had only the
+    // administrator's name to go on, and an organization called "Pastor Dave"
+    // is what the console would show on every invoice.
+    await withoutOrgScope(() =>
+      prisma.org.update({ where: { id: orgId }, data: { name: data.churchName } })
+    )
+
     // Mark step 2 complete
     await prisma.setting.upsert({
-      where: { category_key: { category: 'setup', key: 'step2_complete' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'setup', key: 'step2_complete' } },
       update: { value: true },
-      create: { category: 'setup', key: 'step2_complete', value: true },
+      create: { orgId: requireOrgId(), category: 'setup', key: 'step2_complete', value: true },
     })
 
     res.json({ success: true })
@@ -336,17 +377,17 @@ router.post('/step3', async (req: Request, res: Response) => {
 
     for (const setting of settings) {
       await prisma.setting.upsert({
-        where: { category_key: { category: setting.category, key: setting.key } },
+        where: { org_category_key: { orgId: requireOrgId(), category: setting.category, key: setting.key } },
         update: { value: setting.value },
-        create: setting,
+        create: { ...setting, orgId: requireOrgId() },
       })
     }
 
     // Mark step 3 complete
     await prisma.setting.upsert({
-      where: { category_key: { category: 'setup', key: 'step3_complete' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'setup', key: 'step3_complete' } },
       update: { value: true },
-      create: { category: 'setup', key: 'step3_complete', value: true },
+      create: { orgId: requireOrgId(), category: 'setup', key: 'step3_complete', value: true },
     })
 
     res.json({ success: true })
@@ -386,17 +427,17 @@ router.post('/step4', async (req: Request, res: Response) => {
 
     for (const setting of settings) {
       await prisma.setting.upsert({
-        where: { category_key: { category: setting.category, key: setting.key } },
+        where: { org_category_key: { orgId: requireOrgId(), category: setting.category, key: setting.key } },
         update: { value: setting.value },
-        create: setting,
+        create: { ...setting, orgId: requireOrgId() },
       })
     }
 
     // Mark step 4 complete
     await prisma.setting.upsert({
-      where: { category_key: { category: 'setup', key: 'step4_complete' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'setup', key: 'step4_complete' } },
       update: { value: true },
-      create: { category: 'setup', key: 'step4_complete', value: true },
+      create: { orgId: requireOrgId(), category: 'setup', key: 'step4_complete', value: true },
     })
 
     res.json({ success: true })
@@ -413,15 +454,15 @@ router.post('/complete', async (_req: Request, res: Response) => {
   try {
     // Mark setup as complete
     await prisma.setting.upsert({
-      where: { category_key: { category: 'system', key: 'setup_complete' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'system', key: 'setup_complete' } },
       update: { value: true },
-      create: { category: 'system', key: 'setup_complete', value: true },
+      create: { orgId: requireOrgId(), category: 'system', key: 'setup_complete', value: true },
     })
 
     await prisma.setting.upsert({
-      where: { category_key: { category: 'system', key: 'setup_completed_at' } },
+      where: { org_category_key: { orgId: requireOrgId(), category: 'system', key: 'setup_completed_at' } },
       update: { value: new Date().toISOString() },
-      create: { category: 'system', key: 'setup_completed_at', value: new Date().toISOString() },
+      create: { orgId: requireOrgId(), category: 'system', key: 'setup_completed_at', value: new Date().toISOString() },
     })
 
     // Log setup completion

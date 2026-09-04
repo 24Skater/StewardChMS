@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../app.js'
@@ -14,6 +15,7 @@ if (DATABASE_URL) {
 
 // Test token with member permissions
 const testToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-user-id',
   email: 'test@example.com',
   roles: ['admin'],
@@ -22,6 +24,7 @@ const testToken = signToken({
 
 // Token without notes permission
 const tokenWithoutNotes = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-user-id',
   email: 'test@example.com',
   roles: ['staff'],
@@ -132,9 +135,9 @@ describeWithDb('Members API', () => {
       // Create some test members for search
       await prisma.member.createMany({
         data: [
-          { firstName: 'Alice', lastName: 'Smith', email: 'test-member-alice@example.com', status: 'active' },
-          { firstName: 'Bob', lastName: 'Smith', email: 'test-member-bob@example.com', status: 'active' },
-          { firstName: 'Charlie', lastName: 'Jones', email: 'test-member-charlie@example.com', status: 'visitor' },
+          { orgId: TEST_ORG_ID, firstName: 'Alice', lastName: 'Smith', email: 'test-member-alice@example.com', status: 'active' },
+          { orgId: TEST_ORG_ID, firstName: 'Bob', lastName: 'Smith', email: 'test-member-bob@example.com', status: 'active' },
+          { orgId: TEST_ORG_ID, firstName: 'Charlie', lastName: 'Jones', email: 'test-member-charlie@example.com', status: 'visitor' },
         ],
       })
     })

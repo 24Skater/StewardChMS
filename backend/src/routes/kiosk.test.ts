@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import { signToken } from '../lib/auth.js'
 
 // Staff token with checkin.operate — can activate a kiosk
 const staffToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-staff-user',
   email: 'staff@example.com',
   roles: ['staff'],
@@ -13,6 +15,7 @@ const staffToken = signToken({
 
 // Staff token WITHOUT checkin.operate — should get 403
 const staffTokenNoOperate = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-readonly-user',
   email: 'readonly@example.com',
   roles: ['volunteer'],

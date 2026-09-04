@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import { Request, Response, NextFunction } from 'express'
 import { requireAuth, requirePermission } from './auth.js'
 import { signToken } from '../lib/auth.js'
@@ -55,6 +56,7 @@ describe('requireAuth Middleware', () => {
     const payload = {
       userId: 'user123',
       email: 'test@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['admin'],
       permissions: ['admin.access'],
     }
@@ -77,6 +79,7 @@ describe('requireAuth Middleware', () => {
     const payload = {
       userId: 'user456',
       email: 'cookie@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['user'],
       permissions: ['users.read'],
     }
@@ -99,12 +102,14 @@ describe('requireAuth Middleware', () => {
     const cookiePayload = {
       userId: 'cookie-user',
       email: 'cookie@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['user'],
       permissions: ['users.read'],
     }
     const headerPayload = {
       userId: 'header-user',
       email: 'header@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['admin'],
       permissions: ['admin.access'],
     }
@@ -148,6 +153,7 @@ describe('requirePermission Middleware', () => {
     req.user = {
       userId: 'user123',
       email: 'test@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['user'],
       permissions: ['users.read'], // Does not have admin.access
     }
@@ -170,6 +176,7 @@ describe('requirePermission Middleware', () => {
     req.user = {
       userId: 'user123',
       email: 'test@example.com',
+      orgId: TEST_ORG_ID,
       roles: ['admin'],
       permissions: ['admin.access', 'users.read'],
     }

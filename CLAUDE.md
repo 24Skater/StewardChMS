@@ -83,8 +83,10 @@ prisma/         # schema.prisma (source of truth) + migrations/
 
 **Auth pattern**: every protected backend route uses `requireAuth()` then `requirePermission('permission.key')`. Permission keys follow `resource.action` format (e.g. `members.view`, `members.edit`).
 
+**Tenancy**: one database holds many churches. `resolveOrg` reads the church out of the request hostname and runs the request inside it; the Prisma client in `backend/src/lib/prisma.ts` then scopes every read and stamps every write. You do not add `orgId` to a `where` clause — the guard does. You *do* pass `orgId: requireOrgId()` to every `create`, because TypeScript asks for it and a visible write is worth the keystrokes. A query with no organization in context throws rather than returning every church's rows. Classify any new model in `backend/src/lib/tenancy.ts`, or `tenancy.test.ts` will fail the build. Full reasoning in [`docs/PLATFORM.md`](docs/PLATFORM.md).
+
 **Adding a new domain feature**:
-1. Add Prisma model → `npm run db:migrate -w backend`
+1. Add Prisma model with an `orgId` → classify it in `backend/src/lib/tenancy.ts` → `npm run db:migrate -w backend`
 2. Add Zod schemas in `shared/src/schemas/`
 3. Add route file in `backend/src/routes/` and register in `backend/src/app.ts`
 4. Add hook in `frontend/src/hooks/`
@@ -112,7 +114,8 @@ Full technical documentation lives in [`docs/`](docs/README.md). Key references:
 | How the system works end-to-end | [`docs/architecture.md`](docs/architecture.md) |
 | Auth, JWT, and permission keys | [`docs/auth-permissions.md`](docs/auth-permissions.md) |
 | Every API error code and shape | [`docs/api-errors.md`](docs/api-errors.md) |
-| All 42 Prisma models documented | [`docs/database-schema.md`](docs/database-schema.md) |
+| All Prisma models documented | [`docs/database-schema.md`](docs/database-schema.md) |
+| Tenancy: the guard, host resolution, provisioning | [`docs/PLATFORM.md`](docs/PLATFORM.md) |
 | Frontend patterns (hooks, forms, icons) | [`docs/frontend-guide.md`](docs/frontend-guide.md) |
 | Adding a new feature domain | [`docs/extending.md`](docs/extending.md) |
 | Production deployment | [`docs/deployment.md`](docs/deployment.md) |
@@ -135,7 +138,7 @@ Key brand facts:
 ## Known Issues / TODOs
 
 - `frontend/src/lib/api.ts` is 1,986 lines — split into per-domain modules when touching this file
-- Token blacklist is in-memory — won't survive restarts (needs Redis or DB table for production)
+- Token blacklist is in-memory — won't survive restarts, and is wrong on more than one process (needs Redis or a DB table before scaling out)
 - Messaging providers are stubs — `email-stub.ts` and `sms-stub.ts` only log to console
 - Frontend stores auth token in `localStorage` as fallback — backend httpOnly cookie is the intended path
 

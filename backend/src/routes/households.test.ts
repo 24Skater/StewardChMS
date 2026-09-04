@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../app.js'
@@ -14,6 +15,7 @@ if (DATABASE_URL) {
 
 // Test token with member permissions
 const testToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'test-user-id',
   email: 'test@example.com',
   roles: ['admin'],
@@ -37,6 +39,7 @@ describeWithDb('Households API', () => {
     // Create test members
     const member1 = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Household',
         lastName: 'TestMember1',
         email: 'household-test-1@example.com',
@@ -45,6 +48,7 @@ describeWithDb('Households API', () => {
     })
     const member2 = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Household',
         lastName: 'TestMember2',
         email: 'household-test-2@example.com',

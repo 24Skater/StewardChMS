@@ -50,6 +50,14 @@ export function requireAuth(
     return
   }
 
+  // A session belongs to one church. The hostname already decided which church
+  // this request is for, and a token minted for a different one is not a
+  // weaker session — it is somebody else's.
+  if (req.org && payload.orgId !== req.org.orgId) {
+    res.status(401).json({ error: 'Invalid or expired token' })
+    return
+  }
+
   req.user = payload
   next()
 }

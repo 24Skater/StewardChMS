@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -15,6 +16,7 @@ const isDbAvailable = !!process.env.DATABASE_URL
 // ============================================
 
 const manageToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-manage-user',
   email: 'sched-manage@test.example.com',
   roles: ['schedules-manager'],
@@ -22,6 +24,7 @@ const manageToken = signToken({
 }).accessToken
 
 const viewOnlyToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-view-user',
   email: 'sched-view@test.example.com',
   roles: ['schedules-viewer'],
@@ -41,7 +44,7 @@ const createdCalendarIds: string[] = []
 
 async function createTestMinistry(): Promise<string> {
   const ministry = await prisma.ministry.create({
-    data: { name: `Test Ministry ${Date.now()}` },
+    data: { orgId: TEST_ORG_ID, name: `Test Ministry ${Date.now()}` },
   })
   return ministry.id
 }

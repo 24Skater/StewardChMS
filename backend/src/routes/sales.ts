@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from '../lib/auth.js'
 import { createAuditLog } from '../lib/audit.js'
@@ -105,6 +106,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
       // Create the sale
       const sale = await tx.sale.create({
         data: {
+          orgId: requireOrgId(),
           saleNumber,
           memberId: memberId || null,
           guestName: !memberId ? (guestName || null) : null,
@@ -139,6 +141,7 @@ router.post('/', requireAuth, requirePermission('sales.edit'), async (req, res) 
       for (const item of saleItems) {
         await tx.inventoryTransaction.create({
           data: {
+            orgId: requireOrgId(),
             productId: item.productId,
             type: 'sale',
             quantityDelta: -item.quantity, // Negative to reduce stock
@@ -296,6 +299,7 @@ router.post('/:id/void', requireAuth, requirePermission('sales.edit'), async (re
       for (const item of sale.items) {
         await tx.inventoryTransaction.create({
           data: {
+            orgId: requireOrgId(),
             productId: item.productId,
             type: 'return',
             quantityDelta: item.quantity, // Positive to restore stock

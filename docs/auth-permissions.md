@@ -66,6 +66,7 @@ The interface for the JWT payload is defined in `backend/src/lib/auth.ts`.
 export interface JwtPayload {
   userId: string           // CUID from the users table
   email: string            // User email address
+  orgId: string            // The church this session belongs to
   roles: string[]          // Role names, e.g. ["admin"]
   permissions: string[]    // All permission keys for all assigned roles
   isPrimaryAdmin?: boolean // True only for the primary admin account
@@ -79,6 +80,7 @@ export interface JwtPayload {
 |-------|------|---------|
 | `userId` | CUID string | Identifies the user; used in DB lookups |
 | `email` | string | Display and logging only |
+| `orgId` | UUID string | The church this session is for. `requireAuth` rejects the token if it disagrees with the organization the request's hostname resolved to |
 | `roles` | string[] | Role names (currently only `admin` and `scheduler`) |
 | `permissions` | string[] | Flat array of all permission keys the user holds |
 | `isPrimaryAdmin` | boolean | Flags the primary admin; NOT trusted from JWT alone in `requirePrimaryAdmin()` |
@@ -92,6 +94,7 @@ export interface JwtPayload {
 {
   "userId": "clxyz123abc",
   "email": "pastor@church.org",
+  "orgId": "6f1c9d0e-3a2b-4c5d-8e7f-0a1b2c3d4e5f",
   "roles": ["admin"],
   "permissions": [
     "admin.access", "members.read", "members.write", "members.delete",
@@ -139,7 +142,8 @@ export function requireAuth(req, res, next) {
 1. **Token extraction** — Checks `req.cookies["steward_session"]` first. If absent, looks for `Bearer <token>` in the Authorization header.
 2. **Signature verification** — Calls `jwt.verify(token, JWT_SECRET)`. Returns null if the signature is invalid or the token is expired.
 3. **Blacklist check** — Checks `isTokenBlacklisted(decoded.jti)`. Returns null if the jti is in the blacklist (i.e., the user has logged out).
-4. **User attachment** — Sets `req.user = payload`. All subsequent middleware and handlers can read `req.user.userId`, `req.user.permissions`, etc.
+4. **Organization check** — Compares `payload.orgId` against the organization the request's hostname resolved to. A session minted for one church and presented to another church's host is not a weaker session; it is somebody else's, and it gets the same 401 as an expired one.
+5. **User attachment** — Sets `req.user = payload`. All subsequent middleware and handlers can read `req.user.userId`, `req.user.permissions`, etc.
 
 ### req.user TypeScript Augmentation
 

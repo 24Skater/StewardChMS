@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -200,6 +201,7 @@ router.post('/', requireAuth, requirePermission('accounting.edit'), async (req, 
 
     const po = await prisma.purchaseOrder.create({
       data: {
+        orgId: requireOrgId(),
         poNumber,
         vendorId: vendorId ?? null,
         requestorUserId: req.user!.userId,

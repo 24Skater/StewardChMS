@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -137,6 +138,7 @@ router.post('/', requirePermission('groups.edit'), async (req: Request, res: Res
 
     const group = await prisma.group.create({
       data: {
+        orgId: requireOrgId(),
         name: data.name,
         ministryId: data.ministryId,
         description: data.description,
@@ -319,6 +321,7 @@ router.post('/:id/members', requirePermission('groups.edit'), async (req: Reques
 
     const groupMember = await prisma.groupMember.create({
       data: {
+        orgId: requireOrgId(),
         groupId: id,
         memberId,
       },
@@ -416,6 +419,7 @@ router.post('/:id/leaders', requirePermission('groups.edit'), async (req: Reques
 
     const groupLeader = await prisma.groupLeader.create({
       data: {
+        orgId: requireOrgId(),
         groupId: id,
         memberId,
         role,

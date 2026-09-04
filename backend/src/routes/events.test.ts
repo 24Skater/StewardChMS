@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -45,7 +46,7 @@ describe('Events API', () => {
     }
 
     await prisma.userRole.create({
-      data: { userId: testUser.id, roleId: role.id },
+      data: { orgId: TEST_ORG_ID, userId: testUser.id, roleId: role.id },
     })
 
     // Generate auth token with roles and permissions
@@ -53,6 +54,7 @@ describe('Events API', () => {
       { 
         userId: testUser.id, 
         email: testUser.email,
+        orgId: TEST_ORG_ID,
         roles: ['events-test-role'],
         permissions: ['events.read', 'events.write', 'worship.read', 'worship.write']
       },
@@ -155,6 +157,7 @@ describe('Events API', () => {
       // Create a recurring event for testing
       const event = await prisma.event.create({
         data: {
+          orgId: TEST_ORG_ID,
           title: 'Test Event - Recurring for Generation',
           isRecurring: true,
           recurrenceRule: JSON.stringify({ frequency: 'weekly', dayOfWeek: 0 }), // Every Sunday
@@ -199,6 +202,7 @@ describe('Events API', () => {
       // Create event for 1st Monday of each month
       const event = await prisma.event.create({
         data: {
+          orgId: TEST_ORG_ID,
           title: 'Test Event - Monthly Board Meeting',
           isRecurring: true,
           recurrenceRule: JSON.stringify({ frequency: 'monthly', dayOfWeek: 1, weekOfMonth: 1 }),

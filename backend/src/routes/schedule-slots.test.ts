@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -15,6 +16,7 @@ const isDbAvailable = !!process.env.DATABASE_URL
 // ============================================
 
 const manageToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-slots-manage',
   email: 'sched-slots-manage@test.example.com',
   roles: ['schedules-manager'],
@@ -22,6 +24,7 @@ const manageToken = signToken({
 }).accessToken
 
 const viewOnlyToken = signToken({
+  orgId: TEST_ORG_ID,
   userId: 'sched-slots-view',
   email: 'sched-slots-view@test.example.com',
   roles: ['schedules-viewer'],
@@ -59,7 +62,7 @@ describe('Schedule Slots API', () => {
 
     // Ministry
     const ministry = await prisma.ministry.create({
-      data: { name: `Slots Test Ministry ${Date.now()}` },
+      data: { orgId: TEST_ORG_ID, name: `Slots Test Ministry ${Date.now()}` },
     })
     testMinistryId = ministry.id
 
@@ -98,6 +101,7 @@ describe('Schedule Slots API', () => {
     // Test member
     const member = await prisma.member.create({
       data: {
+        orgId: TEST_ORG_ID,
         firstName: 'Slot',
         lastName: 'Tester',
         email: `slot-tester-${Date.now()}@test.example.com`,
@@ -245,6 +249,7 @@ describe('Schedule Slots API', () => {
       // Create a second test member for conflict test
       const secondMember = await prisma.member.create({
         data: {
+          orgId: TEST_ORG_ID,
           firstName: 'Conflict',
           lastName: 'Checker',
           email: `conflict-checker-${Date.now()}@test.example.com`,
@@ -413,7 +418,7 @@ describe('Schedule Slots API', () => {
     it.skipIf(!isDbAvailable)('returns 409 when deleting a slot from a published period', async () => {
       // Add a slot to the published period through the DB directly (since the API blocks it)
       const slot = await prisma.scheduleSlot.create({
-        data: { periodId: publishedPeriodId, slotDate: new Date('2060-02-02T10:00:00.000Z') },
+        data: { orgId: TEST_ORG_ID, periodId: publishedPeriodId, slotDate: new Date('2060-02-02T10:00:00.000Z') },
       })
 
       const res = await request(app)

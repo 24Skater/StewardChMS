@@ -17,7 +17,7 @@ This directory contains the complete technical reference for StewardChMS. If you
 | [architecture.md](architecture.md) | System overview, request lifecycle, workspace dependency model, key architectural decisions |
 | [auth-permissions.md](auth-permissions.md) | Login flow, JWT payload, `requireAuth`, `requirePermission`, all permission keys, token blacklist |
 | [api-errors.md](api-errors.md) | HTTP status conventions, error envelopes, Zod validation shapes, rate limiting, Prisma error handling |
-| [database-schema.md](database-schema.md) | All 42 Prisma models grouped by domain, field descriptions, relations, migration workflow |
+| [database-schema.md](database-schema.md) | All Prisma models grouped by domain, field descriptions, relations, migration workflow |
 | [frontend-guide.md](frontend-guide.md) | Routing, TanStack Query, API layer, forms, icon system, theme/kiosk modes, testing |
 | [extending.md](extending.md) | 10-step guide to adding a new domain: Prisma → migration → Zod → route → frontend hook → pages |
 | [deployment.md](deployment.md) | Local setup, Docker Compose, production checklist, Stripe integration, security hardening |

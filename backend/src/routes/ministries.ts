@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -128,6 +129,7 @@ router.post('/', requirePermission('groups.edit'), async (req: Request, res: Res
 
     const ministry = await prisma.ministry.create({
       data: {
+        orgId: requireOrgId(),
         name: data.name,
         description: data.description,
         parentId: data.parentId,

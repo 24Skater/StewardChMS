@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { TEST_ORG_ID } from '../testing/org.js'
 import request from 'supertest'
 import app from '../app.js'
 import prisma from '../lib/prisma.js'
@@ -20,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
 // Create a test token
 function createTestToken(userId: string, permissions: string[]) {
   return jwt.sign(
-    { userId, email: 'test@example.com', roles: ['tester'], permissions },
+    { userId, email: 'test@example.com', orgId: TEST_ORG_ID, roles: ['tester'], permissions },
     JWT_SECRET,
     { expiresIn: '1h' }
   )

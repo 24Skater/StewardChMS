@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { createAuditLog } from '../lib/audit.js'
 
@@ -144,6 +145,7 @@ router.post('/', requireAuth, requirePermission('members.write'), async (req: Re
 
     const household = await prisma.household.create({
       data: {
+        orgId: requireOrgId(),
         name: name ?? null,
       },
       include: {
@@ -318,6 +320,7 @@ router.post('/:id/members', requireAuth, requirePermission('members.write'), asy
 
     const householdMember = await prisma.householdMember.create({
       data: {
+        orgId: requireOrgId(),
         householdId: id,
         memberId,
         relationshipType,

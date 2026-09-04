@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
+import { requireOrgId } from '../lib/org-context.js'
 import { requireAuth, requirePermission } from '../middleware/auth.js'
 import { JwtPayload } from 'jsonwebtoken'
 import { createAuditLog } from '../lib/audit.js'
@@ -37,14 +38,14 @@ router.post('/', requireAuth, requirePermission('inventory.edit'), async (req, r
     const { name, description, sku, priceCents, currency, isActive } = parsed.data
 
     // Check for duplicate name
-    const existingName = await prisma.product.findUnique({ where: { name } })
+    const existingName = await prisma.product.findFirst({ where: { name } })
     if (existingName) {
       return res.status(409).json({ error: 'A product with this name already exists' })
     }
 
     // Check for duplicate SKU if provided
     if (sku) {
-      const existingSku = await prisma.product.findUnique({ where: { sku } })
+      const existingSku = await prisma.product.findFirst({ where: { sku } })
       if (existingSku) {
         return res.status(409).json({ error: 'A product with this SKU already exists' })
       }
@@ -52,6 +53,7 @@ router.post('/', requireAuth, requirePermission('inventory.edit'), async (req, r
 
     const product = await prisma.product.create({
       data: {
+        orgId: requireOrgId(),
         name,
         description,
         sku: sku || null,
@@ -140,7 +142,7 @@ router.put('/:id', requireAuth, requirePermission('inventory.edit'), async (req,
 
     // Check for duplicate name if changing
     if (name && name !== existing.name) {
-      const existingName = await prisma.product.findUnique({ where: { name } })
+      const existingName = await prisma.product.findFirst({ where: { name } })
       if (existingName) {
         return res.status(409).json({ error: 'A product with this name already exists' })
       }
@@ -149,7 +151,7 @@ router.put('/:id', requireAuth, requirePermission('inventory.edit'), async (req,
     // Check for duplicate SKU if changing
     if (sku !== undefined && sku !== existing.sku) {
       if (sku) {
-        const existingSku = await prisma.product.findUnique({ where: { sku } })
+        const existingSku = await prisma.product.findFirst({ where: { sku } })
         if (existingSku) {
           return res.status(409).json({ error: 'A product with this SKU already exists' })
         }
