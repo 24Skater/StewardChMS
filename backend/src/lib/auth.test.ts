@@ -62,9 +62,9 @@ describe('JWT Token', () => {
     expect(expiresAt.getTime()).toBeGreaterThan(Date.now())
   })
 
-  it('verifies a valid token', () => {
+  it('verifies a valid token', async () => {
     const { accessToken } = signToken(testPayload)
-    const decoded = verifyToken(accessToken)
+    const decoded = await verifyToken(accessToken)
     
     expect(decoded).toBeDefined()
     expect(decoded?.userId).toBe(testPayload.userId)
@@ -73,18 +73,18 @@ describe('JWT Token', () => {
     expect(decoded?.permissions).toEqual(testPayload.permissions)
   })
 
-  it('returns null for invalid token', () => {
-    const decoded = verifyToken('invalid.token.here')
+  it('returns null for invalid token', async () => {
+    const decoded = await verifyToken('invalid.token.here')
     expect(decoded).toBeNull()
   })
 
-  it('returns null for empty token', () => {
-    const decoded = verifyToken('')
+  it('returns null for empty token', async () => {
+    const decoded = await verifyToken('')
     expect(decoded).toBeNull()
   })
 
-  it('returns null for malformed token', () => {
-    const decoded = verifyToken('not-a-jwt')
+  it('returns null for malformed token', async () => {
+    const decoded = await verifyToken('not-a-jwt')
     expect(decoded).toBeNull()
   })
 })

@@ -196,7 +196,7 @@ router.post('/logout', requireAuth, async (req: Request, res: Response) => {
     const token = req.cookies?.[COOKIE_NAME] || req.headers.authorization?.split(' ')[1]
     
     if (token) {
-      invalidateToken(token)
+      await invalidateToken(token)
     }
 
     // Log logout
@@ -297,7 +297,7 @@ router.post('/change-password', requireAuth, async (req: Request, res: Response)
     // Invalidate current token to force re-login
     const token = req.cookies?.[COOKIE_NAME] || req.headers.authorization?.split(' ')[1]
     if (token) {
-      invalidateToken(token)
+      await invalidateToken(token)
     }
     res.clearCookie(COOKIE_NAME, { path: '/' })
 
@@ -533,7 +533,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
     // Invalidate current session cookie if present
     const sessionCookie = req.cookies?.[COOKIE_NAME]
     if (sessionCookie) {
-      invalidateToken(sessionCookie)
+      await invalidateToken(sessionCookie)
       res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS)
     }
 

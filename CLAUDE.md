@@ -138,7 +138,6 @@ Key brand facts:
 ## Known Issues / TODOs
 
 - `frontend/src/lib/api.ts` is 1,986 lines — split into per-domain modules when touching this file
-- Token blacklist is in-memory — won't survive restarts, and is wrong on more than one process (needs Redis or a DB table before scaling out)
 - Messaging providers are stubs — `email-stub.ts` and `sms-stub.ts` only log to console
 - Frontend stores auth token in `localStorage` as fallback — backend httpOnly cookie is the intended path
 

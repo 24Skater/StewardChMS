@@ -163,10 +163,8 @@ password takes, and so already rate-limited, audited and tested.
   via add -> backfill -> not-null; `@@unique([orgId, ...])` throughout; `Setting`
   is org-scoped; the guard in `backend/src/lib/prisma.ts` and the DMMF
   classification test; host-based organization resolution; the kiosk `orgId`
-  claim; wildcard CORS; `POST /api/internal/provision`.
-- **Phase 1, still open:** the token blacklist is still in memory. It is correct
-  on one process and wrong on two, so what it blocks is running more than one
-  instance, not correctness today. Tracked separately.
+  claim; wildcard CORS; `POST /api/internal/provision`; a database-backed token
+  blacklist, so a logout means logged out on every instance.
 - **Phase 2:** an `openid-client` start/callback that mints the existing CHMS
   JWT. Kiosk activation stays exempt from SSO, permanently.
 - **Phase 4:** becomes a client of the canonical Person/Household service.

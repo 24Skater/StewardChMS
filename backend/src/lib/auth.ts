@@ -85,21 +85,34 @@ export function signToken(payload: JwtPayload, expiresIn?: string): TokenPair {
 }
 
 /**
- * Verifies a JWT token and checks blacklist.
+ * Verifies a JWT token and checks the blacklist.
+ *
+ * Asynchronous because the blacklist is in the database now rather than in this
+ * process's memory. That is the price of a logout meaning logged out on every
+ * instance, and it is worth paying: the alternative is a revocation only the
+ * instance you happened to be talking to has heard of.
  */
-export function verifyToken(token: string): JwtPayload | null {
+export async function verifyToken(token: string): Promise<JwtPayload | null> {
+  let decoded: JwtPayload & { jti?: string }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { jti?: string }
-    
-    // Check if token is blacklisted
-    if (decoded.jti && isTokenBlacklisted(decoded.jti)) {
-      return null
-    }
-    
-    return decoded
+    decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { jti?: string }
   } catch {
     return null
   }
+
+  try {
+    if (decoded.jti && (await isTokenBlacklisted(decoded.jti))) {
+      return null
+    }
+  } catch (error) {
+    // The signature is already valid; the database is what failed. Refusing
+    // every signed-in request during a blip would be a worse outage than
+    // honouring a token somebody logged out of minutes ago.
+    console.error('Could not check the token blacklist:', error)
+  }
+
+  return decoded
 }
 
 /**
@@ -117,11 +130,11 @@ export function decodeToken(token: string): JwtPayload | null {
 /**
  * Invalidates a token by adding it to the blacklist.
  */
-export function invalidateToken(token: string): boolean {
+export async function invalidateToken(token: string): Promise<boolean> {
   try {
     const decoded = jwt.decode(token) as JwtPayload & { jti?: string; exp?: number }
     if (decoded?.jti && decoded?.exp) {
-      blacklistToken(decoded.jti, new Date(decoded.exp * 1000))
+      await blacklistToken(decoded.jti, new Date(decoded.exp * 1000))
       return true
     }
     return false

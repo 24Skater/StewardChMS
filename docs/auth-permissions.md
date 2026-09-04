@@ -141,7 +141,7 @@ export function requireAuth(req, res, next) {
 
 1. **Token extraction** — Checks `req.cookies["steward_session"]` first. If absent, looks for `Bearer <token>` in the Authorization header.
 2. **Signature verification** — Calls `jwt.verify(token, JWT_SECRET)`. Returns null if the signature is invalid or the token is expired.
-3. **Blacklist check** — Checks `isTokenBlacklisted(decoded.jti)`. Returns null if the jti is in the blacklist (i.e., the user has logged out).
+3. **Blacklist check** — Awaits `isTokenBlacklisted(decoded.jti)`. Returns null if the jti is in `revoked_tokens` (i.e., the user has logged out).
 4. **Organization check** — Compares `payload.orgId` against the organization the request's hostname resolved to. A session minted for one church and presented to another church's host is not a weaker session; it is somebody else's, and it gets the same 401 as an expired one.
 5. **User attachment** — Sets `req.user = payload`. All subsequent middleware and handlers can read `req.user.userId`, `req.user.permissions`, etc.
 
@@ -277,7 +277,7 @@ There is no built-in end-user or read-only role seeded by default. Additional ro
 The logout flow is handled by `POST /api/auth/logout`:
 
 1. **Extract token** — Gets the token from cookie or Authorization header.
-2. **Blacklist jti** — Calls `invalidateToken(token)`, which decodes the token (no verify), extracts `jti` and `exp`, and adds the entry to the in-memory blacklist array.
+2. **Blacklist jti** — Calls `invalidateToken(token)`, which decodes the token (no verify), extracts `jti` and `exp`, and writes a row to `revoked_tokens`.
 3. **Clear cookie** — `res.clearCookie("steward_session", { path: "/" })` removes the browser cookie.
 4. **Audit log** — Records `LOGOUT` action.
 ```typescript
@@ -322,7 +322,11 @@ export function cleanupBlacklist(): void {
 }
 ```
 
-> **Warning:** The blacklist is an in-memory array. It is lost when the Node.js process restarts. After a restart, previously logged-out tokens are no longer blacklisted and could be used until they expire naturally. For production, replace this with a Redis store or a database table. This is tracked as a known issue in `CLAUDE.md`.
+> **Note:** The blacklist is the `revoked_tokens` table, not a variable. It survives restarts, and a logout on one instance is a logout on all of them — which was the point: the previous in-memory array was correct on one process and wrong on two.
+>
+> Rows are deleted once the token would have expired anyway, since an expired token fails verification before the blacklist is ever consulted.
+>
+> The check is one primary-key lookup per authenticated request, with no cache in front of it. A cache with any staleness at all would mean a logged-out token still works for that long, which is the exact thing this exists to prevent. If the database is unreachable, a validly-signed token is honoured and the failure logged: refusing every signed-in request during a blip is a worse outage than honouring a token somebody logged out of minutes ago.
 
 ---
 
