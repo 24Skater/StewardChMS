@@ -83,7 +83,7 @@ prisma/         # schema.prisma (source of truth) + migrations/
 
 **Auth pattern**: every protected backend route uses `requireAuth()` then `requirePermission('permission.key')`. Permission keys follow `resource.action` format (e.g. `members.view`, `members.edit`).
 
-**Tenancy**: one database holds many churches. `resolveOrg` reads the church out of the request hostname and runs the request inside it; the Prisma client in `backend/src/lib/prisma.ts` then scopes every read and stamps every write. You do not add `orgId` to a `where` clause — the guard does. You *do* pass `orgId: requireOrgId()` to every `create`, because TypeScript asks for it and a visible write is worth the keystrokes. A query with no organization in context throws rather than returning every church's rows. Classify any new model in `backend/src/lib/tenancy.ts`, or `tenancy.test.ts` will fail the build. Full reasoning in [`docs/PLATFORM.md`](docs/PLATFORM.md).
+**Tenancy**: one database holds many churches. `resolveOrg` reads the church out of the request hostname and runs the request inside it; the Prisma client in `backend/src/lib/prisma.ts` then scopes every read and stamps every write. You do not add `orgId` to a `where` clause — the guard does. You *do* pass `orgId: requireOrgId()` to every `create`, because TypeScript asks for it and a visible write is worth the keystrokes. A query with no organization in context throws rather than returning every church's rows. Classify any new model in `backend/src/lib/tenancy.ts`, or `tenancy.test.ts` will fail the build. Full reasoning in [`docs/MULTI-TENANCY.md`](docs/MULTI-TENANCY.md).
 
 **Adding a new domain feature**:
 1. Add Prisma model with an `orgId` → classify it in `backend/src/lib/tenancy.ts` → `npm run db:migrate -w backend`
@@ -115,7 +115,7 @@ Full technical documentation lives in [`docs/`](docs/README.md). Key references:
 | Auth, JWT, and permission keys | [`docs/auth-permissions.md`](docs/auth-permissions.md) |
 | Every API error code and shape | [`docs/api-errors.md`](docs/api-errors.md) |
 | All Prisma models documented | [`docs/database-schema.md`](docs/database-schema.md) |
-| Tenancy: the guard, host resolution, provisioning | [`docs/PLATFORM.md`](docs/PLATFORM.md) |
+| Tenancy: the guard, host resolution, sign-in scoping | [`docs/MULTI-TENANCY.md`](docs/MULTI-TENANCY.md) |
 | Frontend patterns (hooks, forms, icons) | [`docs/frontend-guide.md`](docs/frontend-guide.md) |
 | Adding a new feature domain | [`docs/extending.md`](docs/extending.md) |
 | Production deployment | [`docs/deployment.md`](docs/deployment.md) |
