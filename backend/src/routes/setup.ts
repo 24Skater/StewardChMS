@@ -6,6 +6,7 @@ import { OrgContext, requireOrgId, runInOrg, withoutOrgScope } from '../lib/org-
 import { hashPassword, signToken, COOKIE_OPTIONS, COOKIE_NAME } from '../lib/auth.js'
 import { validatePassword, generateSecureToken } from '../lib/security.js'
 import { createAuditLog } from '../lib/audit.js'
+import { seedOrgDefaults } from '../lib/org-defaults.js'
 import { requireAuth, requirePrimaryAdmin } from '../middleware/auth.js'
 
 const router = Router()
@@ -145,6 +146,7 @@ router.post('/step1', async (req: Request, res: Response) => {
     // organization through POST /api/internal/provision and invites the owner.
     // This is the self-hosted path: one church, one organization, created here
     // because there is no console to create it.
+    const createdHere = !req.org
     const org: OrgContext =
       req.org ??
       (await withoutOrgScope(async () => {
@@ -154,6 +156,14 @@ router.post('/step1', async (req: Request, res: Response) => {
         })
         return { orgId: created.id, slug: created.slug }
       }))
+
+    // A church created here gets the same starting rows a provisioned one
+    // gets. Settings are left alone: the rest of this wizard writes them from
+    // what the operator is typing, and seeding placeholders over the top would
+    // undo work they just did.
+    if (createdHere) {
+      await seedOrgDefaults(org.orgId, name || 'Steward Congregation', { settings: false })
+    }
 
     // Create admin role if it doesn't exist
     let adminRole = await prisma.role.findUnique({ where: { name: 'admin' } })
@@ -608,6 +618,32 @@ router.post('/seed-account/enable', requireAuth, requirePrimaryAdmin(), async (r
         isActive: true,
       },
     })
+
+    // Give it administrator access *in this church, and only this one*.
+    //
+    // Before tenancy the seed script granted this at install time, when there
+    // was one installation and one set of data. There is no longer a moment
+    // when that is meaningful: on the platform the account would land in every
+    // church at once, which is the opposite of what a break-glass credential
+    // should be. So the grant happens here, where a named primary admin has
+    // deliberately enabled it for their own organization, and it reaches
+    // nowhere else.
+    const orgId = requireOrgId()
+    const adminRole = await prisma.role.findUnique({ where: { name: 'admin' } })
+
+    if (adminRole) {
+      await prisma.membership.upsert({
+        where: { orgId_userId: { orgId, userId: seedAccount.id } },
+        update: {},
+        create: { orgId: requireOrgId(), userId: seedAccount.id, isOwner: false },
+      })
+
+      await prisma.userRole.upsert({
+        where: { orgId_userId_roleId: { orgId, userId: seedAccount.id, roleId: adminRole.id } },
+        update: {},
+        create: { orgId: requireOrgId(), userId: seedAccount.id, roleId: adminRole.id },
+      })
+    }
 
     // Log the action
     await createAuditLog({

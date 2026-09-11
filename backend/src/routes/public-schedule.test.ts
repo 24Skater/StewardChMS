@@ -38,8 +38,18 @@ let testMemberId: string
 const now = new Date()
 const futureDate = new Date(now)
 futureDate.setDate(futureDate.getDate() + 7) // 7 days from now
-const pastDate = new Date(now)
-pastDate.setDate(pastDate.getDate() - 7) // 7 days ago
+
+// The past date has to fall in a *different month* from the future one.
+//
+// A schedule period is unique per calendar, year and month, so when both dates
+// landed in the same month the second `POST .../periods` conflicted, returned
+// no `data`, and this suite failed reading `.id` of undefined. Seven days back
+// put them in the same month on every day of the month except the first week -
+// so this suite was green only on the days CI happened to run.
+//
+// The 15th of the previous month is unambiguous: it is always a different
+// month, always in the past, and does not move with how long February is.
+const pastDate = new Date(now.getFullYear(), now.getMonth() - 1, 15, 12, 0, 0)
 
 // ============================================
 // Tests

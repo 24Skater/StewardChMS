@@ -23,6 +23,20 @@ export function rootDomain(): string | null {
   return value ? value : null
 }
 
+/**
+ * The root domain with any port removed.
+ *
+ * A Host header carries the port the browser dialled; a hostname comparison
+ * cannot. Local development is the only place the root domain is configured
+ * with one — `localhost:3000` is what `.env.example` documents — so a root that
+ * kept its port matched no host at all, and the platform could not be exercised
+ * end to end on one machine. Production roots have no port and are unaffected.
+ */
+function rootHostname(): string | null {
+  const root = rootDomain()
+  return root ? root.split(':')[0].toLowerCase() : null
+}
+
 /** Where a given church's Congregation lives, e.g. `grace-stewardchms.app.example.org`. */
 export function tenantHost(slug: string): string | null {
   const root = rootDomain()
@@ -43,11 +57,11 @@ export function tenantUrl(slug: string): string | null {
  * different Steward application, which must not resolve here.
  */
 export function extractTenantSlug(host: string | undefined): string | null {
-  const root = rootDomain()
+  const root = rootHostname()
   if (!host || !root) return null
 
   const hostname = host.split(':')[0].trim().toLowerCase()
-  const suffix = `.app.${root.toLowerCase()}`
+  const suffix = `.app.${root}`
   if (!hostname.endsWith(suffix)) return null
 
   const label = hostname.slice(0, -suffix.length)
