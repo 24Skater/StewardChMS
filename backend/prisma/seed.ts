@@ -1,3 +1,24 @@
+/**
+ * Installation-wide reference data. Nothing here belongs to a church.
+ *
+ * That boundary is the whole design of this file, and it is newer than the file
+ * is. Tenancy gave most models a required `orgId`, and this script runs before
+ * any organization exists — so anything org-scoped written from here fails, and
+ * it failed loudly: `message_templates` gained an `orgId`, the create here did
+ * not supply one, and the seed died partway through, before assigning
+ * permissions to the admin role and before creating the recovery account. A
+ * fresh `docker compose up` reported a failed migrate job and left a database
+ * half-prepared.
+ *
+ * What is left is what is genuinely global: permissions, roles, the mapping
+ * between them, and one disabled recovery account. The per-church half moved to
+ * `src/lib/org-defaults.ts`, which runs when a church is actually created —
+ * from the console's provisioning call, or from the first-run wizard.
+ *
+ * Rule for anything added here: if a model is in `TENANTED_MODELS`
+ * (`src/lib/tenancy.ts`), it does not belong in this file.
+ */
+
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
@@ -61,21 +82,6 @@ const DEFAULT_PERMISSIONS = [
   { key: 'schedules.manage', description: 'Full CRUD on calendars, periods, slots, and assignments' },
 ]
 
-const SCHEDULE_MESSAGE_TEMPLATES = [
-  {
-    name: 'schedule.assigned',
-    channel: 'email' as const,
-    subject: 'You have been scheduled',
-    body: 'Hi {name}, you are scheduled for {duty} on {date} at {church_name}.',
-  },
-  {
-    name: 'schedule.reminder',
-    channel: 'email' as const,
-    subject: 'Upcoming duty reminder',
-    body: 'Reminder: you are scheduled for {duty} in {days} day(s) at {church_name}.',
-  },
-]
-
 async function main() {
   console.log('Starting seed...')
 
@@ -135,18 +141,6 @@ async function main() {
   }
   console.log('   [OK] Scheduler role created/updated')
 
-  // Seed scheduling message templates (idempotent by name)
-  console.log('Seeding schedule message templates...')
-  for (const tmpl of SCHEDULE_MESSAGE_TEMPLATES) {
-    const existing = await prisma.messageTemplate.findFirst({ where: { name: tmpl.name } })
-    if (!existing) {
-      await prisma.messageTemplate.create({ data: tmpl })
-    } else {
-      await prisma.messageTemplate.update({ where: { id: existing.id }, data: { subject: tmpl.subject, body: tmpl.body } })
-    }
-  }
-  console.log('   [OK] Schedule message templates seeded')
-
   // Assign all permissions to admin role
   const allPermissions = await prisma.permission.findMany()
   for (const permission of allPermissions) {
@@ -174,7 +168,7 @@ async function main() {
 
     // Create or update seed account (DISABLED by default)
     console.log('Creating seed account (emergency recovery)...')
-    const seedUser = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { email: SEED_ACCOUNT_EMAIL },
       update: {
         // If seed account exists, ensure it stays disabled and marked as seed
@@ -194,35 +188,13 @@ async function main() {
     console.log('   [WARN] Seed account is DISABLED by default')
     console.log('   [WARN] Only the primary admin can enable it')
 
-    // Assign admin role to seed account (for when it's enabled)
-    await prisma.userRole.upsert({
-      where: {
-        userId_roleId: {
-          userId: seedUser.id,
-          roleId: adminRole.id,
-        },
-      },
-      update: {},
-      create: {
-        userId: seedUser.id,
-        roleId: adminRole.id,
-      },
-    })
-    console.log('   [OK] Admin role assigned to seed account')
-
-    // Log seed completion
-    await prisma.auditLog.create({
-      data: {
-        action: 'SEED_COMPLETED',
-        entityType: 'System',
-        metadata: {
-          permissions: DEFAULT_PERMISSIONS.length,
-          seedAccountEmail: SEED_ACCOUNT_EMAIL,
-          seedAccountStatus: 'disabled',
-          timestamp: new Date().toISOString(),
-        },
-      },
-    })
+    // No role is granted here, on purpose.
+    //
+    // A role grant belongs to an organization, and at seed time there is not
+    // one yet. Granting it later is also the safer shape: the account gets
+    // administrator access in the single church whose primary admin
+    // deliberately enables it, through POST /api/setup/seed-account/enable,
+    // and in no other.
 
     console.log('')
     console.log('Seed completed successfully!')
@@ -233,18 +205,6 @@ async function main() {
     console.log('   3. Only the primary admin can enable the seed account')
   } else {
     // Log seed completion (permissions/roles only)
-    await prisma.auditLog.create({
-      data: {
-        action: 'SEED_COMPLETED',
-        entityType: 'System',
-        metadata: {
-          permissions: DEFAULT_PERMISSIONS.length,
-          note: 'Primary admin exists - seed account not modified',
-          timestamp: new Date().toISOString(),
-        },
-      },
-    })
-
     console.log('')
     console.log('Seed completed successfully!')
     console.log('   Permissions and roles have been updated.')

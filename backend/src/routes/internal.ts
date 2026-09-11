@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { requireOrgId, runInOrg, withoutOrgScope } from '../lib/org-context.js'
+import { seedOrgDefaults } from '../lib/org-defaults.js'
 import { clearOrgCache } from '../middleware/org.js'
 import { isPlatformRequest } from '../lib/service-token.js'
 
@@ -40,20 +41,6 @@ const provisionSchema = z.object({
   organizationName: z.string().min(1).max(200),
   ownerEmail: z.string().email().optional(),
 })
-
-/**
- * The settings a church needs before its first page renders.
- *
- * Written at provisioning rather than lazily, so no settings screen has to cope
- * with a missing row on first load.
- */
-function defaultSettings(organizationName: string): { category: string; key: string; value: unknown }[] {
-  return [
-    { category: 'branding', key: 'church_name', value: organizationName },
-    { category: 'church', key: 'name', value: organizationName },
-    { category: 'system', key: 'setup_complete', value: true },
-  ]
-}
 
 /**
  * Gives the owner an administrator's roles in their own church.
@@ -160,13 +147,7 @@ router.post('/provision', async (req: Request, res: Response) => {
       prisma.org.create({ data: { id: orgId, slug, name: organizationName } })
     )
 
-    await runInOrg({ orgId, slug }, async () => {
-      for (const setting of defaultSettings(organizationName)) {
-        await prisma.setting.create({
-          data: { orgId: requireOrgId(), category: setting.category, key: setting.key, value: setting.value as never },
-        })
-      }
-    })
+    await seedOrgDefaults(orgId, organizationName)
 
     if (ownerEmail) await grantOwner(orgId, ownerEmail)
 

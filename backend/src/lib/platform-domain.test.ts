@@ -35,6 +35,17 @@ describe('reading the organization out of a host', () => {
     expect(extractTenantSlug('Grace-StewardChMS.app.Example.org:8443')).toBe('grace')
   })
 
+  it('ignores a port on the configured root domain too', () => {
+    // The host arrives without the port a browser was told to use, so a root
+    // domain configured with one never matched anything: the suffix carried
+    // `:3000` and the hostname could not. Local development is the only place
+    // a root domain has a port, which is exactly why nobody noticed - and
+    // exactly why the platform could not be run end to end on one machine.
+    process.env[ROOT] = 'localhost:3000'
+    expect(extractTenantSlug('grace-stewardchms.app.localhost')).toBe('grace')
+    expect(extractTenantSlug('grace-stewardchms.app.localhost:3000')).toBe('grace')
+  })
+
   it('refuses another Steward application on the same root', () => {
     process.env[ROOT] = 'example.org'
     // A Table host resolving here would give a church's Table subscription

@@ -38,6 +38,14 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@stewardchms.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
       ADMIN_NAME: ${ADMIN_NAME:-System Administrator}
+      # Steward platform. Unset on a self-hosted install, and that is the
+      # supported default: with no root domain this app resolves its single
+      # organization and behaves exactly as it always has. Set both to have the
+      # console provision churches into this deployment -- without them the
+      # provisioning endpoint refuses every call, so a Congregation deployed
+      # with this file could not be provisioned at all.
+      PLATFORM_ROOT_DOMAIN: ${PLATFORM_ROOT_DOMAIN:-}
+      PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-}
     ports:
       - "3001:3001"
     healthcheck:
