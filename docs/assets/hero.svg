@@ -1,185 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="420" viewBox="0 0 1600 420" role="img" aria-label="Steward Congregation — self-hosted church management covering people, giving, worship planning and reporting.">
+  <title>Steward Congregation — self-hosted church management covering people, giving, worship planning and reporting.</title>
   <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="1200" y2="380" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#080d18"/>
-      <stop offset="45%" stop-color="#0d1a33"/>
-      <stop offset="100%" stop-color="#080d18"/>
+    <linearGradient id="ground" x1="0" y1="0" x2="1600" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#081320"/><stop offset="0.55" stop-color="#0D1B2E"/><stop offset="1" stop-color="#081320"/>
     </linearGradient>
-    <radialGradient id="shieldAura" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#E8B847" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#E8B847" stop-opacity="0"/>
+    <radialGradient id="glow" cx="0.80" cy="0.92" r="0.58">
+      <stop offset="0" stop-color="#2563EB" stop-opacity="0.20"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="lineH" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1e293b" stop-opacity="0"/>
-      <stop offset="25%" stop-color="#1e293b"/>
-      <stop offset="75%" stop-color="#1e293b"/>
-      <stop offset="100%" stop-color="#1e293b" stop-opacity="0"/>
+    <linearGradient id="rule" x1="96" y1="0" x2="1504" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563EB" stop-opacity="0.9"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/>
     </linearGradient>
-    <pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-      <circle cx="1" cy="1" r="0.8" fill="#1e293b"/>
-    </pattern>
-    <filter id="shieldGlow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="12" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <linearGradient id="spine" x1="0" y1="112" x2="0" y2="292" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E8B847"/><stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="380" fill="url(#bgGrad)"/>
-  <rect width="1200" height="380" fill="url(#dots)" opacity="0.7"/>
+  <rect width="1600" height="420" fill="url(#ground)"/>
+  <rect width="1600" height="420" fill="url(#glow)"/>
 
-  <!-- Top / bottom border lines -->
-  <line x1="0" y1="0" x2="1200" y2="0" stroke="url(#lineH)" stroke-width="0.5"/>
-  <line x1="0" y1="380" x2="1200" y2="380" stroke="url(#lineH)" stroke-width="0.5"/>
+  <!-- the mark at scale, bleeding off the right edge: the only ornament -->
+  <g fill="#2563EB" fill-opacity="0.07"><rect x="1444.98" y="-81.07" width="59.71" height="238.83" rx="29.85"/><rect x="1325.56" y="8.49" width="298.54" height="59.71" rx="29.85"/><rect x="1459.90" y="142.83" width="29.85" height="298.54" rx="14.93"/><rect x="1489.76" y="299.56" width="97.02" height="37.32" rx="18.66"/><rect x="1489.76" y="381.66" width="67.17" height="37.32" rx="18.66"/></g>
 
-  <!-- Decorative ring grid (right quarter) -->
-  <circle cx="990" cy="190" r="250" fill="none" stroke="#162032" stroke-width="1"/>
-  <circle cx="990" cy="190" r="185" fill="none" stroke="#162032" stroke-width="1"/>
-  <circle cx="990" cy="190" r="122" fill="none" stroke="#1e3a5f" stroke-width="0.8"/>
-  <circle cx="990" cy="190" r="62"  fill="none" stroke="#1e3a5f" stroke-width="0.8"/>
-
-  <!-- Cross Key glow aura -->
-  <ellipse cx="192" cy="195" rx="110" ry="140" fill="url(#shieldAura)"/>
-
-  <!-- Cross Key Mark — scaled 3.5× from 64×82 source, centered in left panel -->
-  <!-- 64*3.5=224 wide, 82*3.5=287 tall. x offset=(384-224)/2=80, y offset=(380-287)/2=46 -->
-  <g transform="translate(80, 46) scale(3.5)" filter="url(#shieldGlow)">
-    <rect x="28" y="2" width="8" height="32" rx="4" fill="#E8B847"/>
-    <rect x="12" y="14" width="40" height="8" rx="4" fill="#E8B847"/>
-    <rect x="30" y="32" width="4" height="40" rx="2" fill="#E8B847"/>
-    <rect x="34" y="53" width="13" height="5" rx="2.5" fill="#E8B847"/>
-    <rect x="34" y="64" width="9" height="5" rx="2.5" fill="#E8B847"/>
+  <!-- faint column grid, the only texture -->
+  <g stroke="#FAF7F2" stroke-opacity="0.04" stroke-width="1">
+    <line x1="96" y1="0" x2="96" y2="420"/>
+    <line x1="224" y1="0" x2="224" y2="420"/>
+    <line x1="352" y1="0" x2="352" y2="420"/>
+    <line x1="480" y1="0" x2="480" y2="420"/>
+    <line x1="608" y1="0" x2="608" y2="420"/>
+    <line x1="736" y1="0" x2="736" y2="420"/>
+    <line x1="864" y1="0" x2="864" y2="420"/>
+    <line x1="992" y1="0" x2="992" y2="420"/>
+    <line x1="1120" y1="0" x2="1120" y2="420"/>
+    <line x1="1248" y1="0" x2="1248" y2="420"/>
+    <line x1="1376" y1="0" x2="1376" y2="420"/>
   </g>
 
-  <!-- Vertical divider -->
-  <line x1="370" y1="55" x2="370" y2="325" stroke="#162032" stroke-width="1"/>
+  <rect x="96" y="112" width="5" height="180" rx="2.5" fill="url(#spine)"/>
+  <g fill="#E8B847" fill-opacity="1"><rect x="156.00" y="120.00" width="8.00" height="32.00" rx="4.00"/><rect x="140.00" y="132.00" width="40.00" height="8.00" rx="4.00"/><rect x="158.00" y="150.00" width="4.00" height="40.00" rx="2.00"/><rect x="162.00" y="171.00" width="13.00" height="5.00" rx="2.50"/><rect x="162.00" y="182.00" width="9.00" height="5.00" rx="2.50"/></g>
 
-  <!-- Wordmark -->
-  <text x="408" y="156" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="88" font-weight="800" fill="#f8fafc" letter-spacing="-3" opacity="0.96">STEWARD</text>
+  <text x="200" y="152" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif" font-size="19" font-weight="600" letter-spacing="0.34em" fill="#E8B847">STEWARD</text>
+  <text x="200" y="234" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif" font-size="74" font-weight="600" letter-spacing="-0.022em" fill="#FAF7F2">Congregation</text>
+  <text x="200" y="282" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif" font-size="25" font-weight="400" fill="#8C9AAB">Church management your congregation owns — people, giving, worship, reporting.</text>
 
-  <!-- Dot row separator -->
-  <circle cx="410" cy="182" r="3.5" fill="#E8B847"/>
-  <circle cx="424" cy="182" r="3.5" fill="#E8B847"/>
-  <circle cx="438" cy="182" r="3.5" fill="#E8B847"/>
-
-  <!-- Subtitle -->
-  <text x="410" y="216" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="300" fill="#94a3b8" letter-spacing="7">CHURCH MANAGEMENT SYSTEM</text>
-
-  <!-- Meta line -->
-  <text x="410" y="252" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="400" fill="#334155" letter-spacing="1">Open source  ·  TypeScript  ·  React 18  ·  PostgreSQL 16</text>
-
-  <!-- Feature label chips — text only, no emoji -->
-  <!-- Row 1 -->
-  <rect x="410" y="274" width="116" height="26" rx="13" fill="#0f1f3d" stroke="#2563eb" stroke-width="1"/>
-  <text x="468" y="291" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#93c5fd" letter-spacing="0.3">People &amp; Families</text>
-
-  <rect x="536" y="274" width="88" height="26" rx="13" fill="#0f1f0f" stroke="#22c55e" stroke-width="1"/>
-  <text x="580" y="291" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#86efac" letter-spacing="0.3">Events</text>
-
-  <rect x="634" y="274" width="76" height="26" rx="13" fill="#0c1f14" stroke="#10b981" stroke-width="1"/>
-  <text x="672" y="291" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#6ee7b7" letter-spacing="0.3">Giving</text>
-
-  <rect x="720" y="274" width="84" height="26" rx="13" fill="#130f2a" stroke="#a78bfa" stroke-width="1"/>
-  <text x="762" y="291" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#c4b5fd" letter-spacing="0.3">Worship</text>
-
-  <rect x="814" y="274" width="90" height="26" rx="13" fill="#1c0f05" stroke="#f97316" stroke-width="1"/>
-  <text x="859" y="291" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#fdba74" letter-spacing="0.3">Messages</text>
-
-  <!-- Row 2 -->
-  <rect x="410" y="310" width="110" height="26" rx="13" fill="#1a0f2e" stroke="#8b5cf6" stroke-width="1"/>
-  <text x="465" y="327" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#c4b5fd" letter-spacing="0.3">Kids Check-In</text>
-
-  <rect x="530" y="310" width="102" height="26" rx="13" fill="#0a1520" stroke="#06b6d4" stroke-width="1"/>
-  <text x="581" y="327" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#67e8f9" letter-spacing="0.3">Reports</text>
-
-  <rect x="642" y="310" width="104" height="26" rx="13" fill="#1a0a12" stroke="#ec4899" stroke-width="1"/>
-  <text x="694" y="327" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#f9a8d4" letter-spacing="0.3">Sales</text>
-
-  <rect x="756" y="310" width="106" height="26" rx="13" fill="#0d160a" stroke="#f59e0b" stroke-width="1"/>
-  <text x="809" y="327" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#fcd34d" letter-spacing="0.3">Scheduling</text>
-
-  <!-- ── Right panel: 5 module mini-cards with drawn icons ── -->
-  <!-- Card grid: 2 top + 1 center + 2 bottom -->
-  <g transform="translate(938, 60)">
-
-    <!-- Card: Members -->
-    <rect width="102" height="72" rx="8" fill="#0d1528" stroke="#1e3a5f" stroke-width="1"/>
-    <rect width="102" height="3" rx="1.5" fill="#3b82f6" opacity="0.8"/>
-    <!-- users icon 22×22 at (14, 14) -->
-    <g transform="translate(14,14)" stroke="#3b82f6" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <path d="M14 18v-1.5a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3V18"/>
-      <circle cx="8" cy="6" r="3"/>
-      <path d="M19 18v-1.5a3 3 0 0 0-2.25-2.9"/>
-      <path d="M14 2.9a3 3 0 0 1 0 5.82"/>
-    </g>
-    <text x="51" y="53" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#93c5fd">Members</text>
-    <text x="51" y="65" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="8" fill="#334155">CRM · Households</text>
-
-    <!-- Card: Giving -->
-    <rect x="112" width="102" height="72" rx="8" fill="#091e12" stroke="#14532d" stroke-width="1"/>
-    <rect x="112" y="0" width="102" height="3" rx="1.5" fill="#10b981" opacity="0.8"/>
-    <!-- dollar-circle icon -->
-    <g transform="translate(126,14)" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <circle cx="10" cy="10" r="9"/>
-      <path d="M10 5v10"/>
-      <path d="M12.5 7.8A4.17 4.17 0 0 0 7.5 8.3c0 1.25.5 2.5 1.67 3.33L11.5 13c1.17.83 1.67 2.08 1.67 3.33a4.17 4.17 0 0 1-5 .5"/>
-    </g>
-    <text x="163" y="53" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#6ee7b7">Giving</text>
-    <text x="163" y="65" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="8" fill="#334155">Stripe · Pledges</text>
-
-    <!-- Card: Events (center, highlighted) -->
-    <rect x="56" y="82" width="102" height="72" rx="8" fill="#0a1228" stroke="#2563eb" stroke-width="1.5"/>
-    <rect x="56" y="82" width="102" height="3" rx="1.5" fill="#2563eb"/>
-    <!-- calendar icon -->
-    <g transform="translate(70,96)" stroke="#60a5fa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <rect x="1" y="2" width="18" height="18" rx="2"/>
-      <line x1="13" y1="0" x2="13" y2="4"/>
-      <line x1="6" y1="0" x2="6" y2="4"/>
-      <line x1="1" y1="8" x2="19" y2="8"/>
-      <circle cx="6" cy="13" r="0.8" fill="#60a5fa"/>
-      <circle cx="10" cy="13" r="0.8" fill="#60a5fa"/>
-      <circle cx="14" cy="13" r="0.8" fill="#60a5fa"/>
-    </g>
-    <text x="107" y="137" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#93c5fd">Events</text>
-    <text x="107" y="149" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="8" fill="#334155">Check-In · Kiosk</text>
-
-    <!-- Card: Reports -->
-    <rect y="164" width="102" height="72" rx="8" fill="#060f1a" stroke="#1e293b" stroke-width="1"/>
-    <rect y="164" width="102" height="3" rx="1.5" fill="#06b6d4" opacity="0.8"/>
-    <!-- bar chart icon -->
-    <g transform="translate(14,178)" stroke="#06b6d4" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <path d="M1 1v18h18"/>
-      <path d="M5 14V10"/>
-      <path d="M9 14V6"/>
-      <path d="M13 14V3"/>
-      <path d="M17 14V8"/>
-    </g>
-    <text x="51" y="218" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#67e8f9">Reports</text>
-    <text x="51" y="230" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="8" fill="#334155">PDF · CSV</text>
-
-    <!-- Card: Worship -->
-    <rect x="112" y="164" width="102" height="72" rx="8" fill="#0d0a1e" stroke="#1e1b4b" stroke-width="1"/>
-    <rect x="112" y="164" width="102" height="3" rx="1.5" fill="#a78bfa" opacity="0.8"/>
-    <!-- music icon -->
-    <g transform="translate(126,178)" stroke="#a78bfa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <path d="M8 16V4l10-1.7v12"/>
-      <circle cx="5" cy="16" r="3"/>
-      <circle cx="15" cy="14.3" r="3"/>
-    </g>
-    <text x="163" y="218" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="10" font-weight="600" fill="#c4b5fd">Worship</text>
-    <text x="163" y="230" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="8" fill="#334155">Songs · Plans</text>
-
-    <!-- Subtle connector lines between cards -->
-    <line x1="102" y1="36" x2="112" y2="36" stroke="#1e293b" stroke-width="0.8"/>
-    <line x1="102" y1="36" x2="107" y2="82" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2,2"/>
-    <line x1="214" y1="36" x2="214" y2="82" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2,2"/>
-    <line x1="51" y1="154" x2="51" y2="164" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2,2"/>
-    <line x1="163" y1="154" x2="163" y2="164" stroke="#1e293b" stroke-width="0.8" stroke-dasharray="2,2"/>
-  </g>
-
-  <!-- Bottom accent bar -->
-  <rect y="374" width="1200" height="6" fill="#2563eb" opacity="0.75" rx="0"/>
-  <!-- Fade the ends of the accent bar -->
-  <rect y="374" width="240" height="6" fill="url(#bgGrad)" opacity="0.7"/>
-  <rect x="960" y="374" width="240" height="6" fill="url(#bgGrad)" opacity="0.7"/>
+  <line x1="96" y1="340" x2="1504" y2="340" stroke="url(#rule)" stroke-width="1.5"/>
+  <text x="96" y="376" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif" font-size="17" font-weight="500" letter-spacing="0.07em" fill="#8C9AAB">Self-hosted   ·   MIT   ·   PostgreSQL   ·   Docker</text>
+  <circle cx="1498" cy="370" r="6" fill="#2563EB"/>
 </svg>
