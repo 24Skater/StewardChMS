@@ -9,6 +9,7 @@ import { resolveOrg } from './middleware/org.js'
 import internalRouter from './routes/internal.js'
 import healthRouter from './routes/health.js'
 import authRouter from './routes/auth.js'
+import ssoRouter from './routes/sso.js'
 import membersRouter from './routes/members.js'
 import householdsRouter from './routes/households.js'
 import eventsRouter from './routes/events.js'
@@ -92,6 +93,9 @@ app.use('/api/internal', internalRouter)
 // Everything below here belongs to exactly one church, decided by the hostname.
 app.use(resolveOrg)
 app.use('/api/auth', authRouter)
+// Single sign-on, when this deployment has an identity provider. Mounted under
+// /api/auth/sso, below resolveOrg, because signing in is always into a church.
+app.use('/api/auth/sso', ssoRouter)
 app.use('/api/members', membersRouter)
 app.use('/api/households', householdsRouter)
 // Phase 3: Events + Worship

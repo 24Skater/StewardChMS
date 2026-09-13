@@ -186,6 +186,28 @@ export async function getMe(): Promise<UserSummary> {
   return apiRequest<UserSummary>('/auth/me')
 }
 
+/**
+ * Which ways in this deployment actually offers.
+ *
+ * Read before the sign-in page renders, so the page shows what is there rather
+ * than a button that leads nowhere. Unauthenticated on purpose: it is the page
+ * you read before you have a session.
+ */
+export interface AuthMethods {
+  password: boolean
+  sso: boolean
+  ssoLabel: string
+}
+
+export async function getAuthMethods(): Promise<AuthMethods> {
+  return apiRequest<AuthMethods>('/auth/methods')
+}
+
+/** Where the browser goes to begin single sign-on. A full page load, not fetch. */
+export function ssoStartUrl(): string {
+  return `${API_BASE_URL}/auth/sso/start`
+}
+
 export async function forgotPassword(email: string): Promise<{ message: string }> {
   return apiRequest('/auth/forgot-password', { method: 'POST', body: { email } })
 }
