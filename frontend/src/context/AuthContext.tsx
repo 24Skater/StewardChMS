@@ -6,7 +6,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react'
-import { User, getToken, removeToken, setToken as saveToken, getMe, ApiClientError } from '@/lib/api'
+import { User, removeToken, setToken as saveToken, getMe, ApiClientError } from '@/lib/api'
 
 interface AuthContextType {
   user: User | null
@@ -29,14 +29,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   const checkAuth = useCallback(async () => {
-    const token = getToken()
-    
-    if (!token) {
-      setUser(null)
-      setIsLoading(false)
-      return
-    }
-
+    // Deliberately no early return when localStorage holds no token. A single
+    // sign-on session is an httpOnly cookie and nothing else - JavaScript
+    // cannot see it, which is the point - so the only way to find out whether
+    // there is one is to ask. An anonymous visitor pays one 401 for this.
     try {
       const userData = await getMe()
       setUser({
@@ -48,7 +44,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 401) {
-        // Token is invalid or expired
+        // No session, or one that has expired. Clearing a token that was
+        // already absent is harmless.
         removeToken()
       }
       setUser(null)

@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/hooks/useTheme'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { getAuthMethods, ssoStartUrl, type AuthMethods } from '@/lib/api'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -16,12 +17,55 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>
 
+/**
+ * What went wrong on the way back from the identity provider.
+ *
+ * The backend redirects here with one of these rather than rendering its own
+ * page, so there is one sign-in screen and every other way in is still on it.
+ */
+const SSO_ERRORS: Record<string, string> = {
+  sso_unavailable: 'Single sign-on is unavailable right now. Sign in with your password below.',
+  sso_expired: 'That sign-in took too long. Try again.',
+  sso_unverified:
+    'That address is not verified with the identity provider yet. Verify it there, or sign in with your password below.',
+  sso_no_account:
+    'We could not sign you in. If you are new to this church, ask an administrator to add you.',
+  sso_failed: 'Single sign-on did not complete. Sign in with your password below.',
+}
+
+/**
+ * Until the answer arrives, assume password sign-in and no SSO.
+ *
+ * The optimistic half is the one that matters: a slow or failed call to
+ * /auth/methods must never leave somebody staring at a page with no way in.
+ */
+const ASSUMED_METHODS: AuthMethods = { password: true, sso: false, ssoLabel: '' }
+
 function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated } = useAuth()
   const { resolvedTheme } = useTheme()
   const loginMutation = useLogin()
+  const [searchParams] = useSearchParams()
+  const [methods, setMethods] = useState<AuthMethods>(ASSUMED_METHODS)
+
+  const ssoError = SSO_ERRORS[searchParams.get('error') ?? '']
+
+  useEffect(() => {
+    let cancelled = false
+    getAuthMethods()
+      .then((result) => {
+        if (!cancelled) setMethods(result)
+      })
+      .catch(() => {
+        // Leave the assumption in place. Password sign-in is the one that
+        // works without this server answering anything.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
 
@@ -85,7 +129,37 @@ function LoginPage() {
             <p className="mt-1 text-sm text-[var(--st-muted)]">Sign in to your account</p>
           </div>
 
+          {/* What came back from the identity provider, if anything did */}
+          {ssoError && (
+            <div className="mb-6 rounded-lg border border-[var(--st-danger)]/50 bg-[var(--st-danger)]/10 p-4">
+              <p className="text-sm text-[var(--st-danger)]">{ssoError}</p>
+            </div>
+          )}
+
+          {/*
+            Single sign-on above the form, because it is the recommendation —
+            but on the same screen as the password, not behind a disclosure.
+            The password is what still works when the identity provider does
+            not, which is exactly when somebody will be hunting for it.
+          */}
+          {methods.sso && (
+            <div className="mb-6 rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-6 backdrop-blur-sm">
+              <a
+                href={ssoStartUrl()}
+                className="block w-full rounded-lg bg-[var(--st-primary)] py-2.5 text-center font-medium text-[var(--st-primaryFg)] hover:bg-[var(--st-primary-hover)]"
+              >
+                {methods.ssoLabel}
+              </a>
+              {methods.password && (
+                <p className="mt-3 text-center text-xs text-[var(--st-muted)]">
+                  Or sign in to this church with your password below.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Login Form */}
+          {methods.password && (
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="rounded-xl border border-[var(--st-border)] bg-[var(--st-surface)]/50 p-8 backdrop-blur-sm"
@@ -155,6 +229,7 @@ function LoginPage() {
               {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
+          )}
 
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-[var(--st-muted)]">

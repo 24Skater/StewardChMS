@@ -8,6 +8,7 @@ import { loginRateLimiter } from '../middleware/rateLimiter.js'
 import { validatePassword } from '../lib/security.js'
 import { createAuditLog } from '../lib/audit.js'
 import { EmailStubProvider } from '../providers/messaging/email-stub.js'
+import { isLocalPasswordLoginAllowed, isSsoConfigured, ssoButtonLabel } from '../lib/sso.js'
 
 const emailProvider = new EmailStubProvider()
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000 // 1 hour
@@ -31,10 +32,35 @@ const changePasswordSchema = z.object({
 })
 
 // ============================================
+// GET /api/auth/methods
+// ============================================
+//
+// What this deployment offers, so the sign-in page renders what is actually
+// there rather than a button that leads nowhere. Public and unauthenticated:
+// it is the page you read before you have a session, and it says nothing an
+// anonymous visitor could not learn by pressing the buttons.
+router.get('/methods', (_req: Request, res: Response) => {
+  res.json({
+    password: isLocalPasswordLoginAllowed(),
+    sso: isSsoConfigured(),
+    ssoLabel: ssoButtonLabel(),
+  })
+})
+
+// ============================================
 // POST /api/auth/login
 // ============================================
 router.post('/login', loginRateLimiter, async (req: Request, res: Response) => {
   try {
+    // Email and password, unless somebody deliberately turned it off. The
+    // check lives here rather than at the route definition so the answer
+    // follows the environment on a restart, and so `passwordHash` is never
+    // read for a church that has moved on from passwords.
+    if (!isLocalPasswordLoginAllowed()) {
+      res.status(403).json({ error: 'Password sign-in is disabled. Use single sign-on.' })
+      return
+    }
+
     // Validate request body
     const parseResult = loginRequestSchema.safeParse(req.body)
     if (!parseResult.success) {

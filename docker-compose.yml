@@ -46,6 +46,16 @@ services:
       # with this file could not be provisioned at all.
       PLATFORM_ROOT_DOMAIN: ${PLATFORM_ROOT_DOMAIN:-}
       PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-}
+      # Single sign-on. Unset is the supported default: the SSO routes answer
+      # 404 and the password form is the only way in, exactly as before. The
+      # same omission that made a Docker-deployed Congregation unprovisionable
+      # would otherwise make one unable to offer SSO no matter what the
+      # environment file said.
+      AUTH0_ISSUER: ${AUTH0_ISSUER:-}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET:-}
+      AUTH0_BUTTON_LABEL: ${AUTH0_BUTTON_LABEL:-}
+      ALLOW_LOCAL_PASSWORD_LOGIN: ${ALLOW_LOCAL_PASSWORD_LOGIN:-}
     ports:
       - "3001:3001"
     healthcheck:
