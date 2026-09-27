@@ -235,9 +235,14 @@ describe('Public Schedule API', () => {
     })
 
     it.skipIf(!isDbAvailable)('only returns slots within the next 30 days — slots beyond 30 days are excluded', async () => {
-      // Create a slot dated 35 days from now (outside the 30-day window)
-      const beyondDate = new Date(now)
-      beyondDate.setDate(beyondDate.getDate() + 35)
+      // Outside the 30-day window, and in a different month from `futureDate`.
+      //
+      // "35 days from now" was the obvious choice and the same trap as the past
+      // date above: late in a month, now+7 and now+35 land in the same month,
+      // the second period for it conflicts, and this failed on those days only.
+      // The 15th of the second month after `futureDate`'s is always 70+ days
+      // out and never shares a month with it.
+      const beyondDate = new Date(futureDate.getFullYear(), futureDate.getMonth() + 2, 15, 12, 0, 0)
 
       const beyondPeriodRes = await request(app)
         .post(`/api/ministry-calendars/${testCalendarId}/periods`)
