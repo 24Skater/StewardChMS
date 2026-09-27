@@ -214,9 +214,43 @@ router.post('/step1', async (req: Request, res: Response) => {
       })
     )
 
+    // Everything from here belongs to the church, including the settings and
+    // the audit entry. On the self-hosted path the request arrived with no
+    // organization, so leaving this scope early means a tenancy error halfway
+    // through — after the admin exists, so the wizard reports a failure it can
+    // never be retried past.
     const userRoles = await runInOrg(org, async () => {
       await prisma.membership.create({ data: { orgId: requireOrgId(), userId: user.id, isOwner: true } })
       await prisma.userRole.create({ data: { orgId: requireOrgId(), userId: user.id, roleId: adminRole.id } })
+
+      // Ensure seed account is disabled (if it exists)
+      await prisma.user.updateMany({
+        where: { isSeedAccount: true },
+        data: { isActive: false },
+      })
+
+      // Generate JWT secret and store it
+      const jwtSecret = generateSecureToken(64)
+      await prisma.setting.upsert({
+        where: { org_category_key: { orgId: org.orgId, category: 'security', key: 'jwt_secret' } },
+        update: { value: jwtSecret, updatedBy: user.id },
+        create: { orgId: requireOrgId(), category: 'security', key: 'jwt_secret', value: jwtSecret, updatedBy: user.id },
+      })
+
+      // Mark step 1 complete
+      await prisma.setting.upsert({
+        where: { org_category_key: { orgId: org.orgId, category: 'setup', key: 'step1_complete' } },
+        update: { value: true, updatedBy: user.id },
+        create: { orgId: requireOrgId(), category: 'setup', key: 'step1_complete', value: true, updatedBy: user.id },
+      })
+
+      await createAuditLog({
+        actorUserId: user.id,
+        action: 'SETUP_STEP1_COMPLETE',
+        entityType: 'User',
+        entityId: user.id,
+        metadata: { email },
+      })
 
       return prisma.userRole.findMany({
         where: { userId: user.id },
@@ -232,27 +266,6 @@ router.post('/step1', async (req: Request, res: Response) => {
           },
         },
       })
-    })
-
-    // Ensure seed account is disabled (if it exists)
-    await prisma.user.updateMany({
-      where: { isSeedAccount: true },
-      data: { isActive: false },
-    })
-
-    // Generate JWT secret and store it
-    const jwtSecret = generateSecureToken(64)
-    await prisma.setting.upsert({
-      where: { org_category_key: { orgId: org.orgId, category: 'security', key: 'jwt_secret' } },
-      update: { value: jwtSecret, updatedBy: user.id },
-      create: { orgId: requireOrgId(), category: 'security', key: 'jwt_secret', value: jwtSecret, updatedBy: user.id },
-    })
-
-    // Mark step 1 complete
-    await prisma.setting.upsert({
-      where: { org_category_key: { orgId: org.orgId, category: 'setup', key: 'step1_complete' } },
-      update: { value: true, updatedBy: user.id },
-      create: { orgId: requireOrgId(), category: 'setup', key: 'step1_complete', value: true, updatedBy: user.id },
     })
 
     // Generate token for the new user
@@ -273,15 +286,6 @@ router.post('/step1', async (req: Request, res: Response) => {
 
     // Set cookie
     res.cookie(COOKIE_NAME, accessToken, COOKIE_OPTIONS)
-
-    // Log setup
-    await createAuditLog({
-      actorUserId: user.id,
-      action: 'SETUP_STEP1_COMPLETE',
-      entityType: 'User',
-      entityId: user.id,
-      metadata: { email },
-    })
 
     res.json({
       success: true,
